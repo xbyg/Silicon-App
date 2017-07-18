@@ -41,6 +41,16 @@
             </com.xbyg_plus.silicon.view.IconTextView>
 
             <ImageView
+                android:id="@+id/edit"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_toLeftOf="@+id/logout"
+                android:layout_marginRight="10dp"
+                android:layout_centerVertical="true"
+                app:srcCompat="@drawable/edit"
+                />
+
+            <ImageView
                 android:id="@+id/logout"
                 android:layout_width="24dp"
                 android:layout_height="24dp"

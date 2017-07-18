@@ -4,7 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 import com.xbyg_plus.silicon.LoginActivity;
 import com.xbyg_plus.silicon.callback.LogoutCallback;
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.ChangePasswordDialog;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -32,6 +36,7 @@ public class UserFragment extends Fragment{
     @BindView(R.id.download_cardview) CardView downloads;
     @BindView(R.id.settings_cardview) CardView settings;
     @BindView(R.id.about_cardview) CardView about;
+    @BindView(R.id.edit) ImageView edit;
     @BindView(R.id.logout) ImageView logout;
 
     @Override
@@ -50,6 +55,21 @@ public class UserFragment extends Fragment{
         downloads.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,downloadsFragment).commit();});
         settings.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,settingsFragment).commit();});
         about.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,aboutFragment).commit();});
+
+        edit.setOnClickListener(v->{
+            PopupMenu popupMenu = new PopupMenu(getContext(), edit);
+            popupMenu.inflate(R.menu.user_edit);
+            popupMenu.setOnMenuItemClickListener( item -> {
+                if(item.getItemId() == R.id.change_pwd) {
+                    new ChangePasswordDialog(getContext());
+                }
+                return true;
+            });
+
+            MenuPopupHelper menuHelper = new MenuPopupHelper(getContext(), (MenuBuilder) popupMenu.getMenu(), edit);
+            menuHelper.setForceShowIcon(true);
+            menuHelper.show();
+        });
 
         logout.setOnClickListener(v->{
             SchoolAccountHelper.getInstance().logout(new LogoutCallback(){

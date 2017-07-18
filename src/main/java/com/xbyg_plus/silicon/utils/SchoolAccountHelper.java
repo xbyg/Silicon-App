@@ -177,14 +177,19 @@ public class SchoolAccountHelper {
     }
 
     public void changePassword(final String newPwd, final ChangePasswordCallback callback){
-        if(newPwd.matches("\\W")){
+        if(newPwd.matches("\\W") || newPwd.equals("")) {
             callback.onFailed(ChangePasswordCallback.FAILED_ILLEGAL_PWD);
             return;
         }
+        if(newPwd.equals(schoolAccount.getPassword())) {
+            callback.onFailed(ChangePasswordCallback.FAILED_SAME_PWD);
+            return;
+        }
+
         HashMap<String,String> map = new HashMap<>();
-        map.put("oldpassword",schoolAccount.getPassword());
-        map.put("newpassword",newPwd);
-        map.put("confirmnewpassword",newPwd);
+        map.put("oldpassword", schoolAccount.getPassword());
+        map.put("newpassword", newPwd);
+        map.put("confirmnewpassword", newPwd);
         OKHTTPClient.post("http://58.177.253.171/it-school/php/chpwd/index.php3", map, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {

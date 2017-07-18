@@ -30,7 +30,9 @@ public class AboutFragment extends Fragment{
         iconMap.put(R.drawable.view,"Cole Bemis");
         iconMap.put(R.drawable.folder,"Madebyoliver");
         iconMap.put(R.drawable.file,"Madebyoliver");
+        iconMap.put(R.drawable.edit,"Gregor Cresnar");
         iconMap.put(R.drawable.logout,"Gregor Cresnar");
+        iconMap.put(R.drawable.key,"Freepik");
         iconMap.put(R.drawable.download2,"Madebyoliver");
         iconMap.put(R.drawable.delete2,"Freepik");
         iconMap.put(R.drawable.cancel,"Madebyoliver");

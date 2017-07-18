@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/_5sdp"
+    android:paddingLeft="@dimen/_20sdp"
+    android:paddingRight="@dimen/_20sdp"
+    android:paddingTop="@dimen/_20sdp">
+
+    <TextView
+        android:id="@+id/old_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/old_pwd"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/new_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/old_pwd"
+        android:layout_marginTop="8dp"
+        android:hint="@string/new_pwd"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/new_pwd_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/new_pwd"
+        android:layout_marginTop="8dp"
+        android:hint="@string/new_pwd_confirm"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/submit"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/new_pwd_confirm"
+        android:layout_marginTop="6dp"
+        android:text="@string/submit" />
+</RelativeLayout>

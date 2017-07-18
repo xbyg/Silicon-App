@@ -17,7 +17,7 @@
     <string name="past_papers">舊卷</string>
     <string name="user">用戶</string>
     <string name="storage">存取</string>
-    <string name="saving_path">文檔保存路徑</string>
+    <string name="saving_path">保存路徑</string>
     <string name="clear_caches">清除緩存</string>
     <string name="encryption">加密</string>
     <string name="loading_md5.js">正在加載md5.js</string>
@@ -41,4 +41,14 @@
     <string name="done">完成!</string>
     <string name="delete_files_confirm">刪除下列文件?</string>
     <string name="download_files_confirm">下載下列文件?</string>
+    <string name="change_pwd">更改密碼</string>
+    <string name="new_pwd">新密碼</string>
+    <string name="new_pwd_confirm">確認新密碼</string>
+    <string name="submit">提交</string>
+    <string name="old_pwd">舊密碼</string>
+    <string name="change_pwd_illegal_pwd">密碼只能包含0-9,a-z,A-Z和_</string>
+    <string name="change_pwd_same_pwd">舊密碼與新密碼相同</string>
+    <string name="change_pwd_io_exception">無法連接學校服務器</string>
+    <string name="change_pwd_succeed">成功更改密碼!</string>
+    <string name="change_pwd_confirm_failed">新密碼確認失敗</string>
 </resources>
