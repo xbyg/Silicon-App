@@ -17,7 +17,7 @@
     <string name="past_papers">Past papers</string>
     <string name="user">User</string>
     <string name="storage">Storage</string>
-    <string name="save_path">Downloads path</string>
+    <string name="saving_path">Files saving path</string>
     <string name="clear_caches">Clear caches</string>
     <string name="encryption">Encryption</string>
     <string name="loading_md5.js">Loading md5.js</string>

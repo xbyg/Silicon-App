@@ -75,7 +75,7 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo,InfoLoad
         }
         new ConfirmDialog(activity, activity.getString(R.string.download_files_confirm), nameList, confirmation -> {
             if(confirmation){
-                String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savePath","/sdcard")+"/";
+                String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath","/sdcard")+"/";
                 List<Info> resInfoList = new ArrayList(selector.getSelectedItems());
                 for(Info resInfo : resInfoList){
                     new DownloadTask<Info>(activity,savePath).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,resInfo);

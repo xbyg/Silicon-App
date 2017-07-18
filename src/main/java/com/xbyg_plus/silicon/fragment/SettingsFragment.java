@@ -7,7 +7,6 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.callback.DirectorySelectedCallback;
 import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
 
@@ -19,20 +18,16 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         addPreferencesFromResource(R.xml.preferences);
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        Preference savePath = findPreference("savePath");
+        Preference savingPath = findPreference("savingPath");
         Preference caches = findPreference("caches");
 
-        savePath.setSummary(preferences.getString("savePath","/sdcard/"));
+        savingPath.setSummary(preferences.getString("savingPath","/sdcard/"));
         caches.setSummary(CachesDatabase.getCachesSize()+" kb");
 
-        savePath.setOnPreferenceClickListener( (Preference preference) -> {
-            new DirectorySelectorDialog(getContext(),new DirectorySelectedCallback(){
-                @Override
-                public void onDirSelected(String dir) {
-                    savePath.setSummary(dir);
-                    //preference.setDefaultValue(dir); it seems that it can't get the value by calling preferences.getString("downloadsPath","");
-                    preferences.edit().putString("downloadsPath",dir).apply();
-                }
+        savingPath.setOnPreferenceClickListener( (Preference preference) -> {
+            new DirectorySelectorDialog(getContext(), (dir) -> {
+                savingPath.setSummary(dir);
+                preferences.edit().putString("savingPath",dir).apply();
             }).show(new File("/sdcard/"));
             return true;
         });

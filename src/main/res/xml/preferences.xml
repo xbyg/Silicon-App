@@ -3,8 +3,8 @@
     <PreferenceCategory
         android:title="@string/storage">
         <Preference
-            android:key="savePath"
-            android:title="@string/save_path"
+            android:key="savingPath"
+            android:title="@string/saving_path"
             android:summary="/sdcard/"
             android:defaultValue="/sdcard/"
             />

@@ -17,7 +17,7 @@
     <string name="past_papers">舊卷</string>
     <string name="user">用戶</string>
     <string name="storage">存取</string>
-    <string name="save_path">保存路徑</string>
+    <string name="saving_path">文檔保存路徑</string>
     <string name="clear_caches">清除緩存</string>
     <string name="encryption">加密</string>
     <string name="loading_md5.js">正在加載md5.js</string>

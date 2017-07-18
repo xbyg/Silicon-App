@@ -67,11 +67,7 @@ public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.
         holder.root.getCheckBox().setEnabled(selectedDir == null ? true : selectedDir.equals(dir));
         holder.root.getCheckBox().setChecked(dir.equals(selectedDir)); //Without this,the checkbox disappears,bug?
         holder.root.getCheckBox().setOnClickListener(v->{
-            if(((CheckBox)v).isChecked()){
-                selectedDir = dir;
-            }else{
-                selectedDir = null;
-            }
+            selectedDir = ((CheckBox)v).isChecked() ? dir : null;
             notifyDataSetChanged();//enable or disable other checkboxes
         });
 
