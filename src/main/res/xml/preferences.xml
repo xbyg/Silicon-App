@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/storage">
+        <Preference
+            android:key="savePath"
+            android:title="@string/save_path"
+            android:summary="/sdcard/"
+            android:defaultValue="/sdcard/"
+            />
+        <Preference
+            android:key="caches"
+            android:title="@string/clear_caches"
+            android:summary="0kb"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

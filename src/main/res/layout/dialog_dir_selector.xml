@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <com.xbyg_plus.silicon.view.IconTextView
+        android:id="@+id/back"
+        android:layout_margin="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        >
+        <ImageView
+            android:src="@drawable/back"
+            android:layout_width="28dp"
+            android:layout_height="28dp" />
+        <TextView
+            android:id="@+id/parentDirName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Parent folder"
+            android:textSize="20sp"
+            />
+    </com.xbyg_plus.silicon.view.IconTextView>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/dir_recycler_view"
+        android:layout_below="@id/back"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v7.widget.RecyclerView>
+
+    <Button
+        android:id="@+id/select"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginRight="6dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/select"
+        />
+</RelativeLayout>

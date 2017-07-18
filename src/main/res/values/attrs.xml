@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ItemBaseView">
+        <attr name="iconSrc" format="reference"></attr>
+        <attr name="iconSize" format="dimension"></attr>
+        <attr name="actionSrc" format="reference"></attr>
+        <attr name="actionSize" format="dimension"></attr>
+        <attr name="showDescription" format="boolean"></attr>
+        <attr name="showCheckBox" format="boolean"></attr>
+        <attr name="showAction" format="boolean"></attr>
+    </declare-styleable>
+
+    <declare-styleable name="IconTextView">
+        <attr name="center" format="boolean"></attr>
+        <attr name="icon_margin_text" format="dimension"></attr>
+    </declare-styleable>
+</resources>
