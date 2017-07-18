@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
@@ -18,8 +17,7 @@ import com.xbyg_plus.silicon.view.NoticeItemView;
 import java.util.List;
 
 public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo,WebNoticesInfoLoader>{
-    private int pagesCount = 0;
-    private int effective = 0;
+    private int effective = 0; //0: show all,1: show effective
 
     /**
     * For reducing the use of bandwidth,resolve the address of notice when the user click the notice item or the notice is being downloaded.
@@ -89,14 +87,17 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo,WebNotic
         });
     }
 
+    public int getPagesLoaded() {
+        return this.resourcesList.size()/30; //one page has 30 pieces of notices
+    }
+
     public void loadMoreNotices(){
         WebNoticesInfoLoader.RequestParams params = new WebNoticesInfoLoader.RequestParams();
-        params.page = pagesCount+1;
+        params.page = getPagesLoaded()+1;
         params.effective = effective;
         this.infoLoader.request(params,new WebResourcesInfoLoader.LoadCallback(){
             @Override
             public void onLoaded(WebResourcesInfoLoader.RequestParameters params, List parsedList) {
-                pagesCount++;
                 resourcesList.addAll(parsedList);
                 updateView();
             }
@@ -111,17 +112,13 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo,WebNotic
 
     @Override
     protected void showDownloadConfirm() {
-        Logger.d("testing2");
-        for(WebNoticeInfo noticeInfo : selector.getSelectedItems()){
-            Logger.d("1");
-            if(noticeInfo.getDownloadAddress() == null){
-                Logger.d("2");
+        for(WebNoticeInfo noticeInfo : selector.getSelectedItems()) {
+            if(noticeInfo.getDownloadAddress() == null) {
                 noticeAddressCount++;
                 infoLoader.resolveDownloadAddress(noticeInfo,new WebNoticesInfoLoader.WebNoticeAddressResolvedCallback(){
                     @Override
                     public void onNoticeAddressResolved() {
                         if(noticeAddressCount == selector.getSelectedItems().size()){
-                            Logger.d("testing3");
                             noticeAddressCount = 0;
                             activity.runOnUiThread(() -> NoticeRVAdapter.super.showDownloadConfirm());
                         }
@@ -132,7 +129,6 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo,WebNotic
 
         //if no notice is required to resolve its address then show the download confirm directly
         if(noticeAddressCount == 0){
-            Logger.d("testing4");
             super.showDownloadConfirm();
         }
     }

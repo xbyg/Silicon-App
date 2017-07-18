@@ -41,17 +41,6 @@ public class CachesDatabase {
 
         Type type2 = new TypeToken<List<WebNoticeInfo>>(){}.getType();
         noticeList = sharedPreferences.contains("noticeList") ? gson.fromJson(sharedPreferences.getString("noticeList",""),type2) : new ArrayList<>();
-        /*if(sharedPreferences.contains("pastPaperFolders")){
-            pastPaperFolders = gson.fromJson(sharedPreferences.getString("pastPaperFolders",""),new TypeToken<HashMap<String,List<WebResourceInfo>>>(){}.getType());
-        }else {
-            pastPaperFolders = new HashMap<>();
-        }*/
-
-       /* if(sharedPreferences.contains("noticeList")){
-            noticeList = gson.fromJson(sharedPreferences.getString("noticeList",""),new TypeToken<List<WebNoticeInfo>>(){}.getType());
-        }else{
-            noticeList = new ArrayList<>();
-        }*/
     }
 
     public static void removeAll() {

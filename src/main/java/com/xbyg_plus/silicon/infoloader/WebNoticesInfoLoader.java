@@ -2,11 +2,9 @@ package com.xbyg_plus.silicon.infoloader;
 
 import android.app.Activity;
 
-import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.adapter.NoticeRVAdapter;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
-import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 
 import org.jsoup.Jsoup;
@@ -112,9 +110,7 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo>{
             }
 
             @Override
-            public void onFailure(Call call, IOException e) {
-                Logger.d("3");
-            }
+            public void onFailure(Call call, IOException e) {}
         });
     }
 }

@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 
-import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
@@ -43,7 +42,6 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo,InfoLoad
             @Override
             public void onActionItemClicked(int itemID) {
                 if(itemID == R.id.action_download){
-                    Logger.d("testing");
                     showDownloadConfirm();
                 }
             }
