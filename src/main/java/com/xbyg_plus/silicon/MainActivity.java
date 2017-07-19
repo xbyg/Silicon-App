@@ -20,7 +20,6 @@ import com.xbyg_plus.silicon.fragment.PastPaperFragment;
 import com.xbyg_plus.silicon.fragment.UserFragment;
 
 public class MainActivity extends AppCompatActivity {
-    //TODO: change password
     // TODO: http://www.mosttss.edu.hk/websys/actsys/
 
     private BottomNavigationView navigation;
@@ -85,9 +84,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if(pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed()){
-            moveTaskToBack(false);
+            moveTaskToBack(true);
         }else if(userFragment.isVisible() || noticeFragment.isVisible()){
-            moveTaskToBack(false);
+            moveTaskToBack(true);
         }else if(userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()){
             manager.beginTransaction().replace(R.id.content,userFragment).commit();
         }

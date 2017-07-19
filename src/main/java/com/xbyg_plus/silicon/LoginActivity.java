@@ -1,12 +1,13 @@
 package com.xbyg_plus.silicon;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -54,7 +55,9 @@ public class LoginActivity extends AppCompatActivity{
         }
 
         loginBtn.setOnClickListener(v->{
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
             loadingDialog.show();
             accountHelper.login(stdID.getText().toString(),pwd.getText().toString(),callback);
         });
@@ -87,7 +90,9 @@ public class LoginActivity extends AppCompatActivity{
                 preferences.edit().putString("id", stdID.getText().toString()).putString("pwd", pwd.getText().toString()).apply();
             }
             finish();
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
 
         public void onRequestLoginFailed(int reason) {
