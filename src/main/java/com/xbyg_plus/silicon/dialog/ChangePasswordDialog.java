@@ -16,16 +16,16 @@ import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 public class ChangePasswordDialog {
     public ChangePasswordDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View root = LayoutInflater.from(context).inflate(R.layout.dialog_change_pwd,null,false);
+        View root = LayoutInflater.from(context).inflate(R.layout.dialog_change_pwd, null, false);
         TextView old_pwd = (TextView) root.findViewById(R.id.old_pwd);
         EditText new_pwd = (EditText) root.findViewById(R.id.new_pwd);
         EditText new_pwd_confirm = (EditText) root.findViewById(R.id.new_pwd_confirm);
         Button submit = (Button) root.findViewById(R.id.submit);
 
         String oldPwd = SchoolAccountHelper.getInstance().getSchoolAccount().getPassword();
-        old_pwd.setText(context.getString(R.string.old_pwd)+ ": " + oldPwd.replaceAll(".{" + oldPwd.length()/2 + "}$", "..."));
-        submit.setOnClickListener(v->{
-            if(new_pwd.getText().toString().equals(new_pwd_confirm.getText().toString())) {
+        old_pwd.setText(context.getString(R.string.old_pwd) + ": " + oldPwd.replaceAll(".{" + oldPwd.length() / 2 + "}$", "..."));
+        submit.setOnClickListener(v -> {
+            if (new_pwd.getText().toString().equals(new_pwd_confirm.getText().toString())) {
                 SchoolAccountHelper.getInstance().changePassword(new_pwd.getText().toString(), new ChangePasswordCallback() {
                     @Override
                     public void onFailed(int reason) {

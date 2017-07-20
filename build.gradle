@@ -13,7 +13,7 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
-        debug{
+        debug {
             debuggable true
         }
         release {

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.xbyg_plus.silicon.view.DownloadedItemView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.xbyg_plus.silicon.view.DownloadedItemView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?selectableItemBackground"
     android:clickable="true"
@@ -8,5 +7,4 @@
     android:layout_height="wrap_content"
     app:iconSize="40dp"
     app:actionSize="20dp"
-    app:actionSrc="@drawable/view">
-</com.xbyg_plus.silicon.view.DownloadedItemView>
+    app:actionSrc="@drawable/view"></com.xbyg_plus.silicon.view.DownloadedItemView>

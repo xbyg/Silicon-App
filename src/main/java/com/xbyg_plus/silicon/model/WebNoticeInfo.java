@@ -1,12 +1,12 @@
 package com.xbyg_plus.silicon.model;
 
-public class WebNoticeInfo extends WebResourceInfo{
+public class WebNoticeInfo extends WebResourceInfo {
     private String id;
     private String startDate;
     private String effectiveDate;
     private String uploader;
 
-    public WebNoticeInfo(String name,String id,String startDate,String effectiveDate,String uploader){
+    public WebNoticeInfo(String name, String id, String startDate, String effectiveDate, String uploader) {
         this.name = name;
         this.id = id;
         this.startDate = startDate;
@@ -30,7 +30,7 @@ public class WebNoticeInfo extends WebResourceInfo{
         return uploader;
     }
 
-    public void setDownloadAddress(String address){
+    public void setDownloadAddress(String address) {
         this.downloadAddress = address;
     }
 }

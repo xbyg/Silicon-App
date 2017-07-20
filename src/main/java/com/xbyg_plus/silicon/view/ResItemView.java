@@ -2,14 +2,13 @@ package com.xbyg_plus.silicon.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 
-public abstract class ResItemView extends ItemBaseView{
-    public ResItemView(Context context, AttributeSet attrs){
+public abstract class ResItemView extends ItemBaseView {
+    public ResItemView(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
     }
 
-    public ResItemView(Context context, AttributeSet attrs, int defStyle){
+    public ResItemView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 }

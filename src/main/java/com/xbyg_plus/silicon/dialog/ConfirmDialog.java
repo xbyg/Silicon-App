@@ -13,10 +13,12 @@ public class ConfirmDialog {
                 .setMessage(msg)
                 .setPositiveButton("YES", (dialog, which) -> {
                     dialog.dismiss();
-                    callback.onConfirmed(true);})
+                    callback.onConfirmed(true);
+                })
                 .setNegativeButton("NO", (dialog, which) -> {
                     dialog.dismiss();
-                    callback.onConfirmed(false);});
+                    callback.onConfirmed(false);
+                });
         builder.create().show();
     }
 }

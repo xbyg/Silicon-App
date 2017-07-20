@@ -19,7 +19,7 @@ import com.xbyg_plus.silicon.view.ResItemView;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class WebResourceRVAdapter<Info extends WebResourceInfo,InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<WebResourceRVAdapter.ViewHolder>{
+public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<WebResourceRVAdapter.ViewHolder> {
     protected Activity activity;
 
     protected ItemSelector<Info> selector;
@@ -35,13 +35,13 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo,InfoLoad
         }
     }
 
-    protected WebResourceRVAdapter(Activity activity){
+    protected WebResourceRVAdapter(Activity activity) {
         this.activity = activity;
-        this.selector = new ItemSelector<>(activity,R.menu.file_download);
-        this.selector.setActionModeListener(new ItemSelector.ActionModeListener(){
+        this.selector = new ItemSelector<>(activity, R.menu.file_download);
+        this.selector.setActionModeListener(new ItemSelector.ActionModeListener() {
             @Override
             public void onActionItemClicked(int itemID) {
-                if(itemID == R.id.action_download){
+                if (itemID == R.id.action_download) {
                     showDownloadConfirm();
                 }
             }
@@ -58,31 +58,35 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo,InfoLoad
         return this.resourcesList;
     }
 
-    public InfoLoader getInfoLoader(){
+    public InfoLoader getInfoLoader() {
         return this.infoLoader;
     }
 
-    public void updateView(){
-        activity.runOnUiThread(()->{notifyDataSetChanged();});
+    public void updateView() {
+        activity.runOnUiThread(() -> {
+            notifyDataSetChanged();
+        });
     }
 
     public abstract void refreshData();
 
-    protected void showDownloadConfirm(){
+    protected void showDownloadConfirm() {
         String nameList = "";
-        for(Info info : selector.getSelectedItems()){
-            nameList += info.getName()+"\n";
+        for (Info info : selector.getSelectedItems()) {
+            nameList += info.getName() + "\n";
         }
         new ConfirmDialog(activity, activity.getString(R.string.download_files_confirm), nameList, confirmation -> {
-            if(confirmation){
-                String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath","/sdcard")+"/";
+            if (confirmation) {
+                String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath", "/sdcard") + "/";
                 List<Info> resInfoList = new ArrayList(selector.getSelectedItems());
-                for(Info resInfo : resInfoList){
-                    new DownloadTask<Info>(activity,savePath).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,resInfo);
+                for (Info resInfo : resInfoList) {
+                    new DownloadTask<Info>(activity, savePath).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, resInfo);
                 }
                 selector.getSelectedItems().clear();
-                Snackbar.make(activity.findViewById(android.R.id.content),activity.getString(R.string.download_task_is_executing), Snackbar.LENGTH_LONG)
-                        .setAction("SEE",v->{ ((MainActivity)activity).showDownloadsFragment(); })
+                Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.download_task_is_executing), Snackbar.LENGTH_LONG)
+                        .setAction("SEE", v -> {
+                            ((MainActivity) activity).showDownloadsFragment();
+                        })
                         .show();
             }
             selector.finish();

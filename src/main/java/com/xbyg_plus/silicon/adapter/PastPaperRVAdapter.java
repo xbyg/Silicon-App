@@ -18,14 +18,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo,WebPastPaperInfoLoader>{
+public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, WebPastPaperInfoLoader> {
     //key: absolute path of folder   value: corresponding folder
     private Map<String, WebPastPaperFolderInfo> folderIndex = new HashMap<>();
     //key: absolute path of folder   value: corresponding contents(child folder and files)
     private Map<String, List<WebResourceInfo>> contentsIndex = new HashMap<>();
     private WebPastPaperFolderInfo currentFolder;
 
-    public PastPaperRVAdapter(Activity activity){
+    public PastPaperRVAdapter(Activity activity) {
         super(activity);
         this.infoLoader = new WebPastPaperInfoLoader(activity);
         this.contentsIndex = CachesDatabase.contentsIndex;
@@ -44,29 +44,29 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo,Web
         PastPaperItemView item = (PastPaperItemView) holder.item;
 
         item.getTitle().setText(resInfo.getName());
-        if(resInfo instanceof WebPastPaperFolderInfo){
+        if (resInfo instanceof WebPastPaperFolderInfo) {
             item.getIcon().setImageResource(R.drawable.folder);
             item.getCheckBox().setEnabled(false);
             item.getDescription().setText(resInfo.getDate());
-            item.setOnClickListener(v->loadFolder((WebPastPaperFolderInfo) resInfo));
-        }else{
+            item.setOnClickListener(v -> loadFolder((WebPastPaperFolderInfo) resInfo));
+        } else {
             item.getIcon().setImageResource(R.drawable.file);
             item.getCheckBox().setEnabled(true);
             item.getCheckBox().setChecked(selector.contains(resInfo));
-            item.getCheckBox().setOnClickListener(v->{
-                if(((CheckBox)v).isChecked()){
+            item.getCheckBox().setOnClickListener(v -> {
+                if (((CheckBox) v).isChecked()) {
                     selector.add(resInfo);
-                }else{
+                } else {
                     selector.remove(resInfo);
                 }
             });
-            item.getDescription().setText(resInfo.getSize()+"kb,"+ resInfo.getDate());
-            item.setOnClickListener(v->new ResDetailsDialog(activity,resInfo).show());
+            item.getDescription().setText(resInfo.getSize() + "kb," + resInfo.getDate());
+            item.setOnClickListener(v -> new ResDetailsDialog(activity, resInfo).show());
         }
     }
 
-    public boolean backFolder(){
-        if(currentFolder.getName().equals("root")){
+    public boolean backFolder() {
+        if (currentFolder.getName().equals("root")) {
             return true;
         }
         this.currentFolder = folderIndex.get(currentFolder.getParentAbsolutePath());

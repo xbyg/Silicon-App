@@ -18,14 +18,15 @@ public class OKHTTPClient {
     private static OKHTTPClient instance;
 
     private OkHttpClient client;
-    private final HashMap<String,List<Cookie>> cookieStore = new HashMap<String, List<Cookie>>();
+    private final HashMap<String, List<Cookie>> cookieStore = new HashMap<String, List<Cookie>>();
 
-    public OKHTTPClient(){
+    public OKHTTPClient() {
         client = new OkHttpClient.Builder()
                 .cookieJar(new CookieJar() {
                     public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
-                        cookieStore.put(httpUrl.host(),list);
+                        cookieStore.put(httpUrl.host(), list);
                     }
+
                     public List<Cookie> loadForRequest(HttpUrl httpUrl) {
                         List<Cookie> cookies = cookieStore.get(httpUrl.host());
                         return cookies != null ? cookies : new ArrayList<Cookie>();
@@ -33,32 +34,32 @@ public class OKHTTPClient {
                 }).build();
     }
 
-    public static void init(){
+    public static void init() {
         instance = new OKHTTPClient();
     }
 
     //a GET request
-    public static void call(String url, Callback callback){
+    public static void call(String url, Callback callback) {
         Request request = new Request.Builder().url(url).build();
         instance.client.newCall(request).enqueue(callback);
     }
 
     //a POST request
-    public static void post(String url, Map<String,String> datasets,Callback callback){
+    public static void post(String url, Map<String, String> datasets, Callback callback) {
         try {
             MultipartBody.Builder builder = new MultipartBody.Builder();
             builder.setType(MultipartBody.FORM);
-            for(Map.Entry<String,String> data : datasets.entrySet()){
-                builder.addFormDataPart(data.getKey(),data.getValue());
+            for (Map.Entry<String, String> data : datasets.entrySet()) {
+                builder.addFormDataPart(data.getKey(), data.getValue());
             }
             RequestBody requestBody = builder.build();
             Request request = new Request.Builder()
                     .url(url)
-                    .method("POST",RequestBody.create(null,new byte[0]))
+                    .method("POST", RequestBody.create(null, new byte[0]))
                     .post(requestBody)
                     .build();
             instance.client.newCall(request).enqueue(callback);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

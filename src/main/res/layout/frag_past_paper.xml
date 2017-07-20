@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<in.srain.cube.views.ptr.PtrClassicFrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<in.srain.cube.views.ptr.PtrClassicFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cube_ptr="http://schemas.android.com/apk/res-auto"
     android:id="@+id/store_house_ptr_frame"
     android:layout_width="match_parent"
@@ -9,8 +8,9 @@
     cube_ptr:ptr_duration_to_close="500"
     cube_ptr:ptr_duration_to_close_header="2000"
     cube_ptr:ptr_keep_header_when_refresh="false">
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/res_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 </in.srain.cube.views.ptr.PtrClassicFrameLayout>

@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                     manager.beginTransaction().replace(R.id.content, pastPaperFragment).commit();
                     return true;
                 case R.id.navigation_user:
-                    manager.beginTransaction().replace(R.id.content,userFragment).commit();
+                    manager.beginTransaction().replace(R.id.content, userFragment).commit();
                     return true;
             }
             return false;
@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
         this.verifyPermission();
     }
 
-    private void verifyPermission(){
-        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+    private void verifyPermission() {
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
     }
@@ -74,29 +74,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-            Snackbar.make(this.findViewById(android.R.id.content),getString(R.string.write_permission_denied), BaseTransientBottomBar.LENGTH_LONG)
-                    .setAction(R.string.retry, v->this.verifyPermission())
+        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            Snackbar.make(this.findViewById(android.R.id.content), getString(R.string.write_permission_denied), BaseTransientBottomBar.LENGTH_LONG)
+                    .setAction(R.string.retry, v -> this.verifyPermission())
                     .show();
         }
     }
 
     @Override
     public void onBackPressed() {
-        if(pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed()){
+        if (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed()) {
             moveTaskToBack(true);
-        }else if(userFragment.isVisible() || noticeFragment.isVisible()){
+        } else if (userFragment.isVisible() || noticeFragment.isVisible()) {
             moveTaskToBack(true);
-        }else if(userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()){
-            manager.beginTransaction().replace(R.id.content,userFragment).commit();
+        } else if (userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
+            manager.beginTransaction().replace(R.id.content, userFragment).commit();
         }
     }
 
     /**
      * This function is used in WebResourceRVAdapter for showing the progress of download.
+     *
      * @see WebResourceRVAdapter#showDownloadConfirm()
-     * */
-    public void showDownloadsFragment(){
+     */
+    public void showDownloadsFragment() {
         /*
          * navigation.setSelectedItemId(R.id.navigation_user);
          *
@@ -106,6 +107,6 @@ public class MainActivity extends AppCompatActivity {
          * but there is a danger that the view may not created when response arrived.'
          * */
         navigation.getMenu().getItem(2).setChecked(true);
-        manager.beginTransaction().replace(R.id.content,userFragment.getDownloadsFragment()).commit();
+        manager.beginTransaction().replace(R.id.content, userFragment.getDownloadsFragment()).commit();
     }
 }

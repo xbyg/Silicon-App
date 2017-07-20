@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class CachesDatabase {
     private static Gson gson;
     private static SharedPreferences sharedPreferences;
@@ -25,8 +24,8 @@ public class CachesDatabase {
     public static HashMap<String, List<WebResourceInfo>> contentsIndex;
     public static List<WebNoticeInfo> noticeList;
 
-    public static void init(Context context){
-        sharedPreferences = context.getSharedPreferences("caches",Context.MODE_PRIVATE);
+    public static void init(Context context) {
+        sharedPreferences = context.getSharedPreferences("caches", Context.MODE_PRIVATE);
         editior = sharedPreferences.edit();
 
         RuntimeTypeAdapterFactory<WebResourceInfo> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
@@ -36,24 +35,26 @@ public class CachesDatabase {
                 .registerSubtype(WebNoticeInfo.class);
         gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
 
-        Type type1 = new TypeToken<HashMap<String,List<WebResourceInfo>>>(){}.getType();
-        contentsIndex = sharedPreferences.contains("contentsIndex") ? gson.fromJson(sharedPreferences.getString("contentsIndex",""),type1) : new HashMap<>();
+        Type type1 = new TypeToken<HashMap<String, List<WebResourceInfo>>>() {
+        }.getType();
+        contentsIndex = sharedPreferences.contains("contentsIndex") ? gson.fromJson(sharedPreferences.getString("contentsIndex", ""), type1) : new HashMap<>();
 
-        Type type2 = new TypeToken<List<WebNoticeInfo>>(){}.getType();
-        noticeList = sharedPreferences.contains("noticeList") ? gson.fromJson(sharedPreferences.getString("noticeList",""),type2) : new ArrayList<>();
+        Type type2 = new TypeToken<List<WebNoticeInfo>>() {
+        }.getType();
+        noticeList = sharedPreferences.contains("noticeList") ? gson.fromJson(sharedPreferences.getString("noticeList", ""), type2) : new ArrayList<>();
     }
 
     public static void removeAll() {
         editior.clear().apply();
     }
 
-    public static void save(){
+    public static void save() {
         editior.putString("contentsIndex", gson.toJson(contentsIndex));
         editior.putString("noticeList", gson.toJson(noticeList));
         editior.apply();
     }
 
-    public static int getCachesSize(){ //in kb
-        return  (sharedPreferences.getString("contentsIndex","").getBytes().length + sharedPreferences.getString("noticeList","").getBytes().length)/1000;
+    public static int getCachesSize() { //in kb
+        return (sharedPreferences.getString("contentsIndex", "").getBytes().length + sharedPreferences.getString("noticeList", "").getBytes().length) / 1000;
     }
 }

@@ -14,18 +14,22 @@ public abstract class WebResourcesInfoLoader<T extends WebResourceInfo> {
     protected Activity activity;
     protected LoadingDialog loadingDialog;
 
-    public WebResourcesInfoLoader(Activity activity){
+    public WebResourcesInfoLoader(Activity activity) {
         this.activity = activity;
         this.loadingDialog = new LoadingDialog(activity);
     }
 
-    public static class RequestParameters{}
-
-    public static class LoadCallback<T extends WebResourceInfo>{
-        public void onLoaded(RequestParameters params, List<T> parsedList){};
+    public static class RequestParameters {
     }
 
-    public abstract void request(RequestParameters parameters,LoadCallback callback);
+    public static class LoadCallback<T extends WebResourceInfo> {
+        public void onLoaded(RequestParameters params, List<T> parsedList) {
+        }
 
-    protected abstract List<T> parseResponse(RequestParameters parameters,Response response) throws IOException;
+        ;
+    }
+
+    public abstract void request(RequestParameters parameters, LoadCallback callback);
+
+    protected abstract List<T> parseResponse(RequestParameters parameters, Response response) throws IOException;
 }

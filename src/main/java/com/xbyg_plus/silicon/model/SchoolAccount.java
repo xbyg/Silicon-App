@@ -7,7 +7,7 @@ public class SchoolAccount {
     private String id;
     private String password;
 
-    public SchoolAccount(String name,String classRoom,int classNo,String id,String password){
+    public SchoolAccount(String name, String classRoom, int classNo, String id, String password) {
         this.name = name;
         this.classRoom = classRoom;
         this.classNo = classNo;
@@ -15,27 +15,27 @@ public class SchoolAccount {
         this.password = password;
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
-    public String getClassRoom(){
+    public String getClassRoom() {
         return this.classRoom;
     }
 
-    public int getClassNo(){
+    public int getClassNo() {
         return this.classNo;
     }
 
-    public String getId(){
+    public String getId() {
         return this.id;
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return this.password;
     }
 
-    public void setNewPassword(String newPassword){
+    public void setNewPassword(String newPassword) {
         this.password = newPassword;
     }
 }

@@ -16,7 +16,7 @@ public class WebPastPaperFolderInfo extends WebResourceInfo {
         this.requestDataMap = requestDataMap;
     }
 
-    public Map<String, String> getRequestDataMap(){
+    public Map<String, String> getRequestDataMap() {
         return this.requestDataMap;
     }
 
@@ -25,6 +25,6 @@ public class WebPastPaperFolderInfo extends WebResourceInfo {
     }
 
     public String getAbsolutePath() {
-        return this.parentAbsolutePath + "/" +this.name;
+        return this.parentAbsolutePath + "/" + this.name;
     }
 }

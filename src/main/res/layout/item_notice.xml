@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.xbyg_plus.silicon.view.NoticeItemView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.xbyg_plus.silicon.view.NoticeItemView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?selectableItemBackground"
     android:clickable="true"
@@ -10,5 +9,4 @@
     app:actionSize="20dp"
     app:showDescription="false"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-</com.xbyg_plus.silicon.view.NoticeItemView>
+    android:layout_height="wrap_content"></com.xbyg_plus.silicon.view.NoticeItemView>

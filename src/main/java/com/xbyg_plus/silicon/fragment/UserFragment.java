@@ -25,42 +25,54 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class UserFragment extends Fragment{
+public class UserFragment extends Fragment {
     private DownloadsFragment downloadsFragment = new DownloadsFragment();
     private SettingsFragment settingsFragment = new SettingsFragment();
     private AboutFragment aboutFragment = new AboutFragment();
 
     private Unbinder unbinder;
 
-    @BindView(R.id.name) TextView name;
-    @BindView(R.id.download_cardview) CardView downloads;
-    @BindView(R.id.settings_cardview) CardView settings;
-    @BindView(R.id.about_cardview) CardView about;
-    @BindView(R.id.edit) ImageView edit;
-    @BindView(R.id.logout) ImageView logout;
+    @BindView(R.id.name)
+    TextView name;
+    @BindView(R.id.download_cardview)
+    CardView downloads;
+    @BindView(R.id.settings_cardview)
+    CardView settings;
+    @BindView(R.id.about_cardview)
+    CardView about;
+    @BindView(R.id.edit)
+    ImageView edit;
+    @BindView(R.id.logout)
+    ImageView logout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_user,container,false);
+        return inflater.inflate(R.layout.frag_user, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        unbinder = ButterKnife.bind(this,view);
+        unbinder = ButterKnife.bind(this, view);
 
         SchoolAccount schoolAccount = SchoolAccountHelper.getInstance().getSchoolAccount();
-        name.setText(schoolAccount.getName()+"("+schoolAccount.getClassRoom()+schoolAccount.getClassNo()+")");
+        name.setText(schoolAccount.getName() + "(" + schoolAccount.getClassRoom() + schoolAccount.getClassNo() + ")");
 
-        downloads.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,downloadsFragment).commit();});
-        settings.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,settingsFragment).commit();});
-        about.setOnClickListener(v->{getFragmentManager().beginTransaction().replace(R.id.content,aboutFragment).commit();});
+        downloads.setOnClickListener(v -> {
+            getFragmentManager().beginTransaction().replace(R.id.content, downloadsFragment).commit();
+        });
+        settings.setOnClickListener(v -> {
+            getFragmentManager().beginTransaction().replace(R.id.content, settingsFragment).commit();
+        });
+        about.setOnClickListener(v -> {
+            getFragmentManager().beginTransaction().replace(R.id.content, aboutFragment).commit();
+        });
 
-        edit.setOnClickListener(v->{
+        edit.setOnClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(getContext(), edit);
             popupMenu.inflate(R.menu.user_edit);
-            popupMenu.setOnMenuItemClickListener( item -> {
-                if(item.getItemId() == R.id.change_pwd) {
+            popupMenu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == R.id.change_pwd) {
                     new ChangePasswordDialog(getContext());
                 }
                 return true;
@@ -71,13 +83,14 @@ public class UserFragment extends Fragment{
             menuHelper.show();
         });
 
-        logout.setOnClickListener(v->{
-            SchoolAccountHelper.getInstance().logout(new LogoutCallback(){
-                @Override
-                public void onLoggedOut() {
-                    getActivity().finish();
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                }}
+        logout.setOnClickListener(v -> {
+            SchoolAccountHelper.getInstance().logout(new LogoutCallback() {
+                                                         @Override
+                                                         public void onLoggedOut() {
+                                                             getActivity().finish();
+                                                             startActivity(new Intent(getActivity(), LoginActivity.class));
+                                                         }
+                                                     }
             );
         });
     }
@@ -88,11 +101,11 @@ public class UserFragment extends Fragment{
         unbinder.unbind();
     }
 
-    public DownloadsFragment getDownloadsFragment(){
+    public DownloadsFragment getDownloadsFragment() {
         return this.downloadsFragment;
     }
 
-    public SettingsFragment getSettingsFragment(){
+    public SettingsFragment getSettingsFragment() {
         return this.settingsFragment;
     }
 

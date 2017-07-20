@@ -8,7 +8,7 @@ public class DownloadCompleteEvent {
     private DownloadTask downloadTask;
     private File file;
 
-    public DownloadCompleteEvent(DownloadTask downloadTask,File file){
+    public DownloadCompleteEvent(DownloadTask downloadTask, File file) {
         this.downloadTask = downloadTask;
         this.file = file;
     }

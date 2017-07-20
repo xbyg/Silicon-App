@@ -15,27 +15,28 @@ import com.xbyg_plus.silicon.utils.CachesDatabase;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 import in.srain.cube.views.ptr.PtrHandler;
 
-public class NoticeFragment extends Fragment{
-    @BindView(R.id.store_house_ptr_frame) PtrFrameLayout ptrFrame;
-    @BindView(R.id.notices_recycler_view) RecyclerView recyclerView;
+public class NoticeFragment extends Fragment {
+    @BindView(R.id.store_house_ptr_frame)
+    PtrFrameLayout ptrFrame;
+    @BindView(R.id.notices_recycler_view)
+    RecyclerView recyclerView;
 
     private NoticeRVAdapter adapter;
     private LinearLayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_notice,container,false);
+        return inflater.inflate(R.layout.frag_notice, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -44,7 +45,7 @@ public class NoticeFragment extends Fragment{
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if(layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.getItemCount()-1){
+                if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.getItemCount() - 1) {
                     adapter.loadMoreNotices();
                 }
             }
@@ -56,6 +57,7 @@ public class NoticeFragment extends Fragment{
                 adapter.refreshData();
                 frame.refreshComplete();
             }
+
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
                 return PtrDefaultHandler.checkContentCanBePulledDown(frame, content, header);

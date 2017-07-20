@@ -19,20 +19,20 @@ public class DirectorySelectorDialog {
     private RecyclerView recyclerView;
     private DirectoryRVAdapter adapter;
 
-    public DirectorySelectorDialog(Context context, final DirectorySelectedCallback callback){
+    public DirectorySelectorDialog(Context context, final DirectorySelectedCallback callback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View root = LayoutInflater.from(context).inflate(R.layout.dialog_dir_selector,null,false);
+        View root = LayoutInflater.from(context).inflate(R.layout.dialog_dir_selector, null, false);
         dialog = builder.setView(root).create();
-        recyclerView = (RecyclerView)root.findViewById(R.id.dir_recycler_view);
+        recyclerView = (RecyclerView) root.findViewById(R.id.dir_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        adapter = new DirectoryRVAdapter(root,dir -> {
+        adapter = new DirectoryRVAdapter(root, dir -> {
             dialog.dismiss();
             callback.onDirSelected(dir);
         });
         recyclerView.setAdapter(adapter);
     }
 
-    public void show(File initDir){
+    public void show(File initDir) {
         dialog.show();
         adapter.loadDir(initDir);
     }

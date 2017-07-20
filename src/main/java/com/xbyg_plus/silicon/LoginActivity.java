@@ -24,11 +24,15 @@ import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LoginActivity extends AppCompatActivity{
-    @BindView(R.id.stdID) EditText stdID;
-    @BindView(R.id.pwd) EditText pwd;
-    @BindView(R.id.autoLogin) CheckBox autoLogin;
-    @BindView(R.id.loginBtn) Button loginBtn;
+public class LoginActivity extends AppCompatActivity {
+    @BindView(R.id.stdID)
+    EditText stdID;
+    @BindView(R.id.pwd)
+    EditText pwd;
+    @BindView(R.id.autoLogin)
+    CheckBox autoLogin;
+    @BindView(R.id.loginBtn)
+    Button loginBtn;
 
     private LoadingDialog loadingDialog;
 
@@ -49,21 +53,21 @@ public class LoginActivity extends AppCompatActivity{
 
         loadingDialog = new LoadingDialog(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if(preferences.contains("id")){
+        if (preferences.contains("id")) {
             loadingDialog.show();
-            accountHelper.login(preferences.getString("id",""),preferences.getString("pwd",""),callback);
+            accountHelper.login(preferences.getString("id", ""), preferences.getString("pwd", ""), callback);
         }
 
-        loginBtn.setOnClickListener(v->{
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        loginBtn.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 
             loadingDialog.show();
-            accountHelper.login(stdID.getText().toString(),pwd.getText().toString(),callback);
+            accountHelper.login(stdID.getText().toString(), pwd.getText().toString(), callback);
         });
     }
 
-    private LoginCallback callback = new LoginCallback(){
+    private LoginCallback callback = new LoginCallback() {
         public void onLoadEncryptionFile() {
             loadingDialog.setTitleAndMessage(getString(R.string.encryption), getString(R.string.loading_md5_js));
         }
@@ -97,7 +101,7 @@ public class LoginActivity extends AppCompatActivity{
 
         public void onRequestLoginFailed(int reason) {
             String msg = "";
-            switch (reason){
+            switch (reason) {
                 case LoginCallback.LOGIN_FAILED_DATA_WRONG:
                     msg = getString(R.string.login_data_wrong);
                     break;

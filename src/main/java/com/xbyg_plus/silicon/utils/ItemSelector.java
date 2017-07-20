@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * This class is used to show an action mode when the user is selecting items.
- * */
+ */
 public class ItemSelector<Item> {
     protected ActionMode mActionMode;
     protected List<Item> selectedItems = new ArrayList<>();
@@ -19,44 +19,47 @@ public class ItemSelector<Item> {
     protected int menuID;
     protected ActionModeListener listener;
 
-    public static class ActionModeListener{
-        public void onActionItemClicked(int itemID){}
-        public void onDestroyActionMode(){}
+    public static class ActionModeListener {
+        public void onActionItemClicked(int itemID) {
+        }
+
+        public void onDestroyActionMode() {
+        }
     }
 
-    public ItemSelector(Activity activity,int menuID){
+    public ItemSelector(Activity activity, int menuID) {
         this.activity = activity;
         this.menuID = menuID;
     }
 
-    public void setActionModeListener(ActionModeListener listener){
+    public void setActionModeListener(ActionModeListener listener) {
         this.listener = listener;
     }
 
-    public void add(Item item){
+    public void add(Item item) {
         selectedItems.add(item);
-        if(mActionMode == null){
+        if (mActionMode == null) {
             mActionMode = activity.startActionMode(actionModeCallback);
         }
     }
 
-    public void remove(Item item){
+    public void remove(Item item) {
         selectedItems.remove(item);
-        if(selectedItems.size() == 0){
+        if (selectedItems.size() == 0) {
             mActionMode.finish();
             mActionMode = null;
         }
     }
 
-    public boolean contains(Item item){
+    public boolean contains(Item item) {
         return this.selectedItems.contains(item);
     }
 
-    public void finish(){
+    public void finish() {
         this.mActionMode.finish();
     }
 
-    public List<Item> getSelectedItems(){
+    public List<Item> getSelectedItems() {
         return this.selectedItems;
     }
 
@@ -74,7 +77,7 @@ public class ItemSelector<Item> {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if(listener != null){
+            if (listener != null) {
                 listener.onActionItemClicked(item.getItemId());
             }
             return true;
@@ -82,7 +85,7 @@ public class ItemSelector<Item> {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            if(listener != null){
+            if (listener != null) {
                 listener.onDestroyActionMode();
             }
             selectedItems.clear();

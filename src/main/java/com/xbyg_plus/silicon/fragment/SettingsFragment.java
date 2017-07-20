@@ -12,7 +12,7 @@ import com.xbyg_plus.silicon.utils.CachesDatabase;
 
 import java.io.File;
 
-public class SettingsFragment extends PreferenceFragmentCompat{
+public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
@@ -21,17 +21,17 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         Preference savingPath = findPreference("savingPath");
         Preference caches = findPreference("caches");
 
-        savingPath.setSummary(preferences.getString("savingPath","/sdcard/"));
-        caches.setSummary(CachesDatabase.getCachesSize()+" kb");
+        savingPath.setSummary(preferences.getString("savingPath", "/sdcard/"));
+        caches.setSummary(CachesDatabase.getCachesSize() + " kb");
 
-        savingPath.setOnPreferenceClickListener( (Preference preference) -> {
+        savingPath.setOnPreferenceClickListener((Preference preference) -> {
             new DirectorySelectorDialog(getContext(), (dir) -> {
                 savingPath.setSummary(dir);
-                preferences.edit().putString("savingPath",dir).apply();
+                preferences.edit().putString("savingPath", dir).apply();
             }).show(new File("/sdcard/"));
             return true;
         });
-        caches.setOnPreferenceClickListener( (Preference preference) -> {
+        caches.setOnPreferenceClickListener((Preference preference) -> {
             CachesDatabase.contentsIndex.clear();
             CachesDatabase.noticeList.clear();
             CachesDatabase.save();
