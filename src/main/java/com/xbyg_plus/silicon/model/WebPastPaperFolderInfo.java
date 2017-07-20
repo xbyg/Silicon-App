@@ -7,20 +7,24 @@ public class WebPastPaperFolderInfo extends WebResourceInfo {
     //another showpath function defined in [/it-school//php/resdb/panel2title.php] maybe is wrong
     private Map<String, String> requestDataMap;  //'namepath':imageName,    'filepath':folderName,    'id':id         e.g. 'namepath':'fl6' ,  'filepath':'/Chemistry'  ,  'id'':'912'
 
-    private WebPastPaperFolderInfo parentFolder;
+    private String parentAbsolutePath;
 
-    public WebPastPaperFolderInfo(String name, String date, WebPastPaperFolderInfo parentFolder, Map<String, String> requestDataMap) {
+    public WebPastPaperFolderInfo(String name, String date, String parentAbsolutePath, Map<String, String> requestDataMap) {
         this.name = name;
         this.date = date;
+        this.parentAbsolutePath = parentAbsolutePath;
         this.requestDataMap = requestDataMap;
-        this.parentFolder = parentFolder;
     }
 
     public Map<String, String> getRequestDataMap(){
         return this.requestDataMap;
     }
 
-    public WebPastPaperFolderInfo getParentFolder(){
-        return this.parentFolder;
+    public String getParentAbsolutePath() {
+        return this.parentAbsolutePath;
+    }
+
+    public String getAbsolutePath() {
+        return this.parentAbsolutePath + "/" +this.name;
     }
 }

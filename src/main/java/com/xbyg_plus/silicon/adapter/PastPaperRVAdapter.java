@@ -1,7 +1,6 @@
 package com.xbyg_plus.silicon.adapter;
 
 import android.app.Activity;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -20,14 +19,17 @@ import java.util.List;
 import java.util.Map;
 
 public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo,WebPastPaperInfoLoader>{
-    private Map<String,List<WebResourceInfo>> foldersInfo = new HashMap<>();
+    //key: absolute path of folder   value: corresponding folder
+    private Map<String, WebPastPaperFolderInfo> folderIndex = new HashMap<>();
+    //key: absolute path of folder   value: corresponding contents(child folder and files)
+    private Map<String, List<WebResourceInfo>> contentsIndex = new HashMap<>();
     private WebPastPaperFolderInfo currentFolder;
 
     public PastPaperRVAdapter(Activity activity){
         super(activity);
         this.infoLoader = new WebPastPaperInfoLoader(activity);
-        this.foldersInfo = CachesDatabase.pastPaperFolders;
-        loadFolder(new WebPastPaperFolderInfo("root","",null,null));
+        this.contentsIndex = CachesDatabase.contentsIndex;
+        loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
     }
 
     @Override
@@ -67,26 +69,28 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo,Web
         if(currentFolder.getName().equals("root")){
             return true;
         }
-        this.currentFolder = currentFolder.getParentFolder();
-        this.resourcesList = foldersInfo.get(currentFolder.getName());
+        this.currentFolder = folderIndex.get(currentFolder.getParentAbsolutePath());
+        this.resourcesList = contentsIndex.get(currentFolder.getAbsolutePath());
         updateView();
         return false;
     }
 
     public void loadFolder(WebPastPaperFolderInfo folder) {
-        if (foldersInfo.containsKey(folder.getName())) {
-            this.currentFolder = folder;
-            this.resourcesList = foldersInfo.get(folder.getName());
+        if (contentsIndex.containsKey(folder.getAbsolutePath())) {
+            folderIndex.put(folder.getAbsolutePath(), folder);
+            currentFolder = folder;
+            resourcesList = contentsIndex.get(folder.getAbsolutePath());
             updateView();
         } else {
-            final WebPastPaperInfoLoader.RequestParams params = new WebPastPaperInfoLoader.RequestParams();
-            params.folderInfo = folder;
-            this.infoLoader.request(params, new WebResourcesInfoLoader.LoadCallback() {
+            final WebPastPaperInfoLoader.RequestParams reqParams = new WebPastPaperInfoLoader.RequestParams();
+            reqParams.folderInfo = folder;
+            this.infoLoader.request(reqParams, new WebResourcesInfoLoader.LoadCallback() {
                 @Override
                 public void onLoaded(WebResourcesInfoLoader.RequestParameters parameters, List parsedList) {
-                    currentFolder = params.folderInfo;
+                    folderIndex.put(folder.getAbsolutePath(), folder);
+                    currentFolder = reqParams.folderInfo;
                     resourcesList = parsedList;
-                    foldersInfo.put(params.folderInfo.getName(),parsedList);
+                    contentsIndex.put(reqParams.folderInfo.getAbsolutePath(), parsedList);
                     updateView();
                 }
             });
@@ -95,8 +99,9 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo,Web
 
     @Override
     public void refreshData() {
-        this.foldersInfo.clear();
+        this.folderIndex.clear();
+        this.contentsIndex.clear();
         this.resourcesList.clear();
-        this.loadFolder(new WebPastPaperFolderInfo("root","",null,null));
+        this.loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
     }
 }

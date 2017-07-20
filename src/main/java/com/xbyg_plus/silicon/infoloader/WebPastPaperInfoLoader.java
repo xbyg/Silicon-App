@@ -105,7 +105,8 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
                                 break;
                         }
                     }
-                    WebPastPaperFolderInfo folderInfo = new WebPastPaperFolderInfo(name,date,((RequestParams)params).folderInfo,dataSet);
+                    WebPastPaperFolderInfo parentFolder = ((RequestParams)params).folderInfo;
+                    WebPastPaperFolderInfo folderInfo = new WebPastPaperFolderInfo(name, date, parentFolder.getAbsolutePath(), dataSet);
                     webFilesInfo.add(folderInfo);
                 }
             }

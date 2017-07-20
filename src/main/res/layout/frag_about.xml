@@ -19,7 +19,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.1.0"
+                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.1.1"
                 android:textSize="20sp"
                 />
         </com.xbyg_plus.silicon.view.IconTextView>

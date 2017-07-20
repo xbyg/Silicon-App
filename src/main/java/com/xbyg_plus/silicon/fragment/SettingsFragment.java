@@ -32,7 +32,7 @@ public class SettingsFragment extends PreferenceFragmentCompat{
             return true;
         });
         caches.setOnPreferenceClickListener( (Preference preference) -> {
-            CachesDatabase.pastPaperFolders.clear();
+            CachesDatabase.contentsIndex.clear();
             CachesDatabase.noticeList.clear();
             CachesDatabase.save();
             caches.setSummary("0 kb");
