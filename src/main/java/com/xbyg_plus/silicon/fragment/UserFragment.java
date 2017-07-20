@@ -32,18 +32,12 @@ public class UserFragment extends Fragment {
 
     private Unbinder unbinder;
 
-    @BindView(R.id.name)
-    TextView name;
-    @BindView(R.id.download_cardview)
-    CardView downloads;
-    @BindView(R.id.settings_cardview)
-    CardView settings;
-    @BindView(R.id.about_cardview)
-    CardView about;
-    @BindView(R.id.edit)
-    ImageView edit;
-    @BindView(R.id.logout)
-    ImageView logout;
+    @BindView(R.id.name) TextView name;
+    @BindView(R.id.download_cardview) CardView downloads;
+    @BindView(R.id.settings_cardview) CardView settings;
+    @BindView(R.id.about_cardview) CardView about;
+    @BindView(R.id.edit) ImageView edit;
+    @BindView(R.id.logout) ImageView logout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -55,8 +49,12 @@ public class UserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         unbinder = ButterKnife.bind(this, view);
 
-        SchoolAccount schoolAccount = SchoolAccountHelper.getInstance().getSchoolAccount();
-        name.setText(schoolAccount.getName() + "(" + schoolAccount.getClassRoom() + schoolAccount.getClassNo() + ")");
+        if (!SchoolAccountHelper.guestMode) {
+            SchoolAccount schoolAccount = SchoolAccountHelper.getInstance().getSchoolAccount();
+            name.setText(schoolAccount.getName() + "(" + schoolAccount.getClassRoom() + schoolAccount.getClassNo() + ")");
+        } else {
+            name.setText("Guest");
+        }
 
         downloads.setOnClickListener(v -> {
             getFragmentManager().beginTransaction().replace(R.id.content, downloadsFragment).commit();
@@ -71,6 +69,9 @@ public class UserFragment extends Fragment {
         edit.setOnClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(getContext(), edit);
             popupMenu.inflate(R.menu.user_edit);
+            if (SchoolAccountHelper.guestMode) {
+                popupMenu.getMenu().findItem(R.id.change_pwd).setEnabled(false);
+            }
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.change_pwd) {
                     new ChangePasswordDialog(getContext());
@@ -85,12 +86,11 @@ public class UserFragment extends Fragment {
 
         logout.setOnClickListener(v -> {
             SchoolAccountHelper.getInstance().logout(new LogoutCallback() {
-                                                         @Override
-                                                         public void onLoggedOut() {
-                                                             getActivity().finish();
-                                                             startActivity(new Intent(getActivity(), LoginActivity.class));
-                                                         }
-                                                     }
+                @Override
+                public void onLoggedOut() {
+                    getActivity().finish();
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                }}
             );
         });
     }

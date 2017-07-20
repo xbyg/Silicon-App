@@ -44,4 +44,14 @@
         android:layout_alignRight="@+id/pwd"
         android:layout_below="@+id/pwd"
         android:text="@string/auto_login" />
+
+    <TextView
+        android:id="@+id/guest_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/loginBtn"
+        android:layout_alignRight="@+id/loginBtn"
+        android:layout_below="@+id/loginBtn"
+        android:text="@string/guest_mode"
+        android:textColor="@color/colorAccent" />
 </RelativeLayout>

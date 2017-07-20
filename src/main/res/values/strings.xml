@@ -51,4 +51,6 @@
     <string name="change_pwd_io_exception">Cannot connect to school server</string>
     <string name="change_pwd_succeed">Password changed successfully!</string>
     <string name="change_pwd_confirm_failed">New password confirmation failed.</string>
+    <string name="guest_text">Can not view %1$s in guest mode because permission is denied by school server</string>
+    <string name="guest_mode">Guest mode</string>
 </resources>

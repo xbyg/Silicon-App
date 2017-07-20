@@ -31,6 +31,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class SchoolAccountHelper {
+    public static boolean guestMode = false;
     private static SchoolAccountHelper instance;
 
     private Context appContext;

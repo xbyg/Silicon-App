@@ -18,6 +18,7 @@ import com.xbyg_plus.silicon.adapter.WebResourceRVAdapter;
 import com.xbyg_plus.silicon.fragment.NoticeFragment;
 import com.xbyg_plus.silicon.fragment.PastPaperFragment;
 import com.xbyg_plus.silicon.fragment.UserFragment;
+import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 public class MainActivity extends AppCompatActivity {
     // TODO: http://www.mosttss.edu.hk/websys/actsys/
@@ -60,9 +61,13 @@ public class MainActivity extends AppCompatActivity {
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setItemIconTintList(null);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        navigation.setSelectedItemId(R.id.navigation_notice);
 
-        this.verifyPermission();
+        if (!SchoolAccountHelper.guestMode) {
+            navigation.setSelectedItemId(R.id.navigation_notice);
+            this.verifyPermission();
+        } else {
+            navigation.setSelectedItemId(R.id.navigation_user);
+        }
     }
 
     private void verifyPermission() {

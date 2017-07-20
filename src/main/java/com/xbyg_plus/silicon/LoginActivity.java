@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
@@ -25,14 +26,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
-    @BindView(R.id.stdID)
-    EditText stdID;
-    @BindView(R.id.pwd)
-    EditText pwd;
-    @BindView(R.id.autoLogin)
-    CheckBox autoLogin;
-    @BindView(R.id.loginBtn)
-    Button loginBtn;
+    @BindView(R.id.stdID) EditText stdID;
+    @BindView(R.id.pwd) EditText pwd;
+    @BindView(R.id.autoLogin) CheckBox autoLogin;
+    @BindView(R.id.loginBtn) Button loginBtn;
+    @BindView(R.id.guest_mode) TextView guestMode;
 
     private LoadingDialog loadingDialog;
 
@@ -57,6 +55,13 @@ public class LoginActivity extends AppCompatActivity {
             loadingDialog.show();
             accountHelper.login(preferences.getString("id", ""), preferences.getString("pwd", ""), callback);
         }
+
+        guestMode.setOnClickListener(v -> {
+            SchoolAccountHelper.guestMode = true;
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        });
 
         loginBtn.setOnClickListener(v -> {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -90,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
 
         public void onRequestLoginSucceeded() {
             loadingDialog.dismiss();
+            SchoolAccountHelper.guestMode = false;
             if (!preferences.contains("id") && autoLogin.isChecked()) {
                 preferences.edit().putString("id", stdID.getText().toString()).putString("pwd", pwd.getText().toString()).apply();
             }

@@ -51,4 +51,6 @@
     <string name="change_pwd_io_exception">無法連接學校服務器</string>
     <string name="change_pwd_succeed">成功更改密碼!</string>
     <string name="change_pwd_confirm_failed">新密碼確認失敗</string>
+    <string name="guest_text">無法在訪客模式中瀏覽%1$s因爲權限被學校服務器拒絕</string>
+    <string name="guest_mode">訪客模式</string>
 </resources>

@@ -8,9 +8,12 @@
     cube_ptr:ptr_duration_to_close="500"
     cube_ptr:ptr_duration_to_close_header="2000"
     cube_ptr:ptr_keep_header_when_refresh="false">
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/res_recycler_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/res_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 </in.srain.cube.views.ptr.PtrClassicFrameLayout>
