@@ -53,4 +53,24 @@
     <string name="change_pwd_confirm_failed">New password confirmation failed.</string>
     <string name="guest_text">Can not view %1$s in guest mode because permission is denied by school server</string>
     <string name="guest_mode">Guest mode</string>
+    <string name="filter_all">All</string>
+    <string name="filter_category_mv_shooting">MV Shooting</string>
+    <string name="filter_category_singing_contest">Singing contest %1$s</string>
+    <string name="filter_sort_most_viewed">Most viewed</string>
+    <string name="filter_sort_recent">Recent</string>
+    <string name="filter_top_rated">Top rated</string>
+    <string name="filter_time_today">Today</string>
+    <string name="filter_time_yesterday">Yesterday</string>
+    <string name="filter_time_this_month">This month</string>
+    <string name="filter_time_last_month">Last month</string>
+    <string name="filter_time_this_week">This week</string>
+    <string name="filter_time_last_week">Last week</string>
+    <string name="filter_time_this_year">This year</string>
+    <string name="filter_time_last_year">Last year</string>
+    <string name="filter_category_one_min_english">One minute english</string>
+    <string name="filter_category_choral_speaking">Choral speaking</string>
+    <string name="filter_category_gospel_week">Gospel week</string>
+    <string name="filter_category_book_sharing">Book sharing</string>
+    <string name="filter_category_sport_day">Sport day</string>
+    <string name="no_more_context">No more context!</string>
 </resources>

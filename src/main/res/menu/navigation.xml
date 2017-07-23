@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/navigation_videos"
+        android:icon="@drawable/videos"
+        android:title="MTV" />
+    <item
         android:id="@+id/navigation_notice"
         android:icon="@drawable/notice"
         android:title="@string/notices" />

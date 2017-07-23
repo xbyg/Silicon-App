@@ -53,4 +53,24 @@
     <string name="change_pwd_confirm_failed">新密碼確認失敗</string>
     <string name="guest_text">無法在訪客模式中瀏覽%1$s因爲權限被學校服務器拒絕</string>
     <string name="guest_mode">訪客模式</string>
+    <string name="filter_all">不限</string>
+    <string name="filter_category_mv_shooting">MV創作</string>
+    <string name="filter_category_singing_contest">"%1$s 歌唱比賽 "</string>
+    <string name="filter_sort_most_viewed">最多觀看</string>
+    <string name="filter_sort_recent">最近</string>
+    <string name="filter_top_rated">最高評分</string>
+    <string name="filter_time_today">今日</string>
+    <string name="filter_time_yesterday">昨天</string>
+    <string name="filter_time_this_month">本月</string>
+    <string name="filter_time_last_month">上個月</string>
+    <string name="filter_time_this_week">本星期</string>
+    <string name="filter_time_last_week">上星期</string>
+    <string name="filter_time_this_year">本年</string>
+    <string name="filter_time_last_year">上年</string>
+    <string name="filter_category_one_min_english">1分鐘英語</string>
+    <string name="filter_category_choral_speaking">英詩集頌</string>
+    <string name="filter_category_gospel_week">福音周</string>
+    <string name="filter_category_book_sharing">圖書分享</string>
+    <string name="filter_category_sport_day">陸運會</string>
+    <string name="no_more_context">沒有更多內容了!</string>
 </resources>

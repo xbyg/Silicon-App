@@ -33,10 +33,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class DownloadsFragment extends Fragment {
-    @BindView(R.id.downloadingPackageLayout)
-    LinearLayout downloadingPackageLayout;
-    @BindView(R.id.downloadsLayout)
-    LinearLayout downloadsLayout;
+    @BindView(R.id.downloadingPackageLayout) LinearLayout downloadingPackageLayout;
+    @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
     private ItemSelector<DownloadedItemView> selector;
 

@@ -2,7 +2,9 @@ package com.xbyg_plus.silicon.model;
 
 import android.support.annotation.Nullable;
 
-public abstract class WebResourceInfo {
+import java.io.Serializable;
+
+public abstract class WebResourceInfo implements Serializable {
     protected String name;
     @Nullable
     protected float size; //in kb

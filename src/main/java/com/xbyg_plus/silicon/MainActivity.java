@@ -9,44 +9,67 @@ import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 
 import com.xbyg_plus.silicon.adapter.WebResourceRVAdapter;
 import com.xbyg_plus.silicon.fragment.NoticeFragment;
 import com.xbyg_plus.silicon.fragment.PastPaperFragment;
+import com.xbyg_plus.silicon.fragment.PlayerFragment;
 import com.xbyg_plus.silicon.fragment.UserFragment;
+import com.xbyg_plus.silicon.fragment.VideoFragment;
+import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 public class MainActivity extends AppCompatActivity {
-    // TODO: http://www.mosttss.edu.hk/websys/actsys/
-
     private BottomNavigationView navigation;
 
     private FragmentManager manager;
-    private NoticeFragment noticeFragment;
-    private PastPaperFragment pastPaperFragment;
-    private UserFragment userFragment;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_notice:
-                    manager.beginTransaction().replace(R.id.content, noticeFragment).commit();
-                    return true;
-                case R.id.navigation_pastPaper:
-                    manager.beginTransaction().replace(R.id.content, pastPaperFragment).commit();
-                    return true;
-                case R.id.navigation_user:
-                    manager.beginTransaction().replace(R.id.content, userFragment).commit();
-                    return true;
-            }
-            return false;
+    private Fragment activeFragment = null;
+
+    private VideoFragment videoFragment = new VideoFragment();
+    private PlayerFragment playerFragment = new PlayerFragment();
+    private NoticeFragment noticeFragment = new NoticeFragment();
+    private PastPaperFragment pastPaperFragment = new PastPaperFragment();
+    private UserFragment userFragment = new UserFragment();
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = (item) -> {
+        switch (item.getItemId()) {
+            case R.id.navigation_videos:
+                showFragment(videoFragment);
+                return true;
+            case R.id.navigation_notice:
+                showFragment(noticeFragment);
+                return true;
+            case R.id.navigation_pastPaper:
+                showFragment(pastPaperFragment);
+                return true;
+            case R.id.navigation_user:
+                showFragment(userFragment);
+                return true;
         }
+        return false;
     };
+
+    public void showFragment(Fragment target) {
+        FragmentTransaction transaction = manager.beginTransaction();
+        if (activeFragment != null) {
+            transaction.hide(activeFragment);
+            if (target.isAdded()) {
+                transaction.show(target);
+            } else {
+                transaction.add(R.id.content, target);
+            }
+        } else {
+            transaction.add(R.id.content, target);
+        }
+        transaction.commit();
+        activeFragment = target;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,19 +77,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         manager = getSupportFragmentManager();
-        noticeFragment = new NoticeFragment();
-        pastPaperFragment = new PastPaperFragment();
-        userFragment = new UserFragment();
 
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setItemIconTintList(null);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setSelectedItemId(R.id.navigation_videos);
 
         if (!SchoolAccountHelper.guestMode) {
-            navigation.setSelectedItemId(R.id.navigation_notice);
             this.verifyPermission();
-        } else {
-            navigation.setSelectedItemId(R.id.navigation_user);
         }
     }
 
@@ -88,12 +106,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed()) {
-            moveTaskToBack(true);
-        } else if (userFragment.isVisible() || noticeFragment.isVisible()) {
+        if (userFragment.isVisible() || noticeFragment.isVisible() || videoFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
             moveTaskToBack(true);
         } else if (userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
-            manager.beginTransaction().replace(R.id.content, userFragment).commit();
+            showFragment(userFragment);
+        } else if (playerFragment.isVisible()) {
+            showFragment(videoFragment);
         }
     }
 
@@ -111,7 +129,18 @@ public class MainActivity extends AppCompatActivity {
          * Another solution is call the OKHTTPClient.call inside onAttach() function,
          * but there is a danger that the view may not created when response arrived.'
          * */
-        navigation.getMenu().getItem(2).setChecked(true);
-        manager.beginTransaction().replace(R.id.content, userFragment.getDownloadsFragment()).commit();
+        navigation.getMenu().getItem(3).setChecked(true);
+        showFragment(userFragment.getDownloadsFragment());
+    }
+
+    public void showPlayerFragment(WebVideoInfo videoInfo) {
+        if (playerFragment.getArguments() != null) {
+            playerFragment.getArguments().putSerializable("videoInfo", videoInfo);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videoInfo", videoInfo);
+            playerFragment.setArguments(bundle);
+        }
+        showFragment(playerFragment);
     }
 }

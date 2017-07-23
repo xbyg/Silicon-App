@@ -25,8 +25,6 @@ public abstract class WebResourcesInfoLoader<T extends WebResourceInfo> {
     public static class LoadCallback<T extends WebResourceInfo> {
         public void onLoaded(RequestParameters params, List<T> parsedList) {
         }
-
-        ;
     }
 
     public abstract void request(RequestParameters parameters, LoadCallback callback);

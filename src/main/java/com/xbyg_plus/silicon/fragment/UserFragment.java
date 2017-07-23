@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.LoginActivity;
+import com.xbyg_plus.silicon.MainActivity;
 import com.xbyg_plus.silicon.callback.LogoutCallback;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ChangePasswordDialog;
@@ -57,13 +58,13 @@ public class UserFragment extends Fragment {
         }
 
         downloads.setOnClickListener(v -> {
-            getFragmentManager().beginTransaction().replace(R.id.content, downloadsFragment).commit();
+            ((MainActivity) getActivity()).showFragment(downloadsFragment);
         });
         settings.setOnClickListener(v -> {
-            getFragmentManager().beginTransaction().replace(R.id.content, settingsFragment).commit();
+            ((MainActivity) getActivity()).showFragment(settingsFragment);
         });
         about.setOnClickListener(v -> {
-            getFragmentManager().beginTransaction().replace(R.id.content, aboutFragment).commit();
+            ((MainActivity) getActivity()).showFragment(aboutFragment);
         });
 
         edit.setOnClickListener(v -> {

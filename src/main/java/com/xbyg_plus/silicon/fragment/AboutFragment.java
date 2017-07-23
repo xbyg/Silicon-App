@@ -23,9 +23,11 @@ public class AboutFragment extends Fragment {
 
     static {
         iconMap.put(R.drawable.icon, "Freepik");
+        iconMap.put(R.drawable.videos, "Vectors Market");
         iconMap.put(R.drawable.notice, "Vectors Market");
         iconMap.put(R.drawable.past_paper, "Vectors Market");
         iconMap.put(R.drawable.user, "Madebyoliver");
+        iconMap.put(R.drawable.filter2, "Freepik");
         iconMap.put(R.drawable.mail, "Madebyoliver");
         iconMap.put(R.drawable.view, "Cole Bemis");
         iconMap.put(R.drawable.folder, "Madebyoliver");
@@ -41,6 +43,7 @@ public class AboutFragment extends Fragment {
         iconMap.put(R.drawable.back, "Gregor Cresnar");
 
         libraryMap.put("okhttp(v3.8.0)", "square");
+        libraryMap.put("picasso(v2.5.2)", "square");
         libraryMap.put("jsoup(v1.10.2)", "jhy");
         libraryMap.put("js-evaluator-for-android(v2.0.0)", "evgenyneu");
         libraryMap.put("sdp(v1.0.4)", "intuit");
@@ -51,10 +54,8 @@ public class AboutFragment extends Fragment {
         libraryMap.put("butterknife(v8.6.0)", "JakeWharton");
     }
 
-    @BindView(R.id.iconList)
-    LinearLayout iconsList;
-    @BindView(R.id.libraryList)
-    LinearLayout libraryList;
+    @BindView(R.id.iconList) LinearLayout iconsList;
+    @BindView(R.id.libraryList) LinearLayout libraryList;
     private final LinearLayout.LayoutParams itemLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
     @Nullable

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.xbyg_plus.silicon.MainActivity;
 import com.xbyg_plus.silicon.R;
@@ -14,7 +15,6 @@ import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.infoloader.WebResourcesInfoLoader;
 import com.xbyg_plus.silicon.task.DownloadTask;
 import com.xbyg_plus.silicon.utils.ItemSelector;
-import com.xbyg_plus.silicon.view.ResItemView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +27,9 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
     protected InfoLoader infoLoader;
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-        public ResItemView item;
+        public View item;
 
-        public ViewHolder(ResItemView item) {
+        public ViewHolder(View item) {
             super(item);
             this.item = item;
         }
