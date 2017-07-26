@@ -42,7 +42,7 @@ public class UserFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_user, container, false);
+        return inflater.inflate(R.layout.frag_nav_user, container, false);
     }
 
     @Override

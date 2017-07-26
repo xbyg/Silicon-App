@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
-import com.xbyg_plus.silicon.MainActivity;
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.fragment.MTVFragment;
 import com.xbyg_plus.silicon.infoloader.WebResourcesInfoLoader;
 import com.xbyg_plus.silicon.infoloader.WebVideoInfoLoader;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
@@ -21,13 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoInfoLoader> {
+    private MTVFragment mtvFragment;
     private RequestFilter requestFilter;
 
     //it shows when loading image
     private ColorDrawable imgPlaceHolder = new ColorDrawable(Color.parseColor("#898E8C"));
 
-    public VideoRVAdapter(Activity activity) {
+    public VideoRVAdapter(Activity activity, MTVFragment mtvFragment) {
         super(activity);
+        this.mtvFragment = mtvFragment;
         this.infoLoader = new WebVideoInfoLoader(activity);
         this.resourcesList = new ArrayList();
         this.requestFilter = new RequestFilter(activity.getResources());
@@ -54,7 +56,9 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
             infoLoader.resolveVideoDetails(videoInfo, new WebVideoInfoLoader.WebVideoDetailsResolvedCallback() {
                 @Override
                 public void onVideoDetailsResolved() {
-                    ((MainActivity) activity).showPlayerFragment(videoInfo);
+                    activity.runOnUiThread(() -> {
+                        mtvFragment.playVideo(videoInfo);
+                    });
                 }
             });
         });
@@ -145,7 +149,6 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
             categoryMap.put(CATEGORY_GOSPEL_WEEK, res.getString(R.string.filter_category_gospel_week));
             categoryMap.put(CATEGORY_BOOK_SHARING, res.getString(R.string.filter_category_book_sharing));
             categoryMap.put(CATEGORY_SPORT_DAY, res.getString(R.string.filter_category_sport_day));
-
 
             sortMap.put(SORT_ALL, res.getString(R.string.filter_all));
             sortMap.put(SORT_MOST_VIEWED, res.getString(R.string.filter_sort_most_viewed));

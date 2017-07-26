@@ -41,7 +41,7 @@ public class VideoFragment extends Fragment {
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new VideoRVAdapter(getActivity());
+        adapter = new VideoRVAdapter(getActivity(), (MTVFragment) getParentFragment());
         recyclerView.setAdapter(adapter);
 
         filterBtn.setOnClickListener(v -> {

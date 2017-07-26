@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SurfaceView
+        android:id="@+id/video_surface"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/controller_layout"
+        android:visibility="gone"
+        android:layout_alignBottom="@+id/video_surface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_5sdp">
+
+        <ImageView
+            android:id="@+id/play_btn"
+            android:src="@drawable/pause"
+            android:layout_width="@dimen/_15sdp"
+            android:layout_height="@dimen/_15sdp" />
+
+        <TextView
+            android:id="@+id/progress_text"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/_5sdp"
+            android:layout_toRightOf="@+id/play_btn"
+            android:text="0:00"
+            android:textColor="@android:color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/progress_bar"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/progress_text"
+            android:layout_toLeftOf="@+id/right_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <RelativeLayout
+            android:id="@+id/right_container"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_centerVertical="true"
+                android:text="2:33"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:id="@+id/fullscreen"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/_5sdp"
+                android:layout_toRightOf="@id/duration"
+                android:src="@drawable/full_screen_on"
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp" />
+        </RelativeLayout>
+    </RelativeLayout>
+</merge>

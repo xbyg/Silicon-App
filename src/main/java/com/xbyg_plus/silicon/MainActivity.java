@@ -16,12 +16,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xbyg_plus.silicon.adapter.WebResourceRVAdapter;
+import com.xbyg_plus.silicon.fragment.MTVFragment;
 import com.xbyg_plus.silicon.fragment.NoticeFragment;
 import com.xbyg_plus.silicon.fragment.PastPaperFragment;
-import com.xbyg_plus.silicon.fragment.PlayerFragment;
+
 import com.xbyg_plus.silicon.fragment.UserFragment;
-import com.xbyg_plus.silicon.fragment.VideoFragment;
-import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment activeFragment = null;
 
-    private VideoFragment videoFragment = new VideoFragment();
-    private PlayerFragment playerFragment = new PlayerFragment();
+    private MTVFragment mtvFragment = new MTVFragment();
     private NoticeFragment noticeFragment = new NoticeFragment();
     private PastPaperFragment pastPaperFragment = new PastPaperFragment();
     private UserFragment userFragment = new UserFragment();
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = (item) -> {
         switch (item.getItemId()) {
             case R.id.navigation_videos:
-                showFragment(videoFragment);
+                showFragment(mtvFragment);
                 return true;
             case R.id.navigation_notice:
                 showFragment(noticeFragment);
@@ -88,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public BottomNavigationView getNavigation() {
+        return navigation;
+    }
+
     private void verifyPermission() {
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -106,12 +108,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (userFragment.isVisible() || noticeFragment.isVisible() || videoFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
+        if (mtvFragment.isVisible() || noticeFragment.isVisible() || userFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
             moveTaskToBack(true);
         } else if (userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
             showFragment(userFragment);
-        } else if (playerFragment.isVisible()) {
-            showFragment(videoFragment);
         }
     }
 
@@ -131,16 +131,5 @@ public class MainActivity extends AppCompatActivity {
          * */
         navigation.getMenu().getItem(3).setChecked(true);
         showFragment(userFragment.getDownloadsFragment());
-    }
-
-    public void showPlayerFragment(WebVideoInfo videoInfo) {
-        if (playerFragment.getArguments() != null) {
-            playerFragment.getArguments().putSerializable("videoInfo", videoInfo);
-        } else {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("videoInfo", videoInfo);
-            playerFragment.setArguments(bundle);
-        }
-        showFragment(playerFragment);
     }
 }

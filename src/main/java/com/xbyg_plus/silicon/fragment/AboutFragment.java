@@ -28,6 +28,10 @@ public class AboutFragment extends Fragment {
         iconMap.put(R.drawable.past_paper, "Vectors Market");
         iconMap.put(R.drawable.user, "Madebyoliver");
         iconMap.put(R.drawable.filter2, "Freepik");
+        iconMap.put(R.drawable.play2, "Google");
+        iconMap.put(R.drawable.pause2, "Google");
+        iconMap.put(R.drawable.full_screen_on2, "Google");
+        iconMap.put(R.drawable.full_screen_off2, "Google");
         iconMap.put(R.drawable.mail, "Madebyoliver");
         iconMap.put(R.drawable.view, "Cole Bemis");
         iconMap.put(R.drawable.folder, "Madebyoliver");
