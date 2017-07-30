@@ -8,15 +8,13 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.VideoRVAdapter.RequestFilter;
+import com.xbyg_plus.silicon.fragment.adapter.VideoRVAdapter.RequestFilter;
 
 import java.util.ArrayList;
 
-import in.srain.cube.views.ptr.PtrFrameLayout;
-
 public class FilterDialog extends Dialog {
     private RequestFilter requestFilter;
-    private PtrFrameLayout ptrFrame;
+    private FilterOptionsSelectedListener listener;
 
     private ArrayList<String> categoryPostValueList;
     private ArrayList<String> categoryNameList;
@@ -30,10 +28,12 @@ public class FilterDialog extends Dialog {
     private Spinner sortSpinner;
     private Spinner timeSpinner;
 
-    public FilterDialog(Context context, RequestFilter requestFilter, PtrFrameLayout ptrFrame) {
+    protected FilterDialog(Context context) {
         super(context);
+    }
+
+    public FilterDialog setRequestFilter(RequestFilter requestFilter) {
         this.requestFilter = requestFilter;
-        this.ptrFrame = ptrFrame;
 
         this.categoryPostValueList = requestFilter.categoryMap.getKeyList();
         this.categoryNameList = requestFilter.categoryMap.getValueList();
@@ -41,6 +41,18 @@ public class FilterDialog extends Dialog {
         this.sortNameList = requestFilter.sortMap.getValueList();
         this.timePostValueList = requestFilter.timeMap.getKeyList();
         this.timeNameList = requestFilter.timeMap.getValueList();
+        return this;
+    }
+
+    public interface FilterOptionsSelectedListener {
+        void onFilterOptionsSelected();
+    }
+
+    public FilterDialog setFilterOptionsSelectedListener(FilterOptionsSelectedListener listener) {
+        if (listener != null) {
+            this.listener = listener;
+        }
+        return this;
     }
 
     @Override
@@ -68,8 +80,10 @@ public class FilterDialog extends Dialog {
             requestFilter.category = categoryPostValueList.get(categorySpinner.getSelectedItemPosition());
             requestFilter.sort = sortPostValueList.get(sortSpinner.getSelectedItemPosition());
             requestFilter.time = timePostValueList.get(timeSpinner.getSelectedItemPosition());
-            ptrFrame.autoRefresh(true);
             dismiss();
+            if (listener != null) {
+                listener.onFilterOptionsSelected();
+            }
         });
     }
 }

@@ -9,9 +9,8 @@ import android.preference.PreferenceManager;
 import com.evgenii.jsevaluator.JsEvaluator;
 import com.evgenii.jsevaluator.interfaces.JsCallback;
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.callback.ChangePasswordCallback;
-import com.xbyg_plus.silicon.callback.LoginCallback;
-import com.xbyg_plus.silicon.callback.LogoutCallback;
+import com.xbyg_plus.silicon.dialog.DialogManager;
+import com.xbyg_plus.silicon.dialog.LoadingDialog;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 
 import org.jsoup.Jsoup;
@@ -30,26 +29,65 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class SchoolAccountHelper {
-    public static boolean guestMode = false;
+public class SchoolAccountHelper implements DialogManager.DialogHolder {
     private static SchoolAccountHelper instance;
 
-    private Context appContext;
+    private Context context;
+    private SharedPreferences preferences;
 
-    private boolean loggedIn = false;
-    private SchoolAccount schoolAccount = null;
+    private LoadingDialog loadingDialog;
 
-    public SchoolAccountHelper(Context appContext) {
+    private SchoolAccount schoolAccount;
+    private boolean isGuestMode = true;
+    private boolean isAutoLogin = false;
+    private boolean isLoggedIn = false;
+
+    public SchoolAccountHelper(Context context) {
         instance = this;
-        this.appContext = appContext;
+        this.context = context;
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        this.isAutoLogin = preferences.contains("id");
+        DialogManager.registerDialogHolder(this);
     }
 
     public static SchoolAccountHelper getInstance() {
         return instance;
     }
 
-    public SchoolAccount getSchoolAccount() {
-        return this.schoolAccount;
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        this.loadingDialog = dialogManager.obtain(LoadingDialog.class);
+    }
+
+    @Override
+    public void releaseDialogs() {
+        this.loadingDialog = null;
+    }
+
+    public interface LoginCallback {
+        int LOGIN_SUCCEEDED = 0;
+        int LOGIN_FAILED_USER_DATA_WRONG = 1;
+        int LOGIN_FAILED_IO_EXCEPTION = 2;
+        int LOGIN_FAILED_CANNOT_LOAD_ENCRYPTION_JS = 3;
+        int LOGIN_FAILED_CANNOT_ENCRYPT_PASSWORD = 4;
+
+        void onResult(int result);
+    }
+
+    public void tryAutoLogin(LoginCallback callback) {
+        if (isAutoLogin) {
+            login(preferences.getString("id", ""), preferences.getString("pwd", ""), callback);
+        }
+    }
+
+    public void enableAutoLogin(String id, String pwd) {
+        isAutoLogin = true;
+        preferences.edit().putString("id", id).putString("pwd", pwd).apply();
+    }
+
+    public void disableAutoLogin() {
+        isAutoLogin = false;
+        preferences.edit().remove("id").remove("pwd").apply();
     }
 
     /**
@@ -60,15 +98,18 @@ public class SchoolAccountHelper {
      * @see SchoolAccount
      */
     public void login(final String id, final String pwd, final LoginCallback callback) {
+        loadingDialog.setCancelable(false);
+
         try {
-            callback.onLoadEncryptionFile();
+            loadingDialog.setTitleAndMessage(context.getString(R.string.encryption), context.getString(R.string.loading_md5_js));
+            loadingDialog.show();
             String script = loadMD5JS();
 
-            callback.onEncryptPassword();
+            loadingDialog.setTitleAndMessage(context.getString(R.string.encryption), context.getString(R.string.encrypting_pwd));
             encryptPwd(script, pwd, new JsCallback() {
                 @Override
                 public void onResult(String encrypted_pwd) {
-                    callback.onRequestLogin();
+                    loadingDialog.setTitleAndMessage(context.getString(R.string.network), context.getString(R.string.requesting, " http://58.177.253.171/it-school/php/login_do.php3"));
                     Map<String, String> postData = new HashMap<>();
                     postData.put("userloginid", id);
                     postData.put("password", encrypted_pwd);
@@ -77,27 +118,32 @@ public class SchoolAccountHelper {
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
                             if (response.body().string().contains("main.php3")) {
-                                loggedIn = true;
+                                isGuestMode = false;
+                                isLoggedIn = true;
                                 initSchoolAccount(id, pwd, callback);
                             } else {
-                                callback.onRequestLoginFailed(LoginCallback.LOGIN_FAILED_DATA_WRONG);
+                                loadingDialog.dismiss(context.getString(R.string.login_data_wrong));
+                                callback.onResult(LoginCallback.LOGIN_FAILED_USER_DATA_WRONG);
                             }
                         }
 
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            callback.onRequestLoginFailed(LoginCallback.LOGIN_FAILED_IO_EXCEPTION);
+                            loadingDialog.dismiss(context.getString(R.string.login_io_exception));
+                            callback.onResult(LoginCallback.LOGIN_FAILED_IO_EXCEPTION);
                         }
                     });
                 }
 
                 @Override
                 public void onError(String s) {
-                    callback.onEncryptPasswordFailed();
+                    loadingDialog.dismiss(context.getString(R.string.cannot_encrypt_pwd));
+                    callback.onResult(LoginCallback.LOGIN_FAILED_CANNOT_ENCRYPT_PASSWORD);
                 }
             });
         } catch (IOException e) {
-            callback.onLoadEncryptionFileFailed();
+            loadingDialog.dismiss(context.getString(R.string.cannot_load_encryption_js));
+            callback.onResult(LoginCallback.LOGIN_FAILED_CANNOT_LOAD_ENCRYPTION_JS);
         }
     }
 
@@ -107,7 +153,7 @@ public class SchoolAccountHelper {
      * @link http://58.177.253.171/it-school//js/md5.js
      */
     private String loadMD5JS() throws IOException {
-        InputStream stream = appContext.getResources().openRawResource(R.raw.md5);
+        InputStream stream = context.getResources().openRawResource(R.raw.md5);
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder builder = new StringBuilder();
         String context;
@@ -124,7 +170,7 @@ public class SchoolAccountHelper {
      * @link https://github.com/evgenyneu/js-evaluator-for-android
      */
     private void encryptPwd(String script, String pwd, JsCallback callback) {
-        new Handler(Looper.getMainLooper()).post(() -> new JsEvaluator(appContext).callFunction(script, callback, "MD5", pwd));
+        new Handler(Looper.getMainLooper()).post(() -> new JsEvaluator(context).callFunction(script, callback, "MD5", pwd));
     }
 
     /**
@@ -132,8 +178,8 @@ public class SchoolAccountHelper {
      * then parsing the response to get student's name,class room and class number
      */
     private void initSchoolAccount(final String id, final String pwd, final LoginCallback callback) {
-        if (schoolAccount == null && loggedIn) {
-            OKHTTPClient.call("http://58.177.253.171/it-school/php/home_v5.php3", new Callback() {
+        if (schoolAccount == null && isLoggedIn) {
+            OKHTTPClient.get("http://58.177.253.171/it-school/php/home_v5.php3", new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Document doc = Jsoup.parse(response.body().string());
@@ -143,12 +189,14 @@ public class SchoolAccountHelper {
                     int classNo = Integer.parseInt(getMatch(welcome_msg, "[0-9]{1,2}(?=\\))"));
 
                     schoolAccount = new SchoolAccount(name, classRoom, classNo, id, pwd);
-                    callback.onRequestLoginSucceeded();
+                    loadingDialog.dismiss();
+                    callback.onResult(LoginCallback.LOGIN_SUCCEEDED);
                 }
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    callback.onRequestLoginFailed(LoginCallback.LOGIN_FAILED_CANNOT_INIT_AC);
+                    loadingDialog.dismiss(context.getString(R.string.login_io_exception));
+                    callback.onResult(LoginCallback.LOGIN_FAILED_IO_EXCEPTION);
                 }
             });
         }
@@ -160,36 +208,46 @@ public class SchoolAccountHelper {
         return m.group(0);
     }
 
-    public void logout(final LogoutCallback callback) {
-        loggedIn = false;
-        OKHTTPClient.call("http://58.177.253.171/it-school/php/buttons/itschool.php3", new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(appContext);
-                if (preferences.contains("id")) {
-                    preferences.edit().remove("id").remove("pwd").commit();
+    public void logout() {
+        if (isLoggedIn()) {
+            isGuestMode = true;
+            isLoggedIn = false;
+            OKHTTPClient.get("http://58.177.253.171/it-school/php/buttons/itschool.php3", new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    if (preferences.contains("id")) {
+                        preferences.edit().remove("id").remove("pwd").commit();
+                    }
                 }
-                callback.onLoggedOut();
-            }
 
-            @Override
-            public void onFailure(Call call, IOException e) {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(appContext);
-                if (preferences.contains("id")) {
-                    preferences.edit().remove("id").remove("pwd").commit();
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    if (preferences.contains("id")) {
+                        preferences.edit().remove("id").remove("pwd").commit();
+                    }
                 }
-                callback.onLoggedOut();
-            }
-        });
+            });
+        }
+    }
+
+    public interface ChangePasswordCallback {
+        int SUCCEED = 0;
+        int FAILED_ILLEGAL_PWD = 1;
+        int FAILED_SAME_PWD = 2;
+        int FAILED_IO_EXCEPTION = 3;
+
+        void onResult(int result);
     }
 
     public void changePassword(final String newPwd, final ChangePasswordCallback callback) {
         if (newPwd.matches("\\W") || newPwd.equals("")) {
-            callback.onFailed(ChangePasswordCallback.FAILED_ILLEGAL_PWD);
+            callback.onResult(ChangePasswordCallback.FAILED_ILLEGAL_PWD);
             return;
         }
         if (newPwd.equals(schoolAccount.getPassword())) {
-            callback.onFailed(ChangePasswordCallback.FAILED_SAME_PWD);
+            callback.onResult(ChangePasswordCallback.FAILED_SAME_PWD);
             return;
         }
 
@@ -201,13 +259,29 @@ public class SchoolAccountHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 schoolAccount.setNewPassword(newPwd);
-                callback.onPasswordChanged();
+                callback.onResult(ChangePasswordCallback.SUCCEED);
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
-                callback.onFailed(ChangePasswordCallback.FAILED_IO_EXCEPTION);
+                callback.onResult(ChangePasswordCallback.FAILED_IO_EXCEPTION);
             }
         });
+    }
+
+    public SchoolAccount getSchoolAccount() {
+        return this.schoolAccount;
+    }
+
+    public boolean isGuestMode() {
+        return isGuestMode;
+    }
+
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public boolean isAutoLogin() {
+        return isAutoLogin;
     }
 }

@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.PastPaperRVAdapter;
+import com.xbyg_plus.silicon.fragment.adapter.PastPaperRVAdapter;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -39,7 +39,7 @@ public class PastPaperFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, getView());
 
-        if (!SchoolAccountHelper.guestMode) {
+        if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
             adapter = new PastPaperRVAdapter(getActivity());

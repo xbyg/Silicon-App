@@ -13,7 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.NoticeRVAdapter;
+import com.xbyg_plus.silicon.fragment.adapter.NoticeRVAdapter;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -39,7 +39,7 @@ public class NoticeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        if (!SchoolAccountHelper.guestMode) {
+        if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
             adapter = new NoticeRVAdapter(getActivity());

@@ -1,9 +1,7 @@
-package com.xbyg_plus.silicon.infoloader;
-
-import android.app.Activity;
+package com.xbyg_plus.silicon.fragment.adapter.infoloader;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.NoticeRVAdapter;
+import com.xbyg_plus.silicon.fragment.adapter.NoticeRVAdapter;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 
@@ -37,20 +35,15 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
         public int page, effective;
     }
 
-    public static class WebNoticeAddressResolvedCallback {
-        public void onNoticeAddressResolved() {
-        }
-    }
-
-    public WebNoticesInfoLoader(Activity activity) {
-        super(activity);
+    public interface WebNoticeAddressResolvedCallback {
+        void onNoticeAddressResolved();
     }
 
     @Override
     public void request(final RequestParameters parameters, final LoadCallback callback) {
         RequestParams params = (RequestParams) parameters;
 
-        loadingDialog.setTitleAndMessage("", activity.getString(R.string.requesting) + " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php");
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php"));
         loadingDialog.show();
 
         HashMap<String, String> dataSet = new HashMap<>();
@@ -61,18 +54,19 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
         OKHTTPClient.post("http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php", dataSet, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                callback.onLoaded(parameters, parseResponse(parameters, response));
+                callback.onLoaded(parseResponse(parameters, response));
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
+                loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception));
             }
         });
     }
 
     @Override
     protected List<WebNoticeInfo> parseResponse(RequestParameters params, Response response) throws IOException {
-        loadingDialog.setTitleAndMessage("", activity.getString(R.string.parsing_info));
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
         List<WebNoticeInfo> webNoticesInfo = new ArrayList<>();
         Document doc = Jsoup.parse("<table><tbody>" + response.body().string() + "</tbody></table>"); //the HTML responded only include <tr> and <td>......
         Element tbody = doc.select("tbody").first();
@@ -100,11 +94,11 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
     }
 
     public void resolveDownloadAddress(final WebNoticeInfo noticeInfo, final WebNoticeAddressResolvedCallback callback) {
-        loadingDialog.show();
         loadingDialog.setTitleAndMessage("Network", "resolving download address of '" + noticeInfo.getName() + "'");
+        loadingDialog.show();
         noticeInfo.setDownloadAddress("resolving..."); //Prevent multi request.
 
-        OKHTTPClient.call("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId(), new Callback() {
+        OKHTTPClient.get("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId(), new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 noticeInfo.setDownloadAddress("http://58.177.253.171" + Jsoup.parse(response.body().string()).getElementsByClass("att_file").first().attr("href"));

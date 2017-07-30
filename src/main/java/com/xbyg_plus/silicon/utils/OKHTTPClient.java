@@ -21,6 +21,7 @@ public class OKHTTPClient {
     private final HashMap<String, List<Cookie>> cookieStore = new HashMap<String, List<Cookie>>();
 
     public OKHTTPClient() {
+        instance = this;
         client = new OkHttpClient.Builder()
                 .cookieJar(new CookieJar() {
                     public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
@@ -34,12 +35,8 @@ public class OKHTTPClient {
                 }).build();
     }
 
-    public static void init() {
-        instance = new OKHTTPClient();
-    }
-
     //a GET request
-    public static void call(String url, Callback callback) {
+    public static void get(String url, Callback callback) {
         Request request = new Request.Builder().url(url).build();
         instance.client.newCall(request).enqueue(callback);
     }

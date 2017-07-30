@@ -6,21 +6,24 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
+import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.event.DownloadCompleteEvent;
 import com.xbyg_plus.silicon.event.DownloadStartEvent;
 import com.xbyg_plus.silicon.task.DownloadTask;
 import com.xbyg_plus.silicon.utils.DownloadsDatabase;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 import com.xbyg_plus.silicon.utils.ViewIntent;
-import com.xbyg_plus.silicon.view.DownloadedItemView;
-import com.xbyg_plus.silicon.view.IconTextView;
+import com.xbyg_plus.silicon.fragment.adapter.item.DownloadedItemView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -32,10 +35,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DownloadsFragment extends Fragment {
+public class DownloadsFragment extends Fragment implements DialogManager.DialogHolder {
     @BindView(R.id.downloadingPackageLayout) LinearLayout downloadingPackageLayout;
     @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
+    private ConfirmDialog deleteFilesConfirmDialog;
     private ItemSelector<DownloadedItemView> selector;
 
     @Override
@@ -50,18 +54,7 @@ public class DownloadsFragment extends Fragment {
                     for (View v : selector.getSelectedItems()) {
                         nameList += ((File) v.getTag()).getName() + "\n";
                     }
-                    new ConfirmDialog(getContext(), getString(R.string.delete_files_confirm), nameList, confirmation -> {
-                        if (confirmation) {
-                            for (View v : selector.getSelectedItems()) {
-                                DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
-                                ((File) v.getTag()).delete();
-                                downloadsLayout.removeView(v);
-                            }
-                            DownloadsDatabase.save();
-                            new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
-                        }
-                        selector.finish();
-                    });
+                    deleteFilesConfirmDialog.setContent(getString(R.string.delete_files_confirm), nameList).show();
                 }
             }
 
@@ -130,11 +123,22 @@ public class DownloadsFragment extends Fragment {
     }
 
     private void addEmptyItem(LinearLayout root) {
-        IconTextView emptyItem = new IconTextView(getContext(), R.drawable.crying, 96, getString(R.string.empty));
-        emptyItem.setTag("empty_item");
-        emptyItem.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 256));
-        emptyItem.center = true;
-        root.addView(emptyItem);
+        LinearLayout container = new LinearLayout(getContext());
+        container.setTag("empty_item");
+        container.setGravity(Gravity.CENTER);
+        container.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 256));
+
+        ImageView imageView = new ImageView(getContext());
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(96, 96));
+        imageView.setImageResource(R.drawable.crying);
+
+        TextView textView = new TextView(getContext());
+        textView.setText(getString(R.string.empty));
+        textView.setTextSize(20);
+
+        container.addView(imageView);
+        container.addView(textView);
+        root.addView(container);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -156,6 +160,28 @@ public class DownloadsFragment extends Fragment {
         if (this.downloadingPackageLayout.getChildCount() == 1) { //the first child is the title view
             addEmptyItem(downloadingPackageLayout);
         }
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        this.deleteFilesConfirmDialog = dialogManager.obtain(ConfirmDialog.class)
+                .setConfirmCallback(confirmation -> {
+                    if (confirmation) {
+                        for (View v : selector.getSelectedItems()) {
+                            DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
+                            ((File) v.getTag()).delete();
+                            downloadsLayout.removeView(v);
+                        }
+                        DownloadsDatabase.save();
+                        new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
+                    }
+                    selector.finish();
+                });
+    }
+
+    @Override
+    public void releaseDialogs() {
+        this.deleteFilesConfirmDialog = null;
     }
 
     @Override

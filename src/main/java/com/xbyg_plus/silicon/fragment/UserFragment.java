@@ -14,11 +14,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.xbyg_plus.silicon.LoginActivity;
-import com.xbyg_plus.silicon.MainActivity;
-import com.xbyg_plus.silicon.callback.LogoutCallback;
+import com.xbyg_plus.silicon.activity.LoginActivity;
+import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ChangePasswordDialog;
+import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -26,10 +26,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class UserFragment extends Fragment {
+public class UserFragment extends Fragment implements DialogManager.DialogHolder {
     private DownloadsFragment downloadsFragment = new DownloadsFragment();
     private SettingsFragment settingsFragment = new SettingsFragment();
     private AboutFragment aboutFragment = new AboutFragment();
+
+    private SchoolAccountHelper accountHelper;
+    private ChangePasswordDialog changePasswordDialog;
 
     private Unbinder unbinder;
 
@@ -48,10 +51,12 @@ public class UserFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        DialogManager.registerDialogHolder(this);
+        accountHelper = SchoolAccountHelper.getInstance();
         unbinder = ButterKnife.bind(this, view);
 
-        if (!SchoolAccountHelper.guestMode) {
-            SchoolAccount schoolAccount = SchoolAccountHelper.getInstance().getSchoolAccount();
+        if (!accountHelper.isGuestMode()) {
+            SchoolAccount schoolAccount = accountHelper.getSchoolAccount();
             name.setText(schoolAccount.getName() + "(" + schoolAccount.getClassRoom() + schoolAccount.getClassNo() + ")");
         } else {
             name.setText("Guest");
@@ -70,12 +75,12 @@ public class UserFragment extends Fragment {
         edit.setOnClickListener(v -> {
             PopupMenu popupMenu = new PopupMenu(getContext(), edit);
             popupMenu.inflate(R.menu.user_edit);
-            if (SchoolAccountHelper.guestMode) {
+            if (accountHelper.isGuestMode()) {
                 popupMenu.getMenu().findItem(R.id.change_pwd).setEnabled(false);
             }
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.change_pwd) {
-                    new ChangePasswordDialog(getContext());
+                    changePasswordDialog.setContent(accountHelper.getSchoolAccount()).show();
                 }
                 return true;
             });
@@ -86,13 +91,10 @@ public class UserFragment extends Fragment {
         });
 
         logout.setOnClickListener(v -> {
-            SchoolAccountHelper.getInstance().logout(new LogoutCallback() {
-                @Override
-                public void onLoggedOut() {
-                    getActivity().finish();
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                }}
-            );
+            accountHelper.logout();
+            accountHelper.disableAutoLogin();
+            getActivity().finish();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
         });
     }
 
@@ -100,6 +102,16 @@ public class UserFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        this.changePasswordDialog = dialogManager.obtain(ChangePasswordDialog.class);
+    }
+
+    @Override
+    public void releaseDialogs() {
+        this.changePasswordDialog = null;
     }
 
     public DownloadsFragment getDownloadsFragment() {

@@ -19,7 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.xbyg_plus.silicon.MainActivity;
+import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 

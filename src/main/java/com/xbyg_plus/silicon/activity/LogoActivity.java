@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon;
+package com.xbyg_plus.silicon.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
+
+import com.xbyg_plus.silicon.R;
 
 public class LogoActivity extends AppCompatActivity {
     @Override

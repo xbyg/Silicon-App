@@ -9,9 +9,4 @@
         <attr name="showCheckBox" format="boolean"></attr>
         <attr name="showAction" format="boolean"></attr>
     </declare-styleable>
-
-    <declare-styleable name="IconTextView">
-        <attr name="center" format="boolean"></attr>
-        <attr name="icon_margin_text" format="dimension"></attr>
-    </declare-styleable>
 </resources>

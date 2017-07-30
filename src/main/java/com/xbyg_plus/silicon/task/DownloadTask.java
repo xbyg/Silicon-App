@@ -10,7 +10,7 @@ import com.xbyg_plus.silicon.event.DownloadStartEvent;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.utils.DownloadsDatabase;
-import com.xbyg_plus.silicon.view.DownloadingItemView;
+import com.xbyg_plus.silicon.fragment.adapter.item.DownloadingItemView;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,7 +46,7 @@ public class DownloadTask<T extends WebResourceInfo> extends AsyncTask<T, Void, 
         this.resInfo = params[0];
         this.attachedView = (DownloadingItemView) LayoutInflater.from(activity).inflate(R.layout.item_downloading_file, null, false);
 
-        OKHTTPClient.call(resInfo.getDownloadAddress(), new Callback() {
+        OKHTTPClient.get(resInfo.getDownloadAddress(), new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 EventBus.getDefault().post(new DownloadStartEvent(DownloadTask.this));

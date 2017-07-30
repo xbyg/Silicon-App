@@ -24,7 +24,7 @@ public class CachesDatabase {
     public static HashMap<String, List<WebResourceInfo>> contentsIndex;
     public static List<WebNoticeInfo> noticeList;
 
-    public static void init(Context context) {
+    public CachesDatabase(Context context) {
         sharedPreferences = context.getSharedPreferences("caches", Context.MODE_PRIVATE);
         editior = sharedPreferences.edit();
 

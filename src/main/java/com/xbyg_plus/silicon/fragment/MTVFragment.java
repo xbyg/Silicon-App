@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.MTVPagerAdapter;
+import com.xbyg_plus.silicon.fragment.adapter.MTVPagerAdapter;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 
 import butterknife.BindView;

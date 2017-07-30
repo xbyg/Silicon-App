@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.adapter;
+package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -6,13 +6,14 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
+import com.xbyg_plus.silicon.model.WebPastPaperInfo;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
-import com.xbyg_plus.silicon.infoloader.WebPastPaperInfoLoader;
-import com.xbyg_plus.silicon.infoloader.WebResourcesInfoLoader;
-import com.xbyg_plus.silicon.view.PastPaperItemView;
+import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebPastPaperInfoLoader;
+import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +26,11 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
     private Map<String, List<WebResourceInfo>> contentsIndex = new HashMap<>();
     private WebPastPaperFolderInfo currentFolder;
 
+    private ResDetailsDialog resDetailsDialog;
+
     public PastPaperRVAdapter(Activity activity) {
         super(activity);
-        this.infoLoader = new WebPastPaperInfoLoader(activity);
+        this.infoLoader = new WebPastPaperInfoLoader();
         this.contentsIndex = CachesDatabase.contentsIndex;
         loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
     }
@@ -61,7 +64,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
                 }
             });
             item.getDescription().setText(resInfo.getSize() + "kb," + resInfo.getDate());
-            item.setOnClickListener(v -> new ResDetailsDialog(activity, resInfo).show());
+            item.setOnClickListener(v -> resDetailsDialog.setContent((WebPastPaperInfo) resInfo).show());
         }
     }
 
@@ -84,15 +87,12 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         } else {
             final WebPastPaperInfoLoader.RequestParams reqParams = new WebPastPaperInfoLoader.RequestParams();
             reqParams.folderInfo = folder;
-            this.infoLoader.request(reqParams, new WebResourcesInfoLoader.LoadCallback() {
-                @Override
-                public void onLoaded(WebResourcesInfoLoader.RequestParameters parameters, List parsedList) {
-                    folderIndex.put(folder.getAbsolutePath(), folder);
-                    currentFolder = reqParams.folderInfo;
-                    resourcesList = parsedList;
-                    contentsIndex.put(reqParams.folderInfo.getAbsolutePath(), parsedList);
-                    updateView();
-                }
+            this.infoLoader.request(reqParams, parsedList -> {
+                folderIndex.put(folder.getAbsolutePath(), folder);
+                currentFolder = reqParams.folderInfo;
+                resourcesList = parsedList;
+                contentsIndex.put(reqParams.folderInfo.getAbsolutePath(), parsedList);
+                updateView();
             });
         }
     }
@@ -103,5 +103,17 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         this.contentsIndex.clear();
         this.resourcesList.clear();
         this.loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        super.requestDialogs(dialogManager);
+        this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
+    }
+
+    @Override
+    public void releaseDialogs() {
+        super.releaseDialogs();
+        this.resDetailsDialog = null;
     }
 }

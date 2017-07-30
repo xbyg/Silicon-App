@@ -1,16 +1,15 @@
-package com.xbyg_plus.silicon.adapter;
+package com.xbyg_plus.silicon.dialog.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.callback.DirectorySelectedCallback;
-import com.xbyg_plus.silicon.view.PastPaperItemView;
+import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog.DirectorySelectedCallback;
+import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -27,7 +26,7 @@ public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.
 
     private View backActionView;
     private TextView parentFileName;
-    private Button selectBtn;
+    private TextView selectBtn;
 
     private SimpleDateFormat simpleDateFormat;
 
@@ -44,7 +43,7 @@ public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.
         this.directorySelectedCallback = directorySelectedCallback;
         this.backActionView = root.findViewById(R.id.back);
         this.parentFileName = (TextView) root.findViewById(R.id.parentDirName);
-        this.selectBtn = (Button) root.findViewById(R.id.select);
+        this.selectBtn = (TextView) root.findViewById(R.id.select);
 
         this.simpleDateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
     }

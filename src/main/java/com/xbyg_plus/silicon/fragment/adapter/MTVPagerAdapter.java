@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.adapter;
+package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

@@ -3,12 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp">
 
-        <com.xbyg_plus.silicon.view.IconTextView
+        <LinearLayout
             android:id="@+id/appInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -20,16 +21,16 @@
                 android:src="@drawable/icon" />
 
             <TextView
+                android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.4.0"
+                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.4.1"
                 android:textSize="20sp" />
-        </com.xbyg_plus.silicon.view.IconTextView>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/iconList"
             android:orientation="vertical"
-            android:layout_below="@+id/appInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -44,7 +45,6 @@
         <LinearLayout
             android:id="@+id/libraryList"
             android:orientation="vertical"
-            android:layout_below="@id/iconList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -55,5 +55,5 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </ScrollView>

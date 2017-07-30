@@ -3,13 +3,15 @@ package com.xbyg_plus.silicon.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.view.IconTextView;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,7 +62,10 @@ public class AboutFragment extends Fragment {
 
     @BindView(R.id.iconList) LinearLayout iconsList;
     @BindView(R.id.libraryList) LinearLayout libraryList;
+
     private final LinearLayout.LayoutParams itemLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    private final LinearLayout.LayoutParams imageViewLayoutParams = new LinearLayout.LayoutParams(128, 128);
+    private final LinearLayout.LayoutParams textViewLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
     @Nullable
     @Override
@@ -73,6 +78,8 @@ public class AboutFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         itemLayoutParams.topMargin = 15;
+        textViewLayoutParams.leftMargin = 20;
+        textViewLayoutParams.gravity = Gravity.CENTER;
 
         for (Map.Entry<Integer, String> entry : iconMap.entrySet()) {
             this.addIconSource(entry.getKey(), entry.getValue());
@@ -83,15 +90,37 @@ public class AboutFragment extends Fragment {
         }
     }
 
-    public void addIconSource(int id, String author) {
-        IconTextView iconTextView = new IconTextView(getContext(), id, 128, "Designed by " + author);
-        iconTextView.setLayoutParams(itemLayoutParams);
-        iconsList.addView(iconTextView);
+    public void addIconSource(int resId, String author) {
+        LinearLayout item = new LinearLayout(getContext());
+        item.setLayoutParams(itemLayoutParams);
+
+        TextView textView = new TextView(getContext());
+        textView.setLayoutParams(textViewLayoutParams);
+        textView.setText("Designed by " + author);
+
+        ImageView imageView = new ImageView(getContext());
+        imageView.setLayoutParams(imageViewLayoutParams);
+        imageView.setImageResource(resId);
+
+        item.addView(imageView);
+        item.addView(textView);
+        iconsList.addView(item);
     }
 
     public void addLibrarySource(String name, String author) {
-        IconTextView iconTextView = new IconTextView(getContext(), R.drawable.coffee_cup, 128, name + " by " + author);
-        iconTextView.setLayoutParams(itemLayoutParams);
-        libraryList.addView(iconTextView);
+        LinearLayout item = new LinearLayout(getContext());
+        item.setLayoutParams(itemLayoutParams);
+
+        TextView textView = new TextView(getContext());
+        textView.setLayoutParams(textViewLayoutParams);
+        textView.setText(name + " by " + author);
+
+        ImageView imageView = new ImageView(getContext());
+        imageView.setLayoutParams(imageViewLayoutParams);
+        imageView.setImageResource(R.drawable.coffee_cup);
+
+        item.addView(imageView);
+        item.addView(textView);
+        libraryList.addView(item);
     }
 }

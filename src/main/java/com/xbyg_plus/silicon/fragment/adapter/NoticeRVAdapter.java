@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.adapter;
+package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -6,15 +6,13 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
-import com.xbyg_plus.silicon.infoloader.WebNoticesInfoLoader;
-import com.xbyg_plus.silicon.infoloader.WebResourcesInfoLoader;
+import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebNoticesInfoLoader;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
 import com.xbyg_plus.silicon.utils.ViewIntent;
-import com.xbyg_plus.silicon.view.NoticeItemView;
-
-import java.util.List;
+import com.xbyg_plus.silicon.fragment.adapter.item.NoticeItemView;
 
 public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoticesInfoLoader> {
     private int effective = 0; //0: show all,1: show effective
@@ -28,9 +26,11 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
      */
     private int noticeAddressCount = 0;
 
+    private ResDetailsDialog resDetailsDialog;
+
     public NoticeRVAdapter(final Activity activity) {
         super(activity);
-        this.infoLoader = new WebNoticesInfoLoader(activity);
+        this.infoLoader = new WebNoticesInfoLoader();
         this.resourcesList = CachesDatabase.noticeList;
         if (this.resourcesList.size() == 0) {
             loadMoreNotices();
@@ -61,12 +61,9 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
 
         item.getAction().setOnClickListener(v -> {
             if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo, new WebNoticesInfoLoader.WebNoticeAddressResolvedCallback() {
-                    @Override
-                    public void onNoticeAddressResolved() {
-                        Uri uri = Uri.parse(noticeInfo.getDownloadAddress());
-                        ViewIntent.view(activity, uri, "application/pdf");
-                    }
+                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
+                    Uri uri = Uri.parse(noticeInfo.getDownloadAddress());
+                    ViewIntent.view(activity, uri, "application/pdf");
                 });
             } else {
                 Uri uri = Uri.parse(noticeInfo.getDownloadAddress());
@@ -76,14 +73,11 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
 
         item.setOnClickListener(v -> {
             if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo, new WebNoticesInfoLoader.WebNoticeAddressResolvedCallback() {
-                    @Override
-                    public void onNoticeAddressResolved() {
-                        activity.runOnUiThread(() -> new ResDetailsDialog(activity, noticeInfo).show());
-                    }
+                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
+                    activity.runOnUiThread(() -> resDetailsDialog.setContent(noticeInfo).show());
                 });
             } else {
-                new ResDetailsDialog(activity, noticeInfo).show();
+                resDetailsDialog.setContent(noticeInfo).show();
             }
         });
     }
@@ -93,15 +87,12 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
     }
 
     public void loadMoreNotices() {
-        WebNoticesInfoLoader.RequestParams params = new WebNoticesInfoLoader.RequestParams();
-        params.page = getPagesLoaded() + 1;
-        params.effective = effective;
-        this.infoLoader.request(params, new WebResourcesInfoLoader.LoadCallback() {
-            @Override
-            public void onLoaded(WebResourcesInfoLoader.RequestParameters params, List parsedList) {
-                resourcesList.addAll(parsedList);
-                updateView();
-            }
+        WebNoticesInfoLoader.RequestParams reqParams = new WebNoticesInfoLoader.RequestParams();
+        reqParams.page = getPagesLoaded() + 1;
+        reqParams.effective = effective;
+        this.infoLoader.request(reqParams, parsedList -> {
+            resourcesList.addAll(parsedList);
+            updateView();
         });
     }
 
@@ -116,13 +107,10 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         for (WebNoticeInfo noticeInfo : selector.getSelectedItems()) {
             if (noticeInfo.getDownloadAddress() == null) {
                 noticeAddressCount++;
-                infoLoader.resolveDownloadAddress(noticeInfo, new WebNoticesInfoLoader.WebNoticeAddressResolvedCallback() {
-                    @Override
-                    public void onNoticeAddressResolved() {
-                        if (noticeAddressCount == selector.getSelectedItems().size()) {
-                            noticeAddressCount = 0;
-                            activity.runOnUiThread(() -> NoticeRVAdapter.super.showDownloadConfirm());
-                        }
+                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
+                    if (noticeAddressCount == selector.getSelectedItems().size()) {
+                        noticeAddressCount = 0;
+                        activity.runOnUiThread(() -> NoticeRVAdapter.super.showDownloadConfirm());
                     }
                 });
             }
@@ -132,5 +120,17 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         if (noticeAddressCount == 0) {
             super.showDownloadConfirm();
         }
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        super.requestDialogs(dialogManager);
+        this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
+    }
+
+    @Override
+    public void releaseDialogs() {
+        super.releaseDialogs();
+        this.resDetailsDialog = null;
     }
 }

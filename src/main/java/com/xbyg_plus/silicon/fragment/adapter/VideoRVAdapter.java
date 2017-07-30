@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.adapter;
+package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -11,14 +11,12 @@ import android.view.ViewGroup;
 import com.squareup.picasso.Picasso;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.fragment.MTVFragment;
-import com.xbyg_plus.silicon.infoloader.WebResourcesInfoLoader;
-import com.xbyg_plus.silicon.infoloader.WebVideoInfoLoader;
+import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebVideoInfoLoader;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.TwoWayMap;
-import com.xbyg_plus.silicon.view.VideoItemView;
+import com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoInfoLoader> {
     private MTVFragment mtvFragment;
@@ -30,7 +28,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
     public VideoRVAdapter(Activity activity, MTVFragment mtvFragment) {
         super(activity);
         this.mtvFragment = mtvFragment;
-        this.infoLoader = new WebVideoInfoLoader(activity);
+        this.infoLoader = new WebVideoInfoLoader();
         this.resourcesList = new ArrayList();
         this.requestFilter = new RequestFilter(activity.getResources());
         loadMoreVideos();
@@ -53,14 +51,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
         Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(root.getImage());
 
         root.setOnClickListener(v -> {
-            infoLoader.resolveVideoDetails(videoInfo, new WebVideoInfoLoader.WebVideoDetailsResolvedCallback() {
-                @Override
-                public void onVideoDetailsResolved() {
-                    activity.runOnUiThread(() -> {
-                        mtvFragment.playVideo(videoInfo);
-                    });
-                }
-            });
+            infoLoader.resolveVideoDetails(videoInfo, () -> activity.runOnUiThread(() -> mtvFragment.playVideo(videoInfo)));
         });
     }
 
@@ -85,12 +76,9 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
             reqParams.sort = requestFilter.sort;
             reqParams.time = requestFilter.time;
             reqParams.page = getPagesLoaded() + 1;
-            infoLoader.request(reqParams, new WebResourcesInfoLoader.LoadCallback() {
-                @Override
-                public void onLoaded(WebResourcesInfoLoader.RequestParameters params, List parsedList) {
-                    resourcesList.addAll(parsedList);
-                    updateView();
-                }
+            infoLoader.request(reqParams, parsedList -> {
+                resourcesList.addAll(parsedList);
+                updateView();
             });
         } else {
             Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.no_more_context), Snackbar.LENGTH_LONG).show();

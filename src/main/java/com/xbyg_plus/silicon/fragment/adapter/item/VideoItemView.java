@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.view;
+package com.xbyg_plus.silicon.fragment.adapter.item;
 
 import android.content.Context;
 import android.util.AttributeSet;

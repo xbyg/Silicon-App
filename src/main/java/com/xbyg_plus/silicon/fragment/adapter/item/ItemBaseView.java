@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.view;
+package com.xbyg_plus.silicon.fragment.adapter.item;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -25,10 +25,6 @@ public abstract class ItemBaseView extends ViewGroup {
     protected boolean showCheckBox;
     protected boolean showDescription;
     protected boolean showAction;
-
-    public void test() {
-
-    }
 
     public ItemBaseView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);

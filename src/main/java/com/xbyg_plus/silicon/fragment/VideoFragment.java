@@ -11,7 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.adapter.VideoRVAdapter;
+import com.xbyg_plus.silicon.dialog.DialogManager;
+import com.xbyg_plus.silicon.fragment.adapter.VideoRVAdapter;
 import com.xbyg_plus.silicon.dialog.FilterDialog;
 
 import butterknife.BindView;
@@ -20,13 +21,15 @@ import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 
-public class VideoFragment extends Fragment {
+public class VideoFragment extends Fragment implements DialogManager.DialogHolder {
     @BindView(R.id.store_house_ptr_frame) PtrClassicFrameLayout ptrFrame;
     @BindView(R.id.videos_recycler_view) RecyclerView recyclerView;
     @BindView(R.id.filter_btn) FloatingActionButton filterBtn;
 
     private VideoRVAdapter adapter;
     private LinearLayoutManager layoutManager;
+
+    private FilterDialog filterDialog;
 
     @Nullable
     @Override
@@ -38,6 +41,7 @@ public class VideoFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        DialogManager.registerDialogHolder(this);
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -45,7 +49,9 @@ public class VideoFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         filterBtn.setOnClickListener(v -> {
-            new FilterDialog(getContext(), adapter.getRequestFilter(), ptrFrame).show();
+            filterDialog
+                    .setRequestFilter(adapter.getRequestFilter())
+                    .show();
         });
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -70,5 +76,16 @@ public class VideoFragment extends Fragment {
                 return layoutManager.findFirstCompletelyVisibleItemPosition() == 0;
             }
         });
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        this.filterDialog = dialogManager.obtain(FilterDialog.class)
+                .setFilterOptionsSelectedListener(() -> ptrFrame.autoRefresh(true));
+    }
+
+    @Override
+    public void releaseDialogs() {
+        this.filterDialog = null;
     }
 }

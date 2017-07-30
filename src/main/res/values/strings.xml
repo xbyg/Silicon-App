@@ -3,14 +3,14 @@
     <string name="login">Login</string>
     <string name="auto_login">Auto login</string>
     <string name="select">Select</string>
-    <string name="properties">Properties</string>
-    <string name="name">Name</string>
-    <string name="start_date">Start date</string>
-    <string name="effective_date">Effective date</string>
-    <string name="uploader">Uploader</string>
-    <string name="download_address">Download</string>
-    <string name="size">Size</string>
-    <string name="date">Date</string>
+    <string name="res_details_properties">Properties</string>
+    <string name="res_details_name">Name: %1$s</string>
+    <string name="res_details_start_date">Start date: %1$s</string>
+    <string name="res_details_effective_date">Effective date: %1$s</string>
+    <string name="res_details_uploader">Uploader: %1$s</string>
+    <string name="res_details_download_address">Download: %1$s</string>
+    <string name="res_details_size">Size: %1$.2fkb</string>
+    <string name="res_details_date">Date: %1$s</string>
     <string name="downloads">Downloads</string>
     <string name="settings">App Settings</string>
     <string name="notices">Notices</string>
@@ -25,10 +25,9 @@
     <string name="cannot_load_encryption_js">Cannot load md5.js,please try again.</string>
     <string name="cannot_encrypt_pwd">Cannot encrypt password,please try again.</string>
     <string name="network">Network</string>
-    <string name="requesting">Requesting</string>
+    <string name="requesting">Requesting %1$s</string>
     <string name="login_data_wrong">Login failed,perhaps password is wrong.</string>
     <string name="login_io_exception">Login failed,cannot access the server.</string>
-    <string name="login_ac_init">Cannot initiate your account,please retry.</string>
     <string name="parsing_info">Parsing informations...</string>
     <string name="about">About</string>
     <string name="write_permission_denied">Without this permission,files can not be saved</string>
@@ -48,7 +47,7 @@
     <string name="old_pwd">Old password</string>
     <string name="change_pwd_illegal_pwd">Password can only contain 0-9,a-z,A-Z and _</string>
     <string name="change_pwd_same_pwd">Old password is equal to new password</string>
-    <string name="change_pwd_io_exception">Cannot connect to school server</string>
+    <string name="io_exception">Cannot connect to school server</string>
     <string name="change_pwd_succeed">Password changed successfully!</string>
     <string name="change_pwd_confirm_failed">New password confirmation failed.</string>
     <string name="guest_text">Can not view %1$s in guest mode because permission is denied by school server</string>
@@ -73,4 +72,6 @@
     <string name="filter_category_book_sharing">Book sharing</string>
     <string name="filter_category_sport_day">Sport day</string>
     <string name="no_more_context">No more context!</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

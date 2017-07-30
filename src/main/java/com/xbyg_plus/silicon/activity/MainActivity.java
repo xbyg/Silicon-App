@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon;
+package com.xbyg_plus.silicon.activity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -15,7 +15,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xbyg_plus.silicon.adapter.WebResourceRVAdapter;
+import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.DialogManager;
+import com.xbyg_plus.silicon.fragment.adapter.WebResourceRVAdapter;
 import com.xbyg_plus.silicon.fragment.MTVFragment;
 import com.xbyg_plus.silicon.fragment.NoticeFragment;
 import com.xbyg_plus.silicon.fragment.PastPaperFragment;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        DialogManager.provideContext(this);
 
         manager = getSupportFragmentManager();
 
@@ -81,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_videos);
 
-        if (!SchoolAccountHelper.guestMode) {
+        if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             this.verifyPermission();
         }
     }
@@ -124,9 +127,9 @@ public class MainActivity extends AppCompatActivity {
         /*
          * navigation.setSelectedItemId(R.id.navigation_user);
          *
-         * The code above will re-create the UserFragment but before OKHTTPClient.call has responded,the getActivity() function return null since it has already replaced the DownloadsFragment.
+         * The code above will re-create the UserFragment but before OKHTTPClient.get has responded,the getActivity() function return null since it has already replaced the DownloadsFragment.
          * Thus,app crashes
-         * Another solution is call the OKHTTPClient.call inside onAttach() function,
+         * Another solution is get the OKHTTPClient.get inside onAttach() function,
          * but there is a danger that the view may not created when response arrived.'
          * */
         navigation.getMenu().getItem(3).setChecked(true);

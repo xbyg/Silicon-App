@@ -12,7 +12,7 @@ public class DownloadsDatabase {
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editior;
 
-    public static void init(Context context) {
+    public DownloadsDatabase(Context context) {
         sharedPreferences = context.getSharedPreferences("download_record", Context.MODE_PRIVATE);
         editior = sharedPreferences.edit();
     }

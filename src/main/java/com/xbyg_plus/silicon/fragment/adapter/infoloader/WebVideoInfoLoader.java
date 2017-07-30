@@ -1,6 +1,4 @@
-package com.xbyg_plus.silicon.infoloader;
-
-import android.app.Activity;
+package com.xbyg_plus.silicon.fragment.adapter.infoloader;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
@@ -20,45 +18,40 @@ import okhttp3.Response;
 
 public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
     public static class RequestParams extends RequestParameters {
-        public String category = "all";
-        public String sort = "view_all";
-        public String time = "all_time";
+        public String category;
+        public String sort;
+        public String time;
         public int page;
     }
 
-    public static class WebVideoDetailsResolvedCallback {
-        public void onVideoDetailsResolved() {
-        }
-    }
-
-    public WebVideoInfoLoader(Activity activity) {
-        super(activity);
+    public interface WebVideoDetailsResolvedCallback {
+        void onVideoDetailsResolved();
     }
 
     @Override
     public void request(RequestParameters parameters, LoadCallback callback) {
         RequestParams params = (RequestParams) parameters;
-
         loadingDialog.setTitleAndMessage("", "Requesting http://58.177.253.163/mtv/videos.php");
         loadingDialog.show();
 
         String url = String.format("http://58.177.253.163/mtv/videos.php?cat=%s&sort=%s&time=%s&page=%d", params.category, params.sort, params.time, params.page);
 
-        OKHTTPClient.call(url, new Callback() {
+        OKHTTPClient.get(url, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                callback.onLoaded(params, parseResponse(params, response));
+                callback.onLoaded(parseResponse(params, response));
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
+                loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception));
             }
         });
     }
 
     @Override
     protected List<WebVideoInfo> parseResponse(RequestParameters parameters, Response response) throws IOException {
-        loadingDialog.setTitleAndMessage("", activity.getString(R.string.parsing_info));
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
         List<WebVideoInfo> webVideoInfos = new ArrayList<>();
         Document doc = Jsoup.parse(response.body().string());
 
@@ -86,7 +79,7 @@ public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
         loadingDialog.setTitleAndMessage("", "Parsing details...");
         loadingDialog.show();
 
-        OKHTTPClient.call(videoInfo.detailsAddress, new Callback() {
+        OKHTTPClient.get(videoInfo.detailsAddress, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Document doc = Jsoup.parse(response.body().string());
@@ -98,6 +91,7 @@ public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
 
             @Override
             public void onFailure(Call call, IOException e) {
+                loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception));
             }
         });
     }

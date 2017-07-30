@@ -7,12 +7,15 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog;
 import com.xbyg_plus.silicon.utils.CachesDatabase;
 
 import java.io.File;
 
-public class SettingsFragment extends PreferenceFragmentCompat {
+public class SettingsFragment extends PreferenceFragmentCompat implements DialogManager.DialogHolder {
+    private DirectorySelectorDialog directorySelectorDialog;
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
@@ -25,7 +28,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         caches.setSummary(CachesDatabase.getCachesSize() + " kb");
 
         savingPath.setOnPreferenceClickListener((Preference preference) -> {
-            new DirectorySelectorDialog(getContext(), (dir) -> {
+            directorySelectorDialog.setDirectorySelectedCallback(dir -> {
                 savingPath.setSummary(dir);
                 preferences.edit().putString("savingPath", dir).apply();
             }).show(new File("/sdcard/"));
@@ -38,5 +41,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             caches.setSummary("0 kb");
             return true;
         });
+    }
+
+    @Override
+    public void requestDialogs(DialogManager dialogManager) {
+        this.directorySelectorDialog = dialogManager.obtain(DirectorySelectorDialog.class);
+    }
+
+    @Override
+    public void releaseDialogs() {
+        this.directorySelectorDialog = null;
     }
 }

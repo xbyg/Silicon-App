@@ -3,23 +3,23 @@
     package="com.xbyg_plus.silicon">
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:roundIcon="@drawable/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LogoActivity">
+        <activity android:name=".activity.LogoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".activity.LoginActivity"></activity>
         <activity
-            android:name=".MainActivity"
-            android:configChanges="orientation|screenSize"
-            ></activity>
+            android:name=".activity.MainActivity"
+            android:configChanges="orientation|screenSize"></activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

@@ -2,40 +2,37 @@ package com.xbyg_plus.silicon.dialog;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.design.widget.Snackbar;
+import android.view.View;
 
-public class LoadingDialog {
-    private ProgressDialog dialog;
-    private Activity activity;
+public class LoadingDialog extends ProgressDialog {
+    private View container;
 
-    public LoadingDialog(Activity activity) {
-        this.activity = activity;
-        dialog = new ProgressDialog(activity);
-        dialog.setCancelable(true);
-        dialog.setIndeterminate(true);
-    }
-
-    public ProgressDialog getDialog() {
-        return dialog;
+    protected LoadingDialog(Activity activity) {
+        super(activity);
+        this.setCancelable(true);
+        this.setIndeterminate(true);
+        this.setDismissMessageContainer(activity.findViewById(android.R.id.content));
     }
 
     public void setTitleAndMessage(String title, String msg) {
-        activity.runOnUiThread(() -> {
-            dialog.setTitle(title);
-            dialog.setMessage(msg);
+        //this dialog is usually used in OkHttp thread,we need to set the title and message in ui thread
+        new Handler(Looper.getMainLooper()).post(() -> {
+            setTitle(title);
+            setMessage(msg);
         });
     }
 
-    public void show() {
-        dialog.show();
-    }
-
-    public void dismiss() {
-        dialog.dismiss();
+    public void setDismissMessageContainer(View container) {
+        if (container != null) {
+            this.container = container;
+        }
     }
 
     public void dismiss(String dismissMessage) {
-        dialog.dismiss();
-        dialog.setOnDismissListener(dialog -> Snackbar.make(activity.findViewById(android.R.id.content), dismissMessage, Snackbar.LENGTH_LONG).show());
+        this.dismiss();
+        Snackbar.make(container, dismissMessage, Snackbar.LENGTH_LONG).show();
     }
 }

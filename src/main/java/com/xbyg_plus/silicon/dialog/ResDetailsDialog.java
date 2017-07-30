@@ -1,49 +1,50 @@
 package com.xbyg_plus.silicon.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
 import com.xbyg_plus.silicon.model.WebPastPaperInfo;
-import com.xbyg_plus.silicon.model.WebResourceInfo;
 
-public class ResDetailsDialog {
-    private Dialog dialog;
-    private RelativeLayout layout;
+public class ResDetailsDialog extends Dialog {
+    private LinearLayout layoutForNoticeDetails;
+    private LinearLayout layoutForPastPaperDetails;
 
-    public ResDetailsDialog(Context context, WebResourceInfo resInfo) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-        if (resInfo instanceof WebPastPaperInfo) {
-            layout = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.dialog_pastpaper_details, null);
-            ((TextView) layout.findViewById(R.id.name)).setText(context.getString(R.string.name) + ": " + resInfo.getName());
-            ((TextView) layout.findViewById(R.id.size)).setText(context.getString(R.string.size) + ": " + resInfo.getSize() + "kb");
-            ((TextView) layout.findViewById(R.id.date)).setText(context.getString(R.string.date) + ": " + resInfo.getDate());
-            ((TextView) layout.findViewById(R.id.download)).setText(context.getString(R.string.download_address) + ": " + resInfo.getDownloadAddress());
-        } else if (resInfo instanceof WebNoticeInfo) {
-            layout = (RelativeLayout) LayoutInflater.from(context).inflate(R.layout.dialog_notice_details, null);
-            ((TextView) layout.findViewById(R.id.name)).setText(context.getString(R.string.name) + ": " + resInfo.getName());
-            ((TextView) layout.findViewById(R.id.startDate)).setText(context.getString(R.string.start_date) + ": " + ((WebNoticeInfo) resInfo).getStartDate());
-            ((TextView) layout.findViewById(R.id.effectiveDate)).setText(context.getString(R.string.effective_date) + ": " + ((WebNoticeInfo) resInfo).getEffectiveDate());
-            ((TextView) layout.findViewById(R.id.uploader)).setText(context.getString(R.string.uploader) + ": " + ((WebNoticeInfo) resInfo).getUploader());
-            ((TextView) layout.findViewById(R.id.download)).setText(context.getString(R.string.download_address) + ": " + resInfo.getDownloadAddress());
-        }
-
-        builder.setView(layout);
-        dialog = builder.create();
-        dialog.setCanceledOnTouchOutside(true);
-
-        layout.findViewById(R.id.ok).setOnClickListener(v -> {
-            dialog.dismiss();
-        });
+    protected ResDetailsDialog(Context context) {
+        super(context);
+        this.setCanceledOnTouchOutside(true);
+        layoutForNoticeDetails = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_notice_details, null);
+        layoutForPastPaperDetails = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_pastpaper_details, null);
     }
 
-    public void show() {
-        this.dialog.show();
+    public ResDetailsDialog setContent(WebNoticeInfo noticeInfo) {
+        setContentView(layoutForNoticeDetails);
+
+        ((TextView) findViewById(R.id.name)).setText(getContext().getString(R.string.res_details_name, noticeInfo.getName()));
+        ((TextView) findViewById(R.id.startDate)).setText(getContext().getString(R.string.res_details_start_date, noticeInfo.getStartDate()));
+        ((TextView) findViewById(R.id.effectiveDate)).setText(getContext().getString(R.string.res_details_effective_date, noticeInfo.getEffectiveDate()));
+        ((TextView) findViewById(R.id.uploader)).setText(getContext().getString(R.string.res_details_uploader, noticeInfo.getUploader()));
+        ((TextView) findViewById(R.id.download)).setText(getContext().getString(R.string.res_details_download_address, noticeInfo.getDownloadAddress()));
+        findViewById(R.id.ok).setOnClickListener(v -> {
+            dismiss();
+        });
+        return this;
+    }
+
+    public ResDetailsDialog setContent(WebPastPaperInfo pastPaperInfo) {
+        setContentView(layoutForPastPaperDetails);
+
+        ((TextView) findViewById(R.id.name)).setText(getContext().getString(R.string.res_details_name, pastPaperInfo.getName()));
+        ((TextView) findViewById(R.id.size)).setText(getContext().getString(R.string.res_details_size, pastPaperInfo.getSize()));
+        ((TextView) findViewById(R.id.date)).setText(getContext().getString(R.string.res_details_date, pastPaperInfo.getDate()));
+        ((TextView) findViewById(R.id.download)).setText(getContext().getString(R.string.res_details_download_address, pastPaperInfo.getDownloadAddress()));
+        findViewById(R.id.ok).setOnClickListener(v -> {
+            dismiss();
+        });
+        return this;
     }
 }

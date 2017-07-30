@@ -19,12 +19,10 @@ public class ItemSelector<Item> {
     protected int menuID;
     protected ActionModeListener listener;
 
-    public static class ActionModeListener {
-        public void onActionItemClicked(int itemID) {
-        }
+    public interface ActionModeListener {
+        void onActionItemClicked(int itemID);
 
-        public void onDestroyActionMode() {
-        }
+        void onDestroyActionMode();
     }
 
     public ItemSelector(Activity activity, int menuID) {

@@ -1,6 +1,4 @@
-package com.xbyg_plus.silicon.infoloader;
-
-import android.app.Activity;
+package com.xbyg_plus.silicon.fragment.adapter.infoloader;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
@@ -29,22 +27,18 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
         public WebPastPaperFolderInfo folderInfo;
     }
 
-    public WebPastPaperInfoLoader(Activity activity) {
-        super(activity);
-    }
-
     @Override
     public void request(final RequestParameters parameters, final LoadCallback callback) {
-        loadingDialog.setTitleAndMessage("", activity.getString(R.string.requesting) + " http://58.177.253.171/it-school//php/resdb/panel2content.php");
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php"));
         loadingDialog.show();
 
         final WebPastPaperFolderInfo folderInfo = ((RequestParams) parameters).folderInfo;
 
         if (folderInfo.getName().equals("root")) {
-            OKHTTPClient.call("http://58.177.253.171/it-school//php/resdb/panel2content.php", new Callback() {
+            OKHTTPClient.get("http://58.177.253.171/it-school//php/resdb/panel2content.php", new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    callback.onLoaded(parameters, parseResponse(parameters, response));
+                    callback.onLoaded(parseResponse(parameters, response));
                 }
 
                 @Override
@@ -57,7 +51,7 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
         OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap(), new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                callback.onLoaded(parameters, parseResponse(parameters, response));
+                callback.onLoaded(parseResponse(parameters, response));
             }
 
             @Override
@@ -69,7 +63,7 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
 
     @Override
     protected List<WebResourceInfo> parseResponse(RequestParameters params, Response response) throws IOException {
-        loadingDialog.setTitleAndMessage("", activity.getString(R.string.parsing_info));
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
 
         List<WebResourceInfo> webFilesInfo = new ArrayList<WebResourceInfo>();
         Document doc = Jsoup.parse(response.body().string());
