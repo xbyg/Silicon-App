@@ -35,8 +35,14 @@ public class ConfirmDialog extends Dialog {
 
     public ConfirmDialog setConfirmCallback(ConfirmCallback callback) {
         if (callback != null) {
-            okBtn.setOnClickListener(v -> callback.onConfirmed(true));
-            cancelBtn.setOnClickListener(v -> callback.onConfirmed(false));
+            okBtn.setOnClickListener(v -> {
+                dismiss();
+                callback.onConfirmed(true);
+            });
+            cancelBtn.setOnClickListener(v -> {
+                dismiss();
+                callback.onConfirmed(false);
+            });
         }
         return this;
     }

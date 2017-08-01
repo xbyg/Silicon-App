@@ -74,4 +74,8 @@
     <string name="no_more_context">No more context!</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="filter_category">Category:</string>
+    <string name="filter_sort">Sort:</string>
+    <string name="filter_time">Time:</string>
+    <string name="video_views">%1$d views</string>
 </resources>

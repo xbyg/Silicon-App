@@ -19,14 +19,14 @@ import java.util.List;
 public class CachesDatabase {
     private static Gson gson;
     private static SharedPreferences sharedPreferences;
-    private static SharedPreferences.Editor editior;
+    private static SharedPreferences.Editor editor;
 
     public static HashMap<String, List<WebResourceInfo>> contentsIndex;
     public static List<WebNoticeInfo> noticeList;
 
     public CachesDatabase(Context context) {
         sharedPreferences = context.getSharedPreferences("caches", Context.MODE_PRIVATE);
-        editior = sharedPreferences.edit();
+        editor = sharedPreferences.edit();
 
         RuntimeTypeAdapterFactory<WebResourceInfo> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
                 .of(WebResourceInfo.class)
@@ -35,23 +35,21 @@ public class CachesDatabase {
                 .registerSubtype(WebNoticeInfo.class);
         gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
 
-        Type type1 = new TypeToken<HashMap<String, List<WebResourceInfo>>>() {
-        }.getType();
+        Type type1 = new TypeToken<HashMap<String, List<WebResourceInfo>>>() {}.getType();
         contentsIndex = sharedPreferences.contains("contentsIndex") ? gson.fromJson(sharedPreferences.getString("contentsIndex", ""), type1) : new HashMap<>();
 
-        Type type2 = new TypeToken<List<WebNoticeInfo>>() {
-        }.getType();
+        Type type2 = new TypeToken<List<WebNoticeInfo>>() {}.getType();
         noticeList = sharedPreferences.contains("noticeList") ? gson.fromJson(sharedPreferences.getString("noticeList", ""), type2) : new ArrayList<>();
     }
 
     public static void removeAll() {
-        editior.clear().apply();
+        editor.clear().apply();
     }
 
     public static void save() {
-        editior.putString("contentsIndex", gson.toJson(contentsIndex));
-        editior.putString("noticeList", gson.toJson(noticeList));
-        editior.apply();
+        editor.putString("contentsIndex", gson.toJson(contentsIndex));
+        editor.putString("noticeList", gson.toJson(noticeList));
+        editor.apply();
     }
 
     public static int getCachesSize() { //in kb

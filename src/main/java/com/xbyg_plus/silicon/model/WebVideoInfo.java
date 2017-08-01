@@ -9,4 +9,6 @@ public class WebVideoInfo extends WebResourceInfo {
     public String duration;
     public int views;
     public String time;
+    public String description;
+    public int id;
 }

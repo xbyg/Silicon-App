@@ -46,7 +46,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
 
         VideoItemView root = (VideoItemView) holder.item;
         root.getTitle().setText(videoInfo.title);
-        root.getViews().setText(String.valueOf(videoInfo.views));
+        root.getViews().setText(activity.getString(R.string.video_views, videoInfo.views));
         root.getDuration().setText(videoInfo.duration);
         Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(root.getImage());
 

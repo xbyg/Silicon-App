@@ -20,33 +20,23 @@
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_5sdp"
             android:text="Title"
             android:textSize="18sp" />
-
-        <RelativeLayout
-            android:id="@+id/right_content"
+        <TextView
+            android:id="@+id/views"
+            android:layout_below="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true">
+            android:text="Views" />
 
-            <TextView
-                android:id="@+id/views"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:text="Views" />
-
-            <TextView
-                android:id="@+id/duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignRight="@+id/views"
-                android:layout_below="@+id/views"
-                android:text="Duration" />
-        </RelativeLayout>
-
+        <TextView
+            android:id="@+id/duration"
+            android:layout_below="@+id/title"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Duration" />
     </RelativeLayout>
 </com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView>

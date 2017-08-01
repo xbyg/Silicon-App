@@ -74,4 +74,8 @@
     <string name="no_more_context">沒有更多內容了!</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
+    <string name="filter_category">類別:</string>
+    <string name="filter_sort">排序:</string>
+    <string name="filter_time">時間:</string>
+    <string name="video_views">%1$d 次觀看</string>
 </resources>

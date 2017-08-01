@@ -51,6 +51,6 @@ public class MTVFragment extends Fragment{
 
     public void playVideo(WebVideoInfo videoInfo) {
         viewPager.setCurrentItem(1, true);
-        playerFragment.getVideoPlayer().prepare(videoInfo);
+        playerFragment.prepare(videoInfo);
     }
 }

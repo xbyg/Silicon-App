@@ -11,6 +11,8 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -76,7 +78,7 @@ public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
     }
 
     public void resolveVideoDetails(WebVideoInfo videoInfo, WebVideoDetailsResolvedCallback callback) {
-        loadingDialog.setTitleAndMessage("", "Parsing details...");
+        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
         loadingDialog.show();
 
         OKHTTPClient.get(videoInfo.detailsAddress, new Callback() {
@@ -84,9 +86,16 @@ public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
             public void onResponse(Call call, Response response) throws IOException {
                 Document doc = Jsoup.parse(response.body().string());
                 videoInfo.videoAddress = doc.getElementsByTag("source").first().attr("src");
+
+                Pattern p = Pattern.compile("\\d+(?= Likes)");
+                Matcher m = p.matcher(doc.getElementsByClass("like-dislike-text").first().text());
+                m.find();
+                videoInfo.likes = Integer.parseInt(m.group(0));
+
+                videoInfo.description = doc.select("meta[property='og:description']").attr("content");
+
                 callback.onVideoDetailsResolved();
                 loadingDialog.dismiss();
-                //\d(?= Likes)
             }
 
             @Override

@@ -34,6 +34,7 @@ public class AboutFragment extends Fragment {
         iconMap.put(R.drawable.pause2, "Google");
         iconMap.put(R.drawable.full_screen_on2, "Google");
         iconMap.put(R.drawable.full_screen_off2, "Google");
+        iconMap.put(R.drawable.like, "Gregor Cresnar");
         iconMap.put(R.drawable.mail, "Madebyoliver");
         iconMap.put(R.drawable.view, "Cole Bemis");
         iconMap.put(R.drawable.folder, "Madebyoliver");

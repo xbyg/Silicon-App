@@ -14,7 +14,7 @@
 
         <TextView
             android:id="@+id/category"
-            android:text="Category:"
+            android:text="@string/filter_category"
             android:layout_alignBaseline="@+id/category_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -28,7 +28,7 @@
         <TextView
             android:id="@+id/sort"
             android:layout_below="@+id/category"
-            android:text="Sort:"
+            android:text="@string/filter_sort"
             android:layout_alignBaseline="@+id/sort_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -43,7 +43,7 @@
         <TextView
             android:id="@+id/time"
             android:layout_below="@+id/sort"
-            android:text="Time:"
+            android:text="@string/filter_time"
             android:layout_alignBaseline="@+id/time_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

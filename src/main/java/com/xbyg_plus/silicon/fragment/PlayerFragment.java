@@ -6,15 +6,29 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.model.WebVideoInfo;
+import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.widget.VideoPlayer;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class PlayerFragment extends Fragment {
     @BindView(R.id.video_player) VideoPlayer videoPlayer;
+    @BindView(R.id.title) TextView titleView;
+    @BindView(R.id.views) TextView viewsView;
+    @BindView(R.id.description) TextView descriptionView;
+    @BindView(R.id.like) ImageView likeView;
 
     @Nullable
     @Override
@@ -28,7 +42,29 @@ public class PlayerFragment extends Fragment {
         ButterKnife.bind(this, view);
     }
 
-    public VideoPlayer getVideoPlayer() {
-        return videoPlayer;
+    public void prepare(WebVideoInfo videoInfo) {
+        titleView.setText(videoInfo.title);
+        viewsView.setText(getString(R.string.video_views, videoInfo.views));
+        descriptionView.setText(videoInfo.description);
+        likeView.setOnClickListener(v -> {
+            // rate() function in http://58.177.253.163/mtv/js/functions.js
+            HashMap<String, String> postData = new HashMap<>();
+            postData.put("mode", "rating");
+            postData.put("id", "");
+            postData.put("rating", "5"); //is it a constant?
+            postData.put("type", "video");
+            /*OKHTTPClient.post("http://58.177.253.163/mtv/ajax.php", postData, new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+            });*/
+        });
+        videoPlayer.prepare(videoInfo);
     }
 }

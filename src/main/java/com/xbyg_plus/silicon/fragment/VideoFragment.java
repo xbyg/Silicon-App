@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -57,11 +58,14 @@ public class VideoFragment extends Fragment implements DialogManager.DialogHolde
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.getItemCount() - 1) {
+                if (layoutManager.findLastCompletelyVisibleItemPosition() == layoutManager.getItemCount() - 1 && layoutManager.getItemCount() != 0) {
+                    //layoutManager.getItemCount() != 0  avoid load more videos when refreshing the data
                     adapter.loadMoreVideos();
                 }
             }
         });
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation());
+        recyclerView.addItemDecoration(itemDecoration);
 
         ptrFrame.setPtrHandler(new PtrDefaultHandler() {
             @Override
