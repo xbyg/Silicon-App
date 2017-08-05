@@ -18,8 +18,10 @@ public class DialogManager {
     private final Set<DialogHolder> holderList = new HashSet<>();
     private final HashMap<Class<? extends Dialog>, Dialog> dialogs = new HashMap<>();
 
-    public DialogManager() {
-        instance = this;
+    public static void init() {
+        if (instance == null) {
+            instance = new DialogManager();
+        }
     }
 
     //let dialog holder to obtain the dialog they want
@@ -31,11 +33,7 @@ public class DialogManager {
      * Recreate dialogs when new activity is created
      */
     public static void provideContext(Activity activity) {
-        for (DialogHolder holder : instance.holderList) {
-            holder.releaseDialogs(); //let the dialog holders clear the references of old dialog objects so GC will collect them
-        }
-        //System.gc()
-
+        instance.dialogs.put(LoginDialog.class, new LoginDialog(activity));
         instance.dialogs.put(LoadingDialog.class, new LoadingDialog(activity));
         instance.dialogs.put(ConfirmDialog.class, new ConfirmDialog(activity));
         instance.dialogs.put(ResDetailsDialog.class, new ResDetailsDialog(activity));
@@ -44,13 +42,14 @@ public class DialogManager {
         instance.dialogs.put(DirectorySelectorDialog.class, new DirectorySelectorDialog(activity));
 
         for (DialogHolder holder : instance.holderList) {
-            holder.requestDialogs(instance); //let the dialog holders reset their dialogs after recreating dialogs
+            holder.onDialogsCreated(instance); //let the dialog holders reset their dialogs after creating dialogs
         }
+        //System.gc()
     }
 
     public static void registerDialogHolder(DialogHolder dialogHolder) {
         instance.holderList.add(dialogHolder);
-        dialogHolder.requestDialogs(instance);
+        dialogHolder.onDialogsCreated(instance);
     }
 
     public static void unregisterDialogHolder(DialogHolder dialogHolder) {
@@ -60,8 +59,6 @@ public class DialogManager {
     }
 
     public interface DialogHolder {
-        void requestDialogs(DialogManager dialogManager);
-
-        void releaseDialogs();
+        void onDialogsCreated(DialogManager dialogManager);
     }
 }

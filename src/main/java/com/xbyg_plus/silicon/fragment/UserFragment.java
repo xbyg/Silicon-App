@@ -14,11 +14,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.xbyg_plus.silicon.activity.LoginActivity;
 import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ChangePasswordDialog;
 import com.xbyg_plus.silicon.dialog.DialogManager;
+import com.xbyg_plus.silicon.dialog.LoginDialog;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -32,6 +32,7 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
     private AboutFragment aboutFragment = new AboutFragment();
 
     private SchoolAccountHelper accountHelper;
+    private LoginDialog loginDialog;
     private ChangePasswordDialog changePasswordDialog;
 
     private Unbinder unbinder;
@@ -42,6 +43,7 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
     @BindView(R.id.about_cardview) CardView about;
     @BindView(R.id.edit) ImageView edit;
     @BindView(R.id.logout) ImageView logout;
+    @BindView(R.id.login) TextView login;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,45 +59,63 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
 
         if (!accountHelper.isGuestMode()) {
             SchoolAccount schoolAccount = accountHelper.getSchoolAccount();
-            name.setText(schoolAccount.getName() + "(" + schoolAccount.getClassRoom() + schoolAccount.getClassNo() + ")");
+            name.setText(getString(R.string.student_info, schoolAccount.getName(), schoolAccount.getClassRoom(), schoolAccount.getClassNo()));
+
+            login.setVisibility(View.GONE);
+
+            edit.setOnClickListener(v -> {
+                PopupMenu popupMenu = new PopupMenu(getContext(), edit);
+                popupMenu.inflate(R.menu.user_edit);
+                popupMenu.getMenu().findItem(R.id.change_pwd);
+
+                popupMenu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.change_pwd) {
+                        changePasswordDialog.setContent(schoolAccount).show();
+                    }
+                    return true;
+                });
+
+                MenuPopupHelper menuHelper = new MenuPopupHelper(getContext(), (MenuBuilder) popupMenu.getMenu(), edit);
+                menuHelper.setForceShowIcon(true);
+                menuHelper.show();
+            });
+
+            logout.setOnClickListener(v -> {
+                accountHelper.logout();
+                accountHelper.disableAutoLogin();
+                restartActivity();
+            });
         } else {
-            name.setText("Guest");
+            name.setText(R.string.guest);
+            edit.setVisibility(View.GONE);
+            logout.setVisibility(View.GONE);
+
+            login.setOnClickListener(v -> {
+                loginDialog.setLoginCallback(result -> {
+                    loginDialog.dismiss();
+                    restartActivity();
+                }).show();
+            });
         }
 
         downloads.setOnClickListener(v -> {
             ((MainActivity) getActivity()).showFragment(downloadsFragment);
         });
+
         settings.setOnClickListener(v -> {
             ((MainActivity) getActivity()).showFragment(settingsFragment);
         });
+
         about.setOnClickListener(v -> {
             ((MainActivity) getActivity()).showFragment(aboutFragment);
         });
+    }
 
-        edit.setOnClickListener(v -> {
-            PopupMenu popupMenu = new PopupMenu(getContext(), edit);
-            popupMenu.inflate(R.menu.user_edit);
-            if (accountHelper.isGuestMode()) {
-                popupMenu.getMenu().findItem(R.id.change_pwd).setEnabled(false);
-            }
-            popupMenu.setOnMenuItemClickListener(item -> {
-                if (item.getItemId() == R.id.change_pwd) {
-                    changePasswordDialog.setContent(accountHelper.getSchoolAccount()).show();
-                }
-                return true;
-            });
-
-            MenuPopupHelper menuHelper = new MenuPopupHelper(getContext(), (MenuBuilder) popupMenu.getMenu(), edit);
-            menuHelper.setForceShowIcon(true);
-            menuHelper.show();
-        });
-
-        logout.setOnClickListener(v -> {
-            accountHelper.logout();
-            accountHelper.disableAutoLogin();
-            getActivity().finish();
-            startActivity(new Intent(getActivity(), LoginActivity.class));
-        });
+    private void restartActivity() {
+        getActivity().finish();
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override
@@ -105,13 +125,9 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
+    public void onDialogsCreated(DialogManager dialogManager) {
+        this.loginDialog = dialogManager.obtain(LoginDialog.class);
         this.changePasswordDialog = dialogManager.obtain(ChangePasswordDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        this.changePasswordDialog = null;
     }
 
     public DownloadsFragment getDownloadsFragment() {

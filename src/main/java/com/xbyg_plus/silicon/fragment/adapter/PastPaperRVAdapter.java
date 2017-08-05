@@ -11,7 +11,7 @@ import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
 import com.xbyg_plus.silicon.model.WebPastPaperInfo;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
-import com.xbyg_plus.silicon.utils.CachesDatabase;
+import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebPastPaperInfoLoader;
 import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
 
@@ -31,7 +31,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
     public PastPaperRVAdapter(Activity activity) {
         super(activity);
         this.infoLoader = new WebPastPaperInfoLoader();
-        this.contentsIndex = CachesDatabase.contentsIndex;
+        this.contentsIndex = CachesDatabase.getContentsIndex();
         loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
     }
 
@@ -106,14 +106,8 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
-        super.requestDialogs(dialogManager);
+    public void onDialogsCreated(DialogManager dialogManager) {
+        super.onDialogsCreated(dialogManager);
         this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        super.releaseDialogs();
-        this.resDetailsDialog = null;
     }
 }

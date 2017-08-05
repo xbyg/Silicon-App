@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.webkit.MimeTypeMap;
 
-public class ViewIntent {
+public final class ViewIntent {
     public static void view(Activity activity, Uri uri, String type) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);

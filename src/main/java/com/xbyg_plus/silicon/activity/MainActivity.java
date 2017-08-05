@@ -77,16 +77,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         DialogManager.provideContext(this);
 
+        SchoolAccountHelper accountHelper = SchoolAccountHelper.getInstance();
+        if (accountHelper.isGuestMode()) {
+            accountHelper.tryAutoLogin(result -> {});
+        } else {
+            this.verifyPermission();
+        }
+
         manager = getSupportFragmentManager();
 
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setItemIconTintList(null);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_videos);
-
-        if (!SchoolAccountHelper.getInstance().isGuestMode()) {
-            this.verifyPermission();
-        }
     }
 
     public BottomNavigationView getNavigation() {

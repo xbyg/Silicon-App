@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * This class is used to show an action mode when the user is selecting items.
  */
-public class ItemSelector<Item> {
+public final class ItemSelector<Item> {
     protected ActionMode mActionMode;
     protected List<Item> selectedItems = new ArrayList<>();
 

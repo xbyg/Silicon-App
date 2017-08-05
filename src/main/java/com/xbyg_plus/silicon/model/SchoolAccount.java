@@ -6,6 +6,7 @@ public class SchoolAccount {
     private int classNo;
     private String id;
     private String password;
+    private String HKid;
 
     public SchoolAccount(String name, String classRoom, int classNo, String id, String password) {
         this.name = name;
@@ -37,5 +38,13 @@ public class SchoolAccount {
 
     public void setNewPassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public String getHKid() {
+        return HKid;
+    }
+
+    public void setHKid(String HKid) {
+        this.HKid = HKid;
     }
 }

@@ -9,7 +9,7 @@ import com.xbyg_plus.silicon.event.DownloadCompleteEvent;
 import com.xbyg_plus.silicon.event.DownloadStartEvent;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
-import com.xbyg_plus.silicon.utils.DownloadsDatabase;
+import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.fragment.adapter.item.DownloadingItemView;
 
 import org.greenrobot.eventbus.EventBus;

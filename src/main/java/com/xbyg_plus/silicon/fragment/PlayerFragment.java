@@ -2,11 +2,11 @@ package com.xbyg_plus.silicon.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
@@ -23,12 +23,11 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class PlayerFragment extends Fragment {
+public class PlayerFragment extends Fragment{
     @BindView(R.id.video_player) VideoPlayer videoPlayer;
     @BindView(R.id.title) TextView titleView;
     @BindView(R.id.views) TextView viewsView;
     @BindView(R.id.description) TextView descriptionView;
-    @BindView(R.id.like) ImageView likeView;
 
     @Nullable
     @Override
@@ -46,25 +45,27 @@ public class PlayerFragment extends Fragment {
         titleView.setText(videoInfo.title);
         viewsView.setText(getString(R.string.video_views, videoInfo.views));
         descriptionView.setText(videoInfo.description);
-        likeView.setOnClickListener(v -> {
-            // rate() function in http://58.177.253.163/mtv/js/functions.js
-            HashMap<String, String> postData = new HashMap<>();
-            postData.put("mode", "rating");
-            postData.put("id", "");
-            postData.put("rating", "5"); //is it a constant?
-            postData.put("type", "video");
-            /*OKHTTPClient.post("http://58.177.253.163/mtv/ajax.php", postData, new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-            });*/
-        });
         videoPlayer.prepare(videoInfo);
+    }
+
+
+    private void likeVideo(WebVideoInfo videoInfo) {
+        // rate() function in http://58.177.253.163/mtv/js/functions.js
+        HashMap<String, String> postData = new HashMap<>();
+        postData.put("mode", "rating");
+        postData.put("id", String.valueOf(videoInfo.id));
+        postData.put("rating", "5"); //is it a constant?
+        postData.put("type", "video");
+        OKHTTPClient.post("http://58.177.253.163/mtv/ajax.php", postData, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //likeView.setColorFilter(Color.parseColor("#4F84C4"));
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Snackbar.make(getView(), R.string.io_exception, Snackbar.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -28,7 +28,6 @@
                 <TextView
                     android:id="@+id/title"
                     android:textSize="20sp"
-                    android:layout_toLeftOf="@+id/like"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -39,13 +38,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
-                <ImageView
-                    android:src="@drawable/like"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:id="@+id/like"
-                    android:layout_width="@dimen/_30sdp"
-                    android:layout_height="@dimen/_30sdp" />
             </RelativeLayout>
 
             <View

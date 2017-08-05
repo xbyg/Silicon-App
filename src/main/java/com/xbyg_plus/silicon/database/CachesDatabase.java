@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.utils;
+package com.xbyg_plus.silicon.database;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,15 +16,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CachesDatabase {
+public final class CachesDatabase {
     private static Gson gson;
     private static SharedPreferences sharedPreferences;
     private static SharedPreferences.Editor editor;
 
-    public static HashMap<String, List<WebResourceInfo>> contentsIndex;
-    public static List<WebNoticeInfo> noticeList;
+    private static HashMap<String, List<WebResourceInfo>> contentsIndex;
+    private static List<WebNoticeInfo> noticeList;
 
-    public CachesDatabase(Context context) {
+    public static void init(Context context) {
         sharedPreferences = context.getSharedPreferences("caches", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
@@ -33,7 +33,7 @@ public class CachesDatabase {
                 .registerSubtype(WebPastPaperInfo.class)
                 .registerSubtype(WebPastPaperFolderInfo.class)
                 .registerSubtype(WebNoticeInfo.class);
-        gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+        gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
 
         Type type1 = new TypeToken<HashMap<String, List<WebResourceInfo>>>() {}.getType();
         contentsIndex = sharedPreferences.contains("contentsIndex") ? gson.fromJson(sharedPreferences.getString("contentsIndex", ""), type1) : new HashMap<>();
@@ -42,14 +42,24 @@ public class CachesDatabase {
         noticeList = sharedPreferences.contains("noticeList") ? gson.fromJson(sharedPreferences.getString("noticeList", ""), type2) : new ArrayList<>();
     }
 
-    public static void removeAll() {
-        editor.clear().apply();
+    public static HashMap<String, List<WebResourceInfo>> getContentsIndex() {
+        return contentsIndex;
+    }
+
+    public static List<WebNoticeInfo> getNoticeList() {
+        return noticeList;
     }
 
     public static void save() {
         editor.putString("contentsIndex", gson.toJson(contentsIndex));
         editor.putString("noticeList", gson.toJson(noticeList));
         editor.apply();
+    }
+
+    public static void clear() {
+        contentsIndex.clear();
+        noticeList.clear();
+        save();
     }
 
     public static int getCachesSize() { //in kb

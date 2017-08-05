@@ -2,7 +2,7 @@ package com.xbyg_plus.silicon.utils;
 
 import java.util.ArrayList;
 
-public class TwoWayMap<K, V> {
+public final class TwoWayMap<K, V> {
     private ArrayList<K> keyList = new ArrayList<>();
     private ArrayList<V> valueList = new ArrayList<>();
 

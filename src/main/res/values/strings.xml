@@ -78,4 +78,7 @@
     <string name="filter_sort">Sort:</string>
     <string name="filter_time">Time:</string>
     <string name="video_views">%1$d views</string>
+    <string name="guest">Guest</string>
+    <string name="student_info" translatable="false">%1$s(%2$s%3$d)</string>
+    <string name="login_mtv_data_wrong">HKID card number is wrong</string>
 </resources>

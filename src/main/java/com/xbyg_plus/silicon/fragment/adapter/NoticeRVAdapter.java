@@ -10,7 +10,7 @@ import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebNoticesInfoLoader;
-import com.xbyg_plus.silicon.utils.CachesDatabase;
+import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.NoticeItemView;
 
@@ -31,7 +31,7 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
     public NoticeRVAdapter(final Activity activity) {
         super(activity);
         this.infoLoader = new WebNoticesInfoLoader();
-        this.resourcesList = CachesDatabase.noticeList;
+        this.resourcesList = CachesDatabase.getNoticeList();
         if (this.resourcesList.size() == 0) {
             loadMoreNotices();
         }
@@ -123,14 +123,8 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
-        super.requestDialogs(dialogManager);
+    public void onDialogsCreated(DialogManager dialogManager) {
+        super.onDialogsCreated(dialogManager);
         this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        super.releaseDialogs();
-        this.resDetailsDialog = null;
     }
 }

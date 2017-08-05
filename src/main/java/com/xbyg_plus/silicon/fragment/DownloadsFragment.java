@@ -20,7 +20,7 @@ import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.event.DownloadCompleteEvent;
 import com.xbyg_plus.silicon.event.DownloadStartEvent;
 import com.xbyg_plus.silicon.task.DownloadTask;
-import com.xbyg_plus.silicon.utils.DownloadsDatabase;
+import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.DownloadedItemView;
@@ -54,7 +54,20 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
                     for (View v : selector.getSelectedItems()) {
                         nameList += ((File) v.getTag()).getName() + "\n";
                     }
-                    deleteFilesConfirmDialog.setContent(getString(R.string.delete_files_confirm), nameList).show();
+                    deleteFilesConfirmDialog
+                            .setContent(getString(R.string.delete_files_confirm), nameList)
+                            .setConfirmCallback(confirmation -> {
+                                if (confirmation) {
+                                    for (View v : selector.getSelectedItems()) {
+                                        DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
+                                        ((File) v.getTag()).delete();
+                                        downloadsLayout.removeView(v);
+                                    }
+                                    DownloadsDatabase.save();
+                                    new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
+                                }
+                                selector.finish();
+                            }).show();
                 }
             }
 
@@ -77,6 +90,7 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
         super.onViewCreated(view, null);
         ButterKnife.bind(this, view);
         EventBus.getDefault().register(this);
+        DialogManager.registerDialogHolder(this);
 
         List<DownloadTask> downloadTasks = DownloadTask.pool;
         if (downloadTasks.size() == 0) {
@@ -163,25 +177,8 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
-        this.deleteFilesConfirmDialog = dialogManager.obtain(ConfirmDialog.class)
-                .setConfirmCallback(confirmation -> {
-                    if (confirmation) {
-                        for (View v : selector.getSelectedItems()) {
-                            DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
-                            ((File) v.getTag()).delete();
-                            downloadsLayout.removeView(v);
-                        }
-                        DownloadsDatabase.save();
-                        new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
-                    }
-                    selector.finish();
-                });
-    }
-
-    @Override
-    public void releaseDialogs() {
-        this.deleteFilesConfirmDialog = null;
+    public void onDialogsCreated(DialogManager dialogManager) {
+        this.deleteFilesConfirmDialog = dialogManager.obtain(ConfirmDialog.class);
     }
 
     @Override

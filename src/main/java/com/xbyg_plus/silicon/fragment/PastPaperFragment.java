@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.fragment.adapter.PastPaperRVAdapter;
-import com.xbyg_plus.silicon.utils.CachesDatabase;
+import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 import butterknife.BindView;

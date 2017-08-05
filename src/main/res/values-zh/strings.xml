@@ -77,5 +77,7 @@
     <string name="filter_category">類別:</string>
     <string name="filter_sort">排序:</string>
     <string name="filter_time">時間:</string>
-    <string name="video_views">%1$d 次觀看</string>
+    <string name="video_views">%1$d次觀看</string>
+    <string name="guest">訪客</string>
+    <string name="login_mtv_data_wrong">身份證號碼錯誤</string>
 </resources>

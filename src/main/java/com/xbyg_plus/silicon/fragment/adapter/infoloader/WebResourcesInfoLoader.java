@@ -28,12 +28,7 @@ public abstract class WebResourcesInfoLoader<T extends WebResourceInfo> implemen
     protected abstract List<T> parseResponse(RequestParameters parameters, Response response) throws IOException;
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
+    public void onDialogsCreated(DialogManager dialogManager) {
         this.loadingDialog = dialogManager.obtain(LoadingDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        this.loadingDialog = null;
     }
 }

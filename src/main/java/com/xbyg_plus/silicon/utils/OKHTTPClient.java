@@ -14,14 +14,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
-public class OKHTTPClient {
-    private static OKHTTPClient instance;
+public final class OKHTTPClient {
+    private static OkHttpClient client;
+    private static final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
 
-    private OkHttpClient client;
-    private final HashMap<String, List<Cookie>> cookieStore = new HashMap<String, List<Cookie>>();
-
-    public OKHTTPClient() {
-        instance = this;
+    public static void init() {
         client = new OkHttpClient.Builder()
                 .cookieJar(new CookieJar() {
                     public void saveFromResponse(HttpUrl httpUrl, List<Cookie> list) {
@@ -38,7 +35,7 @@ public class OKHTTPClient {
     //a GET request
     public static void get(String url, Callback callback) {
         Request request = new Request.Builder().url(url).build();
-        instance.client.newCall(request).enqueue(callback);
+        client.newCall(request).enqueue(callback);
     }
 
     //a POST request
@@ -55,7 +52,7 @@ public class OKHTTPClient {
                     .method("POST", RequestBody.create(null, new byte[0]))
                     .post(requestBody)
                     .build();
-            instance.client.newCall(request).enqueue(callback);
+            client.newCall(request).enqueue(callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

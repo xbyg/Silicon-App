@@ -29,7 +29,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class SchoolAccountHelper implements DialogManager.DialogHolder {
+public final class SchoolAccountHelper implements DialogManager.DialogHolder {
     private static SchoolAccountHelper instance;
 
     private Context context;
@@ -42,12 +42,17 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
     private boolean isAutoLogin = false;
     private boolean isLoggedIn = false;
 
-    public SchoolAccountHelper(Context context) {
-        instance = this;
+    private SchoolAccountHelper(Context context) {
         this.context = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.isAutoLogin = preferences.contains("id");
         DialogManager.registerDialogHolder(this);
+    }
+
+    public static void init(Context context) {
+        if (instance == null) {
+            instance = new SchoolAccountHelper(context);
+        }
     }
 
     public static SchoolAccountHelper getInstance() {
@@ -55,13 +60,8 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
+    public void onDialogsCreated(DialogManager dialogManager) {
         this.loadingDialog = dialogManager.obtain(LoadingDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        this.loadingDialog = null;
     }
 
     public interface LoginCallback {
@@ -110,6 +110,7 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
                 @Override
                 public void onResult(String encrypted_pwd) {
                     loadingDialog.setTitleAndMessage(context.getString(R.string.network), context.getString(R.string.requesting, " http://58.177.253.171/it-school/php/login_do.php3"));
+
                     Map<String, String> postData = new HashMap<>();
                     postData.put("userloginid", id);
                     postData.put("password", encrypted_pwd);
@@ -189,6 +190,7 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
                     int classNo = Integer.parseInt(getMatch(welcome_msg, "[0-9]{1,2}(?=\\))"));
 
                     schoolAccount = new SchoolAccount(name, classRoom, classNo, id, pwd);
+                    enableAutoLogin(id, pwd);
                     loadingDialog.dismiss();
                     callback.onResult(LoginCallback.LOGIN_SUCCEEDED);
                 }
@@ -212,6 +214,7 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
         if (isLoggedIn()) {
             isGuestMode = true;
             isLoggedIn = false;
+            schoolAccount = null;
             OKHTTPClient.get("http://58.177.253.171/it-school/php/buttons/itschool.php3", new Callback() {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
@@ -265,6 +268,52 @@ public class SchoolAccountHelper implements DialogManager.DialogHolder {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onResult(ChangePasswordCallback.FAILED_IO_EXCEPTION);
+            }
+        });
+    }
+
+    public interface MTVLoginCallback {
+        int LOGIN_SUCCEEDED = 0;
+        int LOGIN_FAILED_USER_DATA_WRONG = 1;
+        int LOGIN_FAILED_IO_EXCEPTION = 2;
+
+        void onResult(int result);
+    }
+
+    /**
+     * We have to login to MTV if we want to like a video but there are some problems:
+     * 1. The login password for MTV is student's HKID card number which is not the same as the password for school internet,
+     * it causes a lot of anonymous classes and callbacks (sign in button's click listener -> LoginCallback -> MTVLoginCallback......),
+     * so we should make a clearer way to overcome this problem.
+     *
+     * 2. Server side requests us to enable javascript which we can't do it easily....
+     * */
+    public void loginMTV(String HKid, MTVLoginCallback callback) {
+        loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.163/mtv/signup.php"));
+        loadingDialog.show();
+
+        HashMap<String, String> postData = new HashMap<>();
+        postData.put("username", schoolAccount.getId());
+        postData.put("password", HKid);
+        postData.put("login", "Login");
+        OKHTTPClient.post("http://58.177.253.163/mtv/signup.php", postData, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                //<script type="text/javascript">window.location = "http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1"</script>Javascript is turned off, <a href='http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1'>click here to go to requested page</a>
+                if (response.body().string().contains("window.location = \"http://58.177.253.163/mtv/videos.php\"") ) {
+                    schoolAccount.setHKid(HKid);
+                    loadingDialog.dismiss();
+                    callback.onResult(MTVLoginCallback.LOGIN_SUCCEEDED);
+                } else {
+                    loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));
+                    callback.onResult(MTVLoginCallback.LOGIN_FAILED_USER_DATA_WRONG);
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                loadingDialog.dismiss(context.getString(R.string.io_exception));
+                callback.onResult(MTVLoginCallback.LOGIN_FAILED_IO_EXCEPTION);
             }
         });
     }

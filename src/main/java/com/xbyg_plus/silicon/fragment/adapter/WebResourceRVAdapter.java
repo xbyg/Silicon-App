@@ -75,12 +75,6 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
     protected void showDownloadConfirm() {
         downloadConfirmDialog
                 .setContent((List<WebResourceInfo>) selector.getSelectedItems())
-                .show();
-    }
-
-    @Override
-    public void requestDialogs(DialogManager dialogManager) {
-        this.downloadConfirmDialog = dialogManager.obtain(ConfirmDialog.class)
                 .setConfirmCallback(confirmation -> {
                     if (confirmation) {
                         String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath", "/sdcard") + "/";
@@ -94,12 +88,13 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
                                 .show();
                     }
                     selector.finish();
-                });
+                })
+                .show();
     }
 
     @Override
-    public void releaseDialogs() {
-        this.downloadConfirmDialog = null;
+    public void onDialogsCreated(DialogManager dialogManager) {
+        this.downloadConfirmDialog = dialogManager.obtain(ConfirmDialog.class);
     }
 
     @Override

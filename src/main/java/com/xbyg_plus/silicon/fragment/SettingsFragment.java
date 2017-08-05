@@ -9,7 +9,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog;
-import com.xbyg_plus.silicon.utils.CachesDatabase;
+import com.xbyg_plus.silicon.database.CachesDatabase;
 
 import java.io.File;
 
@@ -35,21 +35,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
             return true;
         });
         caches.setOnPreferenceClickListener((Preference preference) -> {
-            CachesDatabase.contentsIndex.clear();
-            CachesDatabase.noticeList.clear();
-            CachesDatabase.save();
+            CachesDatabase.clear();
             caches.setSummary("0 kb");
             return true;
         });
     }
 
     @Override
-    public void requestDialogs(DialogManager dialogManager) {
+    public void onDialogsCreated(DialogManager dialogManager) {
         this.directorySelectorDialog = dialogManager.obtain(DirectorySelectorDialog.class);
-    }
-
-    @Override
-    public void releaseDialogs() {
-        this.directorySelectorDialog = null;
     }
 }

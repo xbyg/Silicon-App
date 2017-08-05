@@ -1,4 +1,4 @@
-package com.xbyg_plus.silicon.utils;
+package com.xbyg_plus.silicon.database;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,29 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DownloadsDatabase {
+public final class DownloadsDatabase{
     private static SharedPreferences sharedPreferences;
-    private static SharedPreferences.Editor editior;
+    private static SharedPreferences.Editor editor;
 
-    public DownloadsDatabase(Context context) {
+    public static void init(Context context) {
         sharedPreferences = context.getSharedPreferences("download_record", Context.MODE_PRIVATE);
-        editior = sharedPreferences.edit();
+        editor = sharedPreferences.edit();
     }
 
     public static void addDownloadPath(String name, String path) {
-        editior.putString(name, path);
+        editor.putString(name, path);
     }
 
     public static void removeDownloadPath(String name) {
-        editior.remove(name);
-    }
-
-    public static void removeAll() {
-        editior.clear().apply();
+        editor.remove(name);
     }
 
     public static void save() {
-        editior.apply();
+        editor.apply();
     }
 
     public static Map<String, String> getDownloadsPath() {
