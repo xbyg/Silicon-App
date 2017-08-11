@@ -52,13 +52,15 @@ public class AboutFragment extends Fragment {
         libraryMap.put("okhttp(v3.8.0)", "square");
         libraryMap.put("picasso(v2.5.2)", "square");
         libraryMap.put("jsoup(v1.10.2)", "jhy");
-        libraryMap.put("js-evaluator-for-android(v2.0.0)", "evgenyneu");
         libraryMap.put("sdp(v1.0.4)", "intuit");
         libraryMap.put("logger(v2.1.1)", "orhanobut");
         libraryMap.put("EventBus(v3.0.0)", "greenrobot");
         libraryMap.put("gson(v2.8.1)", "google");
         libraryMap.put("android-Ultra-Pull-To-Refresh(v1.0.11)", "liaohuqiu");
         libraryMap.put("butterknife(v8.6.0)", "JakeWharton");
+        libraryMap.put("RxJava(v2.1.2)", "ReactiveX");
+        libraryMap.put("RxAndroid(v2.0.1)", "ReactiveX");
+        libraryMap.put("RxBinding(v2.0.0)", "JakeWharton");
     }
 
     @BindView(R.id.iconList) LinearLayout iconsList;

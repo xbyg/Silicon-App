@@ -44,7 +44,7 @@
     <string name="new_pwd">New password</string>
     <string name="new_pwd_confirm">Confirm new password</string>
     <string name="submit">Submit</string>
-    <string name="old_pwd">Old password</string>
+    <string name="old_pwd">Old password: %1$s</string>
     <string name="change_pwd_illegal_pwd">Password can only contain 0-9,a-z,A-Z and _</string>
     <string name="change_pwd_same_pwd">Old password is equal to new password</string>
     <string name="io_exception">Cannot connect to school server</string>

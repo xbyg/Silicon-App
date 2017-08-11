@@ -18,6 +18,8 @@ import com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView;
 
 import java.util.ArrayList;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoInfoLoader> {
     private MTVFragment mtvFragment;
     private RequestFilter requestFilter;
@@ -51,7 +53,9 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
         Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(root.getImage());
 
         root.setOnClickListener(v -> {
-            infoLoader.resolveVideoDetails(videoInfo, () -> activity.runOnUiThread(() -> mtvFragment.playVideo(videoInfo)));
+            infoLoader.resolveVideoDetails(videoInfo)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(() -> mtvFragment.playVideo(videoInfo));
         });
     }
 
@@ -76,10 +80,11 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
             reqParams.sort = requestFilter.sort;
             reqParams.time = requestFilter.time;
             reqParams.page = getPagesLoaded() + 1;
-            infoLoader.request(reqParams, parsedList -> {
-                resourcesList.addAll(parsedList);
-                updateView();
-            });
+            infoLoader.request(reqParams)
+                    .subscribe(parsedList -> {
+                        resourcesList.addAll(parsedList);
+                        updateView();
+                    });
         } else {
             Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.no_more_context), Snackbar.LENGTH_LONG).show();
         }

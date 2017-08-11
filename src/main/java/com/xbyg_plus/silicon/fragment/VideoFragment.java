@@ -49,11 +49,7 @@ public class VideoFragment extends Fragment implements DialogManager.DialogHolde
         adapter = new VideoRVAdapter(getActivity(), (MTVFragment) getParentFragment());
         recyclerView.setAdapter(adapter);
 
-        filterBtn.setOnClickListener(v -> {
-            filterDialog
-                    .setRequestFilter(adapter.getRequestFilter())
-                    .show();
-        });
+        filterBtn.setOnClickListener(v -> filterDialog.setRequestFilter(adapter.getRequestFilter()).show());
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

@@ -50,14 +50,9 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
             @Override
             public void onActionItemClicked(int itemID) {
                 if (itemID == R.id.action_delete) {
-                    String nameList = "";
-                    for (View v : selector.getSelectedItems()) {
-                        nameList += ((File) v.getTag()).getName() + "\n";
-                    }
-                    deleteFilesConfirmDialog
-                            .setContent(getString(R.string.delete_files_confirm), nameList)
-                            .setConfirmCallback(confirmation -> {
-                                if (confirmation) {
+                    deleteFilesConfirmDialog.confirmObservable()
+                            .subscribe(confirm -> {
+                                if (confirm) {
                                     for (View v : selector.getSelectedItems()) {
                                         DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
                                         ((File) v.getTag()).delete();
@@ -67,7 +62,15 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
                                     new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
                                 }
                                 selector.finish();
-                            }).show();
+                            });
+
+                    String nameList = "";
+                    for (View v : selector.getSelectedItems()) {
+                        nameList += ((File) v.getTag()).getName() + "\n";
+                    }
+                    deleteFilesConfirmDialog
+                            .setContent(getString(R.string.delete_files_confirm), nameList)
+                            .show();
                 }
             }
 

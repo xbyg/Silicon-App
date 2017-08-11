@@ -14,14 +14,10 @@ import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.widget.VideoPlayer;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 public class PlayerFragment extends Fragment{
     @BindView(R.id.video_player) VideoPlayer videoPlayer;
@@ -56,16 +52,9 @@ public class PlayerFragment extends Fragment{
         postData.put("id", String.valueOf(videoInfo.id));
         postData.put("rating", "5"); //is it a constant?
         postData.put("type", "video");
-        OKHTTPClient.post("http://58.177.253.163/mtv/ajax.php", postData, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //likeView.setColorFilter(Color.parseColor("#4F84C4"));
-            }
 
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Snackbar.make(getView(), R.string.io_exception, Snackbar.LENGTH_SHORT).show();
-            }
-        });
+        OKHTTPClient.post("http://58.177.253.163/mtv/ajax.php", postData)
+                .subscribe(htmlString -> {/*likeView.setColorFilter(Color.parseColor("#4F84C4"));*/},
+                        throwable -> Snackbar.make(getView(), R.string.io_exception, Snackbar.LENGTH_SHORT).show());
     }
 }

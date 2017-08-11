@@ -1,14 +1,12 @@
 package com.xbyg_plus.silicon.dialog.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog.DirectorySelectedCallback;
 import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
 
 import java.io.File;
@@ -18,33 +16,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.ViewHolder> {
+public class DirectoryRVAdapter extends RecyclerView.Adapter<ViewHolder> {
+    private File currentDirectory;
+
+    // All valid child directories under current directory
     private List<File> dirs = new ArrayList<>();
     private File selectedDir;
 
-    private DirectorySelectedCallback directorySelectedCallback;
-
-    private View backActionView;
-    private TextView parentFileName;
-    private TextView selectBtn;
-
     private SimpleDateFormat simpleDateFormat;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public PastPaperItemView root;
-
-        public ViewHolder(PastPaperItemView root) {
-            super(root);
-            this.root = root;
-        }
-    }
-
-    public DirectoryRVAdapter(View root, DirectorySelectedCallback directorySelectedCallback) {
-        this.directorySelectedCallback = directorySelectedCallback;
-        this.backActionView = root.findViewById(R.id.back);
-        this.parentFileName = (TextView) root.findViewById(R.id.parentDirName);
-        this.selectBtn = (TextView) root.findViewById(R.id.select);
-
+    public DirectoryRVAdapter() {
         this.simpleDateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
     }
 
@@ -52,45 +33,49 @@ public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         PastPaperItemView root = (PastPaperItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_past_paper, parent, false);
         root.getIcon().setImageResource(R.drawable.folder);
-        return new ViewHolder(root);
+        return new RecyclerView.ViewHolder(root) {};
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        final File dir = dirs.get(position);
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        File dir = dirs.get(position);
+        PastPaperItemView itemView = (PastPaperItemView) holder.itemView;
 
-        holder.root.setOnClickListener(v -> loadDir(dir));
+        itemView.setOnClickListener(v -> loadDir(dir));
 
-        holder.root.getCheckBox().setEnabled(selectedDir == null ? true : selectedDir.equals(dir));
-        holder.root.getCheckBox().setChecked(dir.equals(selectedDir)); //Without this,the checkbox disappears,bug?
-        holder.root.getCheckBox().setOnClickListener(v -> {
+        itemView.getCheckBox().setEnabled(selectedDir == null || selectedDir.equals(dir));
+        itemView.getCheckBox().setChecked(dir.equals(selectedDir)); //Without this,the checkbox disappears,bug?
+        itemView.getCheckBox().setOnClickListener(v -> {
             selectedDir = ((CheckBox) v).isChecked() ? dir : null;
             notifyDataSetChanged();//enable or disable other checkboxes
         });
 
-        holder.root.getTitle().setText(dir.getName());
-        holder.root.getDescription().setText(this.simpleDateFormat.format(new Date(dir.lastModified())));
+        itemView.getTitle().setText(dir.getName());
+        itemView.getDescription().setText(this.simpleDateFormat.format(new Date(dir.lastModified())));
     }
 
-    public void loadDir(final File directory) {
-        File[] loadedDirs = directory.listFiles(file -> file.isDirectory() && file.canWrite());
+    public boolean loadDir(File directory) {
+        if (!directory.equals(new File("/"))) {
+            File[] loadedDirs = directory.listFiles(file -> file.isDirectory() && file.canWrite() && !file.isHidden());
 
-        if (loadedDirs != null && loadedDirs.length != 0) {
-            selectedDir = null;
-            dirs = Arrays.asList(loadedDirs);
-            this.parentFileName.setText(directory.getAbsolutePath());
-            this.backActionView.setOnClickListener(v -> {
-                if (!directory.equals(new File("/"))) {
-                    loadDir(directory.getParentFile());
-                }
-            });
-            this.selectBtn.setOnClickListener(v -> {
-                if (selectedDir != null) {
-                    directorySelectedCallback.onDirSelected(selectedDir.getAbsolutePath());
-                }
-            });
-            notifyDataSetChanged();
+            if (loadedDirs != null && loadedDirs.length != 0) {
+                currentDirectory = directory;
+                selectedDir = null;
+                dirs = Arrays.asList(loadedDirs);
+
+                notifyDataSetChanged();
+                return true;
+            }
         }
+        return false;
+    }
+
+    public File getCurrentDirectory() {
+        return currentDirectory;
+    }
+
+    public File getSelectedDir() {
+        return selectedDir;
     }
 
     @Override

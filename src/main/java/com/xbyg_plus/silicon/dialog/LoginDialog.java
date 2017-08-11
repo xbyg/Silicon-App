@@ -6,12 +6,16 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.jakewharton.rxbinding2.view.RxView;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
-import com.xbyg_plus.silicon.utils.SchoolAccountHelper.LoginCallback;
+
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 
 public class LoginDialog extends Dialog{
-    private SchoolAccountHelper accountHelper;
+    private Completable loginCompletable;
 
     private EditText stdID;
     private EditText pwd;
@@ -20,20 +24,29 @@ public class LoginDialog extends Dialog{
     public LoginDialog(Context context) {
         super(context);
         setContentView(R.layout.dialog_login);
-        accountHelper = SchoolAccountHelper.getInstance();
+        SchoolAccountHelper accountHelper = SchoolAccountHelper.getInstance();
 
         stdID = (EditText) findViewById(R.id.stdID);
         pwd = (EditText) findViewById(R.id.pwd);
         loginBtn = (TextView) findViewById(R.id.loginBtn);
+
+        loginCompletable = Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter e) throws Exception {
+                RxView.clicks(loginBtn)
+                        .doOnNext(btn -> {
+                            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                        })
+                        .subscribe(btn -> {
+                            Completable loginResult = accountHelper.login(stdID.getText().toString(), pwd.getText().toString());
+                            loginResult.subscribe(e::onComplete, throwable -> {});
+                        });
+            }
+        });
     }
 
-    public LoginDialog setLoginCallback(LoginCallback callback) {
-        loginBtn.setOnClickListener(v -> {
-            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-
-            accountHelper.login(stdID.getText().toString(), pwd.getText().toString(), callback);
-        });
-        return this;
+    public Completable loginCompletable() {
+        return loginCompletable;
     }
 }

@@ -7,10 +7,8 @@ import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +16,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceInfo> {
     public static class RequestParams extends RequestParameters {
@@ -28,46 +25,30 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
     }
 
     @Override
-    public void request(final RequestParameters parameters, final LoadCallback callback) {
+    public Single<List<WebResourceInfo>> request(final RequestParameters parameters) {
         loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php"));
         loadingDialog.show();
 
         final WebPastPaperFolderInfo folderInfo = ((RequestParams) parameters).folderInfo;
 
         if (folderInfo.getName().equals("root")) {
-            OKHTTPClient.get("http://58.177.253.171/it-school//php/resdb/panel2content.php", new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    callback.onLoaded(parseResponse(parameters, response));
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    loadingDialog.dismiss("Request " + folderInfo.getName() + " failed,please retry.");
-                }
-            });
-            return;
+            return OKHTTPClient.get("http://58.177.253.171/it-school//php/resdb/panel2content.php")
+                    .observeOn(Schedulers.computation())
+                    .map(htmlString -> parseResponse(parameters, htmlString));
+            //loadingDialog.dismiss("Request " + folderInfo.getName() + " failed,please retry.");
         }
-        OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap(), new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                callback.onLoaded(parseResponse(parameters, response));
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                loadingDialog.dismiss("Request " + folderInfo.getName() + " failed,please retry.");
-            }
-        });
+        return OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap())
+                .observeOn(Schedulers.computation())
+                .map(htmlString -> parseResponse(parameters, htmlString));
+        //                loadingDialog.dismiss("Request " + folderInfo.getName() + " failed,please retry.");
     }
 
     @Override
-    protected List<WebResourceInfo> parseResponse(RequestParameters params, Response response) throws IOException {
+    protected List<WebResourceInfo> parseResponse(RequestParameters params, String htmlString) {
         loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
 
         List<WebResourceInfo> webFilesInfo = new ArrayList<WebResourceInfo>();
-        Document doc = Jsoup.parse(response.body().string());
-        Element tbody = doc.select("form#form1 table tbody").first();
+        Element tbody = Jsoup.parse(htmlString).select("form#form1 table tbody").first();
         //TODO: check login status
         for (Element tr : tbody.children()) {
             Element a = tr.select("a").first();

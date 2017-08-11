@@ -32,7 +32,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         super(activity);
         this.infoLoader = new WebPastPaperInfoLoader();
         this.contentsIndex = CachesDatabase.getContentsIndex();
-        loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
+        loadFolder(WebPastPaperFolderInfo.rootFolder);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        final WebResourceInfo resInfo = resourcesList.get(position);
+        WebResourceInfo resInfo = resourcesList.get(position);
         PastPaperItemView item = (PastPaperItemView) holder.item;
 
         item.getTitle().setText(resInfo.getName());
@@ -80,21 +80,23 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
 
     public void loadFolder(WebPastPaperFolderInfo folder) {
         if (contentsIndex.containsKey(folder.getAbsolutePath())) {
-            folderIndex.put(folder.getAbsolutePath(), folder);
-            currentFolder = folder;
-            resourcesList = contentsIndex.get(folder.getAbsolutePath());
-            updateView();
+            applyFolderContents(folder, contentsIndex.get(folder.getAbsolutePath()));
         } else {
-            final WebPastPaperInfoLoader.RequestParams reqParams = new WebPastPaperInfoLoader.RequestParams();
+            WebPastPaperInfoLoader.RequestParams reqParams = new WebPastPaperInfoLoader.RequestParams();
             reqParams.folderInfo = folder;
-            this.infoLoader.request(reqParams, parsedList -> {
-                folderIndex.put(folder.getAbsolutePath(), folder);
-                currentFolder = reqParams.folderInfo;
-                resourcesList = parsedList;
-                contentsIndex.put(reqParams.folderInfo.getAbsolutePath(), parsedList);
-                updateView();
-            });
+            this.infoLoader.request(reqParams)
+                    .subscribe(parsedList -> {
+                        contentsIndex.put(folder.getAbsolutePath(), parsedList);
+                        applyFolderContents(folder, parsedList);
+                    });
         }
+    }
+
+    private void applyFolderContents(WebPastPaperFolderInfo folder, List<WebResourceInfo> contents) {
+        folderIndex.put(folder.getAbsolutePath(), folder);
+        currentFolder = folder;
+        resourcesList = contents;
+        updateView();
     }
 
     @Override
@@ -102,7 +104,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         this.folderIndex.clear();
         this.contentsIndex.clear();
         this.resourcesList.clear();
-        this.loadFolder(new WebPastPaperFolderInfo("root", "", "", null));
+        this.loadFolder(WebPastPaperFolderInfo.rootFolder);
     }
 
     @Override

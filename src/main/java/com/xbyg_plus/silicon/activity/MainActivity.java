@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
 
         SchoolAccountHelper accountHelper = SchoolAccountHelper.getInstance();
         if (accountHelper.isGuestMode()) {
-            accountHelper.tryAutoLogin(result -> {});
+            accountHelper.tryAutoLogin()
+                    .subscribe(() -> {}, throwable -> {});
         } else {
             this.verifyPermission();
         }

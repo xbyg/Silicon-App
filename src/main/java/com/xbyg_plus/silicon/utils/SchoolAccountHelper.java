@@ -2,12 +2,8 @@ package com.xbyg_plus.silicon.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 
-import com.evgenii.jsevaluator.JsEvaluator;
-import com.evgenii.jsevaluator.interfaces.JsCallback;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.LoadingDialog;
@@ -16,18 +12,17 @@ import com.xbyg_plus.silicon.model.SchoolAccount;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.schedulers.Schedulers;
 
 public final class SchoolAccountHelper implements DialogManager.DialogHolder {
     private static SchoolAccountHelper instance;
@@ -64,144 +59,78 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
         this.loadingDialog = dialogManager.obtain(LoadingDialog.class);
     }
 
-    public interface LoginCallback {
-        int LOGIN_SUCCEEDED = 0;
-        int LOGIN_FAILED_USER_DATA_WRONG = 1;
-        int LOGIN_FAILED_IO_EXCEPTION = 2;
-        int LOGIN_FAILED_CANNOT_LOAD_ENCRYPTION_JS = 3;
-        int LOGIN_FAILED_CANNOT_ENCRYPT_PASSWORD = 4;
-
-        void onResult(int result);
-    }
-
-    public void tryAutoLogin(LoginCallback callback) {
+    public Completable tryAutoLogin() {
         if (isAutoLogin) {
-            login(preferences.getString("id", ""), preferences.getString("pwd", ""), callback);
+            return login(preferences.getString("id", ""), preferences.getString("pwd", ""));
         }
+        return Completable.error(new Exception("Logged in already"));
     }
 
-    public void enableAutoLogin(String id, String pwd) {
-        isAutoLogin = true;
-        preferences.edit().putString("id", id).putString("pwd", pwd).apply();
+    public Completable login(String id, String pwd) {
+        return isLoggedIn ? Completable.complete() :
+                encryptPwd(pwd)
+                        .doOnSubscribe(disposable -> loadingDialog.show())
+                        .observeOn(Schedulers.io())
+                        .flatMap(encryptedPwd -> {
+                            loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.171/it-school/php/login_do.php3"));
+
+                            Map<String, String> postData = new HashMap<>();
+                            postData.put("userloginid", id);
+                            postData.put("password", encryptedPwd);
+                            return OKHTTPClient.post("http://58.177.253.171/it-school/php/login_do.php3", postData);
+                        })
+                        .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
+                        .flatMapCompletable(htmlString -> htmlString.contains("main.php3") ? initSchoolAccount(id, pwd) : Completable.error(new Exception("Login data wrong")))
+                        .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.login_data_wrong)));
     }
 
-    public void disableAutoLogin() {
-        isAutoLogin = false;
-        preferences.edit().remove("id").remove("pwd").apply();
+    private Single<String> encryptPwd(String pwd) {
+        return Single.create(new SingleOnSubscribe<String>() {
+            @Override
+            public void subscribe(SingleEmitter<String> e) throws Exception {
+                loadingDialog.setTitleAndMessage("", context.getString(R.string.encrypting_pwd));
+
+                byte[] encryptedPwdBytes = MessageDigest.getInstance("MD5").digest(pwd.getBytes("UTF-8"));
+
+                // convert encrypted password's byte array to hex string
+                // https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
+                char[] hexArray = "0123456789ABCDEF".toCharArray();
+                char[] hexChars = new char[encryptedPwdBytes.length * 2];
+                for (int j = 0; j < encryptedPwdBytes.length; j++) {
+                    int v = encryptedPwdBytes[j] & 0xFF;
+                    hexChars[j * 2] = hexArray[v >>> 4];
+                    hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+                }
+                String encryptedPwd = new String(hexChars).toLowerCase();
+                e.onSuccess(encryptedPwd);
+            }
+        }).subscribeOn(Schedulers.computation());
     }
 
-    /**
-     * @see #loadMD5JS()
-     * @see #encryptPwd(String, String, JsCallback)
-     * This function loads MD5.js and encrypt the user password
-     * Then post the login data to the server and initialize an school account.
-     * @see SchoolAccount
-     */
-    public void login(final String id, final String pwd, final LoginCallback callback) {
-        loadingDialog.setCancelable(false);
+    private Completable initSchoolAccount(String id, String pwd) {
+        return Completable.create(e ->
+                OKHTTPClient.get("http://58.177.253.171/it-school/php/home_v5.php3")
+                        .observeOn(Schedulers.computation())
+                        .subscribe(htmlString -> {
+                            Document doc = Jsoup.parse(htmlString);
+                            String welcome_msg = doc.select("div.right_content h1").first().text();
+                            String name = getMatch(welcome_msg, "(?<=\\)\\ ).*(?=\\　)");
+                            String classRoom = getMatch(welcome_msg, "(?<=\\()[1-6][A-F]");
+                            int classNo = Integer.parseInt(getMatch(welcome_msg, "[0-9]{1,2}(?=\\))"));
 
-        try {
-            loadingDialog.setTitleAndMessage(context.getString(R.string.encryption), context.getString(R.string.loading_md5_js));
-            loadingDialog.show();
-            String script = loadMD5JS();
+                            schoolAccount = new SchoolAccount(name, classRoom, classNo, id, pwd);
+                            isGuestMode = false;
+                            isLoggedIn = true;
+                            isAutoLogin = true;
+                            preferences.edit().putString("id", id).putString("pwd", pwd).apply();
 
-            loadingDialog.setTitleAndMessage(context.getString(R.string.encryption), context.getString(R.string.encrypting_pwd));
-            encryptPwd(script, pwd, new JsCallback() {
-                @Override
-                public void onResult(String encrypted_pwd) {
-                    loadingDialog.setTitleAndMessage(context.getString(R.string.network), context.getString(R.string.requesting, " http://58.177.253.171/it-school/php/login_do.php3"));
-
-                    Map<String, String> postData = new HashMap<>();
-                    postData.put("userloginid", id);
-                    postData.put("password", encrypted_pwd);
-                    //FakePassword and language fields can be ignored
-                    OKHTTPClient.post("http://58.177.253.171/it-school/php/login_do.php3", postData, new Callback() {
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (response.body().string().contains("main.php3")) {
-                                isGuestMode = false;
-                                isLoggedIn = true;
-                                initSchoolAccount(id, pwd, callback);
-                            } else {
-                                loadingDialog.dismiss(context.getString(R.string.login_data_wrong));
-                                callback.onResult(LoginCallback.LOGIN_FAILED_USER_DATA_WRONG);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call call, IOException e) {
+                            loadingDialog.dismiss();
+                            e.onComplete();
+                        }, throwable -> {
                             loadingDialog.dismiss(context.getString(R.string.login_io_exception));
-                            callback.onResult(LoginCallback.LOGIN_FAILED_IO_EXCEPTION);
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(String s) {
-                    loadingDialog.dismiss(context.getString(R.string.cannot_encrypt_pwd));
-                    callback.onResult(LoginCallback.LOGIN_FAILED_CANNOT_ENCRYPT_PASSWORD);
-                }
-            });
-        } catch (IOException e) {
-            loadingDialog.dismiss(context.getString(R.string.cannot_load_encryption_js));
-            callback.onResult(LoginCallback.LOGIN_FAILED_CANNOT_LOAD_ENCRYPTION_JS);
-        }
-    }
-
-    /**
-     * This md5.js is a copy of the javascript of the following link
-     *
-     * @link http://58.177.253.171/it-school//js/md5.js
-     */
-    private String loadMD5JS() throws IOException {
-        InputStream stream = context.getResources().openRawResource(R.raw.md5);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder builder = new StringBuilder();
-        String context;
-        while ((context = reader.readLine()) != null) {
-            builder.append(context);
-        }
-        return builder.toString();
-    }
-
-    /**
-     * The js-evaluator has to run on ui thread.
-     * It calls the MD5 function defined in the md5.js
-     *
-     * @link https://github.com/evgenyneu/js-evaluator-for-android
-     */
-    private void encryptPwd(String script, String pwd, JsCallback callback) {
-        new Handler(Looper.getMainLooper()).post(() -> new JsEvaluator(context).callFunction(script, callback, "MD5", pwd));
-    }
-
-    /**
-     * It send a request to http://58.177.253.171/it-school/php/home_v5.php3
-     * then parsing the response to get student's name,class room and class number
-     */
-    private void initSchoolAccount(final String id, final String pwd, final LoginCallback callback) {
-        if (schoolAccount == null && isLoggedIn) {
-            OKHTTPClient.get("http://58.177.253.171/it-school/php/home_v5.php3", new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    Document doc = Jsoup.parse(response.body().string());
-                    String welcome_msg = doc.select("div.right_content h1").first().text();
-                    String name = getMatch(welcome_msg, "(?<=\\)\\ ).*(?=\\　)");
-                    String classRoom = getMatch(welcome_msg, "(?<=\\()[1-6][A-F]");
-                    int classNo = Integer.parseInt(getMatch(welcome_msg, "[0-9]{1,2}(?=\\))"));
-
-                    schoolAccount = new SchoolAccount(name, classRoom, classNo, id, pwd);
-                    enableAutoLogin(id, pwd);
-                    loadingDialog.dismiss();
-                    callback.onResult(LoginCallback.LOGIN_SUCCEEDED);
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    loadingDialog.dismiss(context.getString(R.string.login_io_exception));
-                    callback.onResult(LoginCallback.LOGIN_FAILED_IO_EXCEPTION);
-                }
-            });
-        }
+                            e.onError(new Exception("IO exception"));
+                        })
+        );
     }
 
     private String getMatch(String string, String pattern) {
@@ -211,73 +140,32 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
     }
 
     public void logout() {
-        if (isLoggedIn()) {
+        if (isLoggedIn) {
+            schoolAccount = null;
             isGuestMode = true;
             isLoggedIn = false;
-            schoolAccount = null;
-            OKHTTPClient.get("http://58.177.253.171/it-school/php/buttons/itschool.php3", new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    if (preferences.contains("id")) {
-                        preferences.edit().remove("id").remove("pwd").commit();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    if (preferences.contains("id")) {
-                        preferences.edit().remove("id").remove("pwd").commit();
-                    }
-                }
-            });
+            isAutoLogin = false;
+            preferences.edit().remove("id").remove("pwd").apply();
+            OKHTTPClient.get("http://58.177.253.171/it-school/php/buttons/itschool.php3")
+                    .subscribe(htmlString -> {}, throwable -> {});
         }
     }
 
-    public interface ChangePasswordCallback {
-        int SUCCEED = 0;
-        int FAILED_ILLEGAL_PWD = 1;
-        int FAILED_SAME_PWD = 2;
-        int FAILED_IO_EXCEPTION = 3;
-
-        void onResult(int result);
-    }
-
-    public void changePassword(final String newPwd, final ChangePasswordCallback callback) {
+    public Completable changePassword(String newPwd) {
         if (newPwd.matches("\\W") || newPwd.equals("")) {
-            callback.onResult(ChangePasswordCallback.FAILED_ILLEGAL_PWD);
-            return;
+            return Completable.error(new RuntimeException(context.getString(R.string.change_pwd_illegal_pwd)));
         }
         if (newPwd.equals(schoolAccount.getPassword())) {
-            callback.onResult(ChangePasswordCallback.FAILED_SAME_PWD);
-            return;
+            return Completable.error(new RuntimeException(context.getString(R.string.change_pwd_same_pwd)));
         }
 
-        HashMap<String, String> map = new HashMap<>();
-        map.put("oldpassword", schoolAccount.getPassword());
-        map.put("newpassword", newPwd);
-        map.put("confirmnewpassword", newPwd);
-        OKHTTPClient.post("http://58.177.253.171/it-school/php/chpwd/index.php3", map, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                schoolAccount.setNewPassword(newPwd);
-                callback.onResult(ChangePasswordCallback.SUCCEED);
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                callback.onResult(ChangePasswordCallback.FAILED_IO_EXCEPTION);
-            }
-        });
-    }
-
-    public interface MTVLoginCallback {
-        int LOGIN_SUCCEEDED = 0;
-        int LOGIN_FAILED_USER_DATA_WRONG = 1;
-        int LOGIN_FAILED_IO_EXCEPTION = 2;
-
-        void onResult(int result);
+        HashMap<String, String> postData = new HashMap<>();
+        postData.put("oldpassword", schoolAccount.getPassword());
+        postData.put("newpassword", newPwd);
+        postData.put("confirmnewpassword", newPwd);
+        return OKHTTPClient.post("http://58.177.253.171/it-school/php/chpwd/index.php3", postData)
+                .toCompletable()
+                .doOnComplete(() -> schoolAccount.setNewPassword(newPwd));
     }
 
     /**
@@ -288,7 +176,7 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
      *
      * 2. Server side requests us to enable javascript which we can't do it easily....
      * */
-    public void loginMTV(String HKid, MTVLoginCallback callback) {
+    public Completable loginMTV(String HKid) {
         loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.163/mtv/signup.php"));
         loadingDialog.show();
 
@@ -296,26 +184,19 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
         postData.put("username", schoolAccount.getId());
         postData.put("password", HKid);
         postData.put("login", "Login");
-        OKHTTPClient.post("http://58.177.253.163/mtv/signup.php", postData, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //<script type="text/javascript">window.location = "http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1"</script>Javascript is turned off, <a href='http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1'>click here to go to requested page</a>
-                if (response.body().string().contains("window.location = \"http://58.177.253.163/mtv/videos.php\"") ) {
-                    schoolAccount.setHKid(HKid);
-                    loadingDialog.dismiss();
-                    callback.onResult(MTVLoginCallback.LOGIN_SUCCEEDED);
-                } else {
-                    loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));
-                    callback.onResult(MTVLoginCallback.LOGIN_FAILED_USER_DATA_WRONG);
-                }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                loadingDialog.dismiss(context.getString(R.string.io_exception));
-                callback.onResult(MTVLoginCallback.LOGIN_FAILED_IO_EXCEPTION);
-            }
-        });
+        return OKHTTPClient.post("http://58.177.253.163/mtv/signup.php", postData)
+                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
+                .flatMapCompletable(htmlString -> {
+                    //<script type="text/javascript">window.location = "http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1"</script>Javascript is turned off, <a href='http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1'>click here to go to requested page</a>
+                    if (htmlString.contains("window.location = \"http://58.177.253.163/mtv/videos.php\"")) {
+                        schoolAccount.setHKid(HKid);
+                        loadingDialog.dismiss();
+                        return Completable.complete();
+                    } else {
+                        loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));
+                        return Completable.error(new Exception("user data wrong"));
+                    }
+                });
     }
 
     public SchoolAccount getSchoolAccount() {

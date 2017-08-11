@@ -7,7 +7,7 @@ import com.xbyg_plus.silicon.model.WebResourceInfo;
 import java.io.IOException;
 import java.util.List;
 
-import okhttp3.Response;
+import io.reactivex.Single;
 
 public abstract class WebResourcesInfoLoader<T extends WebResourceInfo> implements DialogManager.DialogHolder {
     protected LoadingDialog loadingDialog;
@@ -19,13 +19,9 @@ public abstract class WebResourcesInfoLoader<T extends WebResourceInfo> implemen
     public static class RequestParameters {
     }
 
-    public interface LoadCallback<T extends WebResourceInfo> {
-        void onLoaded(List<T> parsedList);
-    }
+    public abstract Single<List<T>> request(RequestParameters parameters);
 
-    public abstract void request(RequestParameters parameters, LoadCallback callback);
-
-    protected abstract List<T> parseResponse(RequestParameters parameters, Response response) throws IOException;
+    protected abstract List<T> parseResponse(RequestParameters parameters, String htmlString);
 
     @Override
     public void onDialogsCreated(DialogManager dialogManager) {

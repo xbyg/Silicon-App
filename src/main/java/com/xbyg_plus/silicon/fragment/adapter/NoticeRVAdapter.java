@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
@@ -13,6 +14,8 @@ import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebNoticesInfoLoader;
 import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.NoticeItemView;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoticesInfoLoader> {
     private int effective = 0; //0: show all,1: show effective
@@ -61,21 +64,19 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
 
         item.getAction().setOnClickListener(v -> {
             if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
-                    Uri uri = Uri.parse(noticeInfo.getDownloadAddress());
-                    ViewIntent.view(activity, uri, "application/pdf");
-                });
+                infoLoader.resolveDownloadAddress(noticeInfo)
+                        .subscribe(() -> ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf"),
+                                throwable -> Logger.d("1"));
             } else {
-                Uri uri = Uri.parse(noticeInfo.getDownloadAddress());
-                ViewIntent.view(activity, uri, "application/pdf");
+                ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf");
             }
         });
 
         item.setOnClickListener(v -> {
             if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
-                    activity.runOnUiThread(() -> resDetailsDialog.setContent(noticeInfo).show());
-                });
+                infoLoader.resolveDownloadAddress(noticeInfo)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> resDetailsDialog.setContent(noticeInfo).show());
             } else {
                 resDetailsDialog.setContent(noticeInfo).show();
             }
@@ -90,10 +91,11 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         WebNoticesInfoLoader.RequestParams reqParams = new WebNoticesInfoLoader.RequestParams();
         reqParams.page = getPagesLoaded() + 1;
         reqParams.effective = effective;
-        this.infoLoader.request(reqParams, parsedList -> {
-            resourcesList.addAll(parsedList);
-            updateView();
-        });
+        this.infoLoader.request(reqParams)
+                .subscribe(parsedList -> {
+                    resourcesList.addAll(parsedList);
+                    updateView();
+                });
     }
 
     @Override
@@ -107,12 +109,14 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         for (WebNoticeInfo noticeInfo : selector.getSelectedItems()) {
             if (noticeInfo.getDownloadAddress() == null) {
                 noticeAddressCount++;
-                infoLoader.resolveDownloadAddress(noticeInfo, () -> {
-                    if (noticeAddressCount == selector.getSelectedItems().size()) {
-                        noticeAddressCount = 0;
-                        activity.runOnUiThread(() -> NoticeRVAdapter.super.showDownloadConfirm());
-                    }
-                });
+                infoLoader.resolveDownloadAddress(noticeInfo)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(() -> {
+                            if (noticeAddressCount == selector.getSelectedItems().size()) {
+                                noticeAddressCount = 0;
+                                NoticeRVAdapter.super.showDownloadConfirm();
+                            }
+                        });
             }
         }
 

@@ -70,7 +70,7 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
 
                 popupMenu.setOnMenuItemClickListener(item -> {
                     if (item.getItemId() == R.id.change_pwd) {
-                        changePasswordDialog.setContent(schoolAccount).show();
+                        changePasswordDialog.setContent().show();
                     }
                     return true;
                 });
@@ -82,7 +82,6 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
 
             logout.setOnClickListener(v -> {
                 accountHelper.logout();
-                accountHelper.disableAutoLogin();
                 restartActivity();
             });
         } else {
@@ -90,11 +89,11 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
             edit.setVisibility(View.GONE);
             logout.setVisibility(View.GONE);
 
-            login.setOnClickListener(v -> {
-                loginDialog.setLoginCallback(result -> {
-                    loginDialog.dismiss();
-                    restartActivity();
-                }).show();
+            login.setOnClickListener(v -> loginDialog.show());
+
+            loginDialog.loginCompletable().subscribe(() -> {
+                loginDialog.dismiss();
+                restartActivity();
             });
         }
 

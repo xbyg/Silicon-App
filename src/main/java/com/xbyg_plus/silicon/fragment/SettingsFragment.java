@@ -19,7 +19,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         Preference savingPath = findPreference("savingPath");
         Preference caches = findPreference("caches");
@@ -28,10 +28,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
         caches.setSummary(CachesDatabase.getCachesSize() + " kb");
 
         savingPath.setOnPreferenceClickListener((Preference preference) -> {
-            directorySelectorDialog.setDirectorySelectedCallback(dir -> {
-                savingPath.setSummary(dir);
-                preferences.edit().putString("savingPath", dir).apply();
-            }).show(new File("/sdcard/"));
+            directorySelectorDialog.show(new File("/sdcard/"));
             return true;
         });
         caches.setOnPreferenceClickListener((Preference preference) -> {
@@ -39,6 +36,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
             caches.setSummary("0 kb");
             return true;
         });
+
+        DialogManager.registerDialogHolder(this);
+        directorySelectorDialog.selectDirectoryObservable()
+                .subscribe(dir -> {
+                    savingPath.setSummary(dir.getAbsolutePath());
+                    preferences.edit().putString("savingPath", dir.getAbsolutePath()).apply();
+                });
     }
 
     @Override

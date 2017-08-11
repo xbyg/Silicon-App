@@ -29,9 +29,7 @@ public class ResDetailsDialog extends Dialog {
         ((TextView) findViewById(R.id.effectiveDate)).setText(getContext().getString(R.string.res_details_effective_date, noticeInfo.getEffectiveDate()));
         ((TextView) findViewById(R.id.uploader)).setText(getContext().getString(R.string.res_details_uploader, noticeInfo.getUploader()));
         ((TextView) findViewById(R.id.download)).setText(getContext().getString(R.string.res_details_download_address, noticeInfo.getDownloadAddress()));
-        findViewById(R.id.ok).setOnClickListener(v -> {
-            dismiss();
-        });
+        findViewById(R.id.ok).setOnClickListener(v -> dismiss());
         return this;
     }
 
@@ -42,9 +40,7 @@ public class ResDetailsDialog extends Dialog {
         ((TextView) findViewById(R.id.size)).setText(getContext().getString(R.string.res_details_size, pastPaperInfo.getSize()));
         ((TextView) findViewById(R.id.date)).setText(getContext().getString(R.string.res_details_date, pastPaperInfo.getDate()));
         ((TextView) findViewById(R.id.download)).setText(getContext().getString(R.string.res_details_download_address, pastPaperInfo.getDownloadAddress()));
-        findViewById(R.id.ok).setOnClickListener(v -> {
-            dismiss();
-        });
+        findViewById(R.id.ok).setOnClickListener(v -> dismiss());
         return this;
     }
 }

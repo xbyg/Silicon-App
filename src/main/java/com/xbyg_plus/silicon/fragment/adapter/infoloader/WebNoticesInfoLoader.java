@@ -10,16 +10,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+import io.reactivex.Completable;
+import io.reactivex.Single;
+import io.reactivex.schedulers.Schedulers;
 
 public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> {
     /**
@@ -35,40 +34,29 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
         public int page, effective;
     }
 
-    public interface WebNoticeAddressResolvedCallback {
-        void onNoticeAddressResolved();
-    }
-
     @Override
-    public void request(final RequestParameters parameters, final LoadCallback callback) {
+    public Single<List<WebNoticeInfo>> request(final RequestParameters parameters) {
         RequestParams params = (RequestParams) parameters;
 
         loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php"));
         loadingDialog.show();
 
-        HashMap<String, String> dataSet = new HashMap<>();
-        dataSet.put("page_action", "load_index_notice");
-        dataSet.put("effective", String.valueOf(params.effective));
-        dataSet.put("page", String.valueOf(params.page));
+        HashMap<String, String> postData = new HashMap<>();
+        postData.put("page_action", "load_index_notice");
+        postData.put("effective", String.valueOf(params.effective));
+        postData.put("page", String.valueOf(params.page));
 
-        OKHTTPClient.post("http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php", dataSet, new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                callback.onLoaded(parseResponse(parameters, response));
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception));
-            }
-        });
+        return OKHTTPClient.post("http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php", postData)
+                .observeOn(Schedulers.computation())
+                .map(htmlString -> parseResponse(parameters, htmlString));
+        // loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception));
     }
 
     @Override
-    protected List<WebNoticeInfo> parseResponse(RequestParameters params, Response response) throws IOException {
+    protected List<WebNoticeInfo> parseResponse(RequestParameters params, String htmlString) {
         loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
         List<WebNoticeInfo> webNoticesInfo = new ArrayList<>();
-        Document doc = Jsoup.parse("<table><tbody>" + response.body().string() + "</tbody></table>"); //the HTML responded only include <tr> and <td>......
+        Document doc = Jsoup.parse("<table><tbody>" + htmlString + "</tbody></table>"); //the HTML responded only include <tr> and <td>......
         Element tbody = doc.select("tbody").first();
 
         Pattern pattern = Pattern.compile("[0-9]+(?=\\))");
@@ -93,22 +81,17 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
         return webNoticesInfo;
     }
 
-    public void resolveDownloadAddress(final WebNoticeInfo noticeInfo, final WebNoticeAddressResolvedCallback callback) {
+    public Completable resolveDownloadAddress(final WebNoticeInfo noticeInfo) {
         loadingDialog.setTitleAndMessage("Network", "resolving download address of '" + noticeInfo.getName() + "'");
         loadingDialog.show();
         noticeInfo.setDownloadAddress("resolving..."); //Prevent multi request.
 
-        OKHTTPClient.get("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId(), new Callback() {
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                noticeInfo.setDownloadAddress("http://58.177.253.171" + Jsoup.parse(response.body().string()).getElementsByClass("att_file").first().attr("href"));
-                loadingDialog.dismiss();
-                callback.onNoticeAddressResolved();
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-            }
-        });
+        return OKHTTPClient.get("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId())
+                .observeOn(Schedulers.computation())
+                .flatMapCompletable(htmlString -> {
+                    noticeInfo.setDownloadAddress("http://58.177.253.171" + Jsoup.parse(htmlString).getElementsByClass("att_file").first().attr("href"));
+                    loadingDialog.dismiss();
+                    return Completable.complete();
+                });
     }
 }

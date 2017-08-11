@@ -73,10 +73,9 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
     public abstract void refreshData();
 
     protected void showDownloadConfirm() {
-        downloadConfirmDialog
-                .setContent((List<WebResourceInfo>) selector.getSelectedItems())
-                .setConfirmCallback(confirmation -> {
-                    if (confirmation) {
+        downloadConfirmDialog.confirmObservable()
+                .subscribe(confirm -> {
+                    if (confirm) {
                         String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath", "/sdcard") + "/";
                         List<Info> resInfoList = new ArrayList(selector.getSelectedItems());
                         for (Info resInfo : resInfoList) {
@@ -88,7 +87,9 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
                                 .show();
                     }
                     selector.finish();
-                })
+                });
+
+        downloadConfirmDialog.setContent((List<WebResourceInfo>) selector.getSelectedItems())
                 .show();
     }
 
