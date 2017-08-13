@@ -2,6 +2,7 @@ package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 import android.net.Uri;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -43,22 +44,21 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         NoticeItemView item = (NoticeItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notice, parent, false);
-        return new ViewHolder(item);
+        return new ViewHolder(item) {};
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         WebNoticeInfo noticeInfo = this.resourcesList.get(position);
 
-        NoticeItemView item = (NoticeItemView) holder.item;
+        NoticeItemView item = (NoticeItemView) holder.itemView;
         item.getTitle().setText(noticeInfo.getName());
 
-        item.getCheckBox().setChecked(selector.contains(noticeInfo));
         item.getCheckBox().setOnClickListener(v -> {
             if (item.getCheckBox().isChecked()) {
-                selector.add(noticeInfo);
+                selector.select(item, noticeInfo);
             } else {
-                selector.remove(noticeInfo);
+                selector.deselect(item);
             }
         });
 
@@ -106,7 +106,7 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
 
     @Override
     protected void showDownloadConfirm() {
-        for (WebNoticeInfo noticeInfo : selector.getSelectedItems()) {
+        for (WebNoticeInfo noticeInfo : selector.getSelectedItems().values()) {
             if (noticeInfo.getDownloadAddress() == null) {
                 noticeAddressCount++;
                 infoLoader.resolveDownloadAddress(noticeInfo)

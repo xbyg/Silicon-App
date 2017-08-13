@@ -26,6 +26,7 @@ import com.xbyg_plus.silicon.fragment.adapter.item.DownloadedItemView;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,45 +36,36 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
     @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
     private ConfirmDialog deleteFilesConfirmDialog;
-    private ItemSelector<DownloadedItemView> selector;
+    private ItemSelector<DownloadedItemView, File> selector;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         this.selector = new ItemSelector<>(getActivity(), R.menu.file_delete);
-        this.selector.setActionModeListener(new ItemSelector.ActionModeListener() {
-            @Override
-            public void onActionItemClicked(int itemID) {
-                if (itemID == R.id.action_delete) {
-                    deleteFilesConfirmDialog.confirmObservable()
-                            .subscribe(confirm -> {
-                                if (confirm) {
-                                    for (View v : selector.getSelectedItems()) {
-                                        DownloadsDatabase.removeDownloadPath(((File) v.getTag()).getName());
-                                        ((File) v.getTag()).delete();
-                                        downloadsLayout.removeView(v);
-                                    }
-                                    DownloadsDatabase.save();
-                                    new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
+        this.selector.setActionItemClickListener(itemID -> {
+            if (itemID == R.id.action_delete) {
+                deleteFilesConfirmDialog.confirmObservable()
+                        .subscribe(confirm -> {
+                            if (confirm) {
+                                for (Map.Entry<DownloadedItemView, File> entry : selector.getSelectedItems().entrySet()) {
+                                    File file = entry.getValue();
+                                    DownloadsDatabase.removeDownloadPath(file.getName());
+                                    file.delete();
+                                    downloadsLayout.removeView(entry.getKey());
                                 }
-                                selector.finish();
-                            });
+                                DownloadsDatabase.save();
+                                new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
+                            }
+                            selector.finish();
+                        });
 
-                    String nameList = "";
-                    for (View v : selector.getSelectedItems()) {
-                        nameList += ((File) v.getTag()).getName() + "\n";
-                    }
-                    deleteFilesConfirmDialog
-                            .setContent(getString(R.string.delete_files_confirm), nameList)
-                            .show();
+                String nameList = "";
+                for (File file : selector.getSelectedItems().values()) {
+                    nameList += file.getName() + "\n";
                 }
-            }
-
-            @Override
-            public void onDestroyActionMode() {
-                for (DownloadedItemView v : selector.getSelectedItems()) {
-                    v.getCheckBox().setChecked(false);
-                }
+                deleteFilesConfirmDialog
+                        .setContent(getString(R.string.delete_files_confirm), nameList)
+                        .show();
             }
         });
     }
@@ -141,9 +133,9 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
         root.getCheckBox().setOnClickListener(v -> {
             //OnCheckedChangedListener conflicts with setChecked() function in onDestroyActionMode() function,since they operate the HashMap(selectedItems) at the same time
             if (root.getCheckBox().isChecked()) {
-                selector.add(root);
+                selector.select(root, file);
             } else {
-                selector.remove(root);
+                selector.deselect(root);
             }
         });
         root.setOnClickListener(v -> ViewIntent.view(getActivity(), Uri.fromFile(file)));

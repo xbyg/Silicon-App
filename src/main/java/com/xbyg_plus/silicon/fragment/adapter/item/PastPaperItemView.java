@@ -3,7 +3,7 @@ package com.xbyg_plus.silicon.fragment.adapter.item;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class PastPaperItemView extends ItemBaseView {
+public class PastPaperItemView extends SelectableItemView {
     public PastPaperItemView(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
     }

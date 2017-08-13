@@ -5,24 +5,29 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
- * This class is used to show an action mode when the user is selecting items.
+ * This class is used to show an action mode when the user is selecting items and store the selected items
  */
-public final class ItemSelector<Item> {
+public final class ItemSelector<Item extends ItemSelector.SelectableItem, AttachedData> {
     protected ActionMode mActionMode;
-    protected List<Item> selectedItems = new ArrayList<>();
+    //Each item has an attached data object such as File, WebNoticeInfo, WebPastPaperInfo
+    protected HashMap<Item, AttachedData> selectedItems = new HashMap<>();
 
     protected Activity activity;
     protected int menuID;
-    protected ActionModeListener listener;
+    protected ActionItemClickListener listener;
 
-    public interface ActionModeListener {
+    public interface SelectableItem {
+        // give a signal to the view when it is being select or deselect
+        void onSelected();
+
+        void onDeselected();
+    }
+
+    public interface ActionItemClickListener {
         void onActionItemClicked(int itemID);
-
-        void onDestroyActionMode();
     }
 
     public ItemSelector(Activity activity, int menuID) {
@@ -30,34 +35,36 @@ public final class ItemSelector<Item> {
         this.menuID = menuID;
     }
 
-    public void setActionModeListener(ActionModeListener listener) {
+    public void setActionItemClickListener(ActionItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void add(Item item) {
-        selectedItems.add(item);
+    public void select(Item item, AttachedData attachedData) {
+        selectedItems.put(item, attachedData);
+        item.onSelected();
         if (mActionMode == null) {
             mActionMode = activity.startActionMode(actionModeCallback);
         }
     }
 
-    public void remove(Item item) {
+    public void deselect(Item item) {
         selectedItems.remove(item);
+        item.onDeselected();
         if (selectedItems.size() == 0) {
             mActionMode.finish();
             mActionMode = null;
         }
     }
 
-    public boolean contains(Item item) {
-        return this.selectedItems.contains(item);
+    public boolean contains(SelectableItem item) {
+        return this.selectedItems.containsKey(item);
     }
 
     public void finish() {
         this.mActionMode.finish();
     }
 
-    public List<Item> getSelectedItems() {
+    public HashMap<Item, AttachedData> getSelectedItems() {
         return this.selectedItems;
     }
 
@@ -83,8 +90,8 @@ public final class ItemSelector<Item> {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            if (listener != null) {
-                listener.onDestroyActionMode();
+            for (SelectableItem item : selectedItems.keySet()) {
+                item.onDeselected();
             }
             selectedItems.clear();
             mActionMode = null;

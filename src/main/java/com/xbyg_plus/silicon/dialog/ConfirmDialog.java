@@ -6,9 +6,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.model.WebResourceInfo;
-
-import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -40,13 +37,5 @@ public class ConfirmDialog extends MyDialog {
         titleView.setText(text);
         messageView.setText(message);
         return this;
-    }
-
-    public ConfirmDialog setContent(List<WebResourceInfo> infoList) {
-        String nameList = "";
-        for (WebResourceInfo info : infoList) {
-            nameList += info.getName() + "\n";
-        }
-        return this.setContent(getContext().getString(R.string.download_files_confirm), nameList);
     }
 }

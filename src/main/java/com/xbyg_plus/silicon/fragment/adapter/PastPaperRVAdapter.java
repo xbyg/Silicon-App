@@ -1,6 +1,7 @@
 package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -38,13 +39,13 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         PastPaperItemView v = (PastPaperItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_past_paper, parent, false);
-        return new ViewHolder(v);
+        return new ViewHolder(v) {};
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         WebResourceInfo resInfo = resourcesList.get(position);
-        PastPaperItemView item = (PastPaperItemView) holder.item;
+        PastPaperItemView item = (PastPaperItemView) holder.itemView;
 
         item.getTitle().setText(resInfo.getName());
         if (resInfo instanceof WebPastPaperFolderInfo) {
@@ -55,12 +56,11 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         } else {
             item.getIcon().setImageResource(R.drawable.file);
             item.getCheckBox().setEnabled(true);
-            item.getCheckBox().setChecked(selector.contains(resInfo));
             item.getCheckBox().setOnClickListener(v -> {
                 if (((CheckBox) v).isChecked()) {
-                    selector.add(resInfo);
+                    selector.select(item, resInfo);
                 } else {
-                    selector.remove(resInfo);
+                    selector.deselect(item);
                 }
             });
             item.getDescription().setText(resInfo.getSize() + "kb," + resInfo.getDate());

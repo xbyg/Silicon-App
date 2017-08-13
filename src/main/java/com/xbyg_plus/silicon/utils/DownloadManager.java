@@ -50,6 +50,10 @@ public final class DownloadManager {
         }
     }
 
+    public static void setSavePath(String savePath) {
+        DownloadManager.savePath = savePath;
+    }
+
     public interface DownloadTaskListener {
         void onDownloadStart(DownloadTask task);
         

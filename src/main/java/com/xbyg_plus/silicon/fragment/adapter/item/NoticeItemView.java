@@ -3,7 +3,7 @@ package com.xbyg_plus.silicon.fragment.adapter.item;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class NoticeItemView extends ItemBaseView {
+public class NoticeItemView extends SelectableItemView {
     public NoticeItemView(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
     }

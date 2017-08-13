@@ -10,6 +10,7 @@ import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog;
 import com.xbyg_plus.silicon.database.CachesDatabase;
+import com.xbyg_plus.silicon.utils.DownloadManager;
 
 import java.io.File;
 
@@ -42,6 +43,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
                 .subscribe(dir -> {
                     savingPath.setSummary(dir.getAbsolutePath());
                     preferences.edit().putString("savingPath", dir.getAbsolutePath()).apply();
+                    DownloadManager.setSavePath(dir.getAbsolutePath() + "/");
                 });
     }
 

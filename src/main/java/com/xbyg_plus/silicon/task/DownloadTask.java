@@ -41,7 +41,7 @@ public class DownloadTask extends ObservableTask<WebResourceInfo, File> {
 
         return OKHTTPClient.stream(resInfo.getDownloadAddress())
                 .observeOn(Schedulers.io())
-                .flatMap(DownloadTask.this::convertToFile)
+                .flatMap(this::convertToFile)
                 .doOnSuccess(file -> {
                     DownloadsDatabase.addDownloadPath(resInfo.getName(), savePath);
                     DownloadsDatabase.save();

@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -39,14 +40,14 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         VideoItemView v = (VideoItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
-        return new ViewHolder(v);
+        return new ViewHolder(v) {};
     }
 
     @Override
-    public void onBindViewHolder(WebResourceRVAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         WebVideoInfo videoInfo = this.resourcesList.get(position);
 
-        VideoItemView root = (VideoItemView) holder.item;
+        VideoItemView root = (VideoItemView) holder.itemView;
         root.getTitle().setText(videoInfo.title);
         root.getViews().setText(activity.getString(R.string.video_views, videoInfo.views));
         root.getDuration().setText(videoInfo.duration);
