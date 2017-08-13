@@ -1,83 +1,78 @@
 package com.xbyg_plus.silicon.task;
 
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 
+import com.xbyg_plus.silicon.MyApplication;
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.event.DownloadCompleteEvent;
-import com.xbyg_plus.silicon.event.DownloadStartEvent;
-import com.xbyg_plus.silicon.utils.OKHTTPClient;
-import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.fragment.adapter.item.DownloadingItemView;
-
-import org.greenrobot.eventbus.EventBus;
+import com.xbyg_plus.silicon.utils.OKHTTPClient;
+import com.xbyg_plus.silicon.model.WebResourceInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
 
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class DownloadTask<T extends WebResourceInfo> extends AsyncTask<T, Void, Void> {
-    public static final LinkedList<DownloadTask> pool = new LinkedList<>();
-
+public class DownloadTask extends ObservableTask<WebResourceInfo, File> {
     private DownloadingItemView attachedView;
 
-    private Activity activity;
+    private WebResourceInfo resInfo;
     private String savePath;
 
-    private T resInfo;
-
-    public DownloadTask(Activity activity, String savePath) {
-        pool.add(this);
-        this.activity = activity;
+    public DownloadTask(String savePath) {
         this.savePath = savePath;
+        this.progressPublisher.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(currentProgress -> attachedView.getProgress().setText(currentProgress + "%"));
     }
 
     @Override
-    protected Void doInBackground(T... params) {
-        this.resInfo = params[0];
-        this.attachedView = (DownloadingItemView) LayoutInflater.from(activity).inflate(R.layout.item_downloading_file, null, false);
+    public Single<File> execute(WebResourceInfo resInfo) {
+        this.resInfo = resInfo;
 
-        OKHTTPClient.stream(resInfo.getDownloadAddress())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(inStream -> {
-                    EventBus.getDefault().post(new DownloadStartEvent(DownloadTask.this));
-                    attachedView.getTitle().setText(resInfo.getName());
-                })
+        this.attachedView = (DownloadingItemView) LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.item_downloading_file, null, false);
+        this.attachedView.getTitle().setText(resInfo.getName());
+
+        return OKHTTPClient.stream(resInfo.getDownloadAddress())
                 .observeOn(Schedulers.io())
-                .subscribe(inStream -> {
-                    OutputStream out = new FileOutputStream(savePath + resInfo.getName());
-
-                    byte data[] = new byte[4096];
-                    int total = 0;
-                    int count;
-                    float fileSize = resInfo.getSize() * 10; //kb->b and times 100%
-                    while ((count = inStream.read(data)) != -1) {
-                        if (isCancelled()) {
-                            inStream.close();
-                            return;
-                        }
-                        total += count;
-                        out.write(data, 0, count);
-                        int currentItemProgress = (int) Math.min(total / fileSize, 100); //the size of file parsed from HTML is not fully current?
-
-                        activity.runOnUiThread(() -> attachedView.getProgress().setText(currentItemProgress + "%"));
-                    }
-                    out.close();
-                    inStream.close();
-
+                .flatMap(DownloadTask.this::convertToFile)
+                .doOnSuccess(file -> {
                     DownloadsDatabase.addDownloadPath(resInfo.getName(), savePath);
                     DownloadsDatabase.save();
+                });
+    }
 
-                    EventBus.getDefault().post(new DownloadCompleteEvent(DownloadTask.this, new File(savePath + resInfo.getName())));
-                    pool.remove(DownloadTask.this);
-                }, throwable -> {/*IO Exception*/});
-        return null;
+    private Single<File> convertToFile(InputStream inStream) throws IOException{
+        return Single.create((SingleEmitter<File> e) -> {
+            OutputStream out = new FileOutputStream(savePath + resInfo.getName());
+
+            byte data[] = new byte[4096];
+            int total = 0;
+            int count;
+            float fileSize = resInfo.getSize() * 10; //kb->b and times 100%
+            //TODO: scrape the size of pdf doc of notice
+            while ((count = inStream.read(data)) != -1) {
+                if (e.isDisposed()) {
+                    inStream.close();
+                    e.onError(new RuntimeException("Stopped"));
+                    return;
+                }
+                total += count;
+                out.write(data, 0, count);
+                int currentProgress = (int) Math.min(total / fileSize, 100); //the size of file parsed from HTML is not fully current?
+                progressPublisher.onNext(currentProgress);
+            }
+            out.close();
+            inStream.close();
+
+            e.onSuccess(new File(savePath + resInfo.getName()));
+        });
     }
 
     public DownloadingItemView getAttachedView() {

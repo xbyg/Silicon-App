@@ -2,8 +2,6 @@ package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -14,7 +12,7 @@ import com.xbyg_plus.silicon.dialog.ConfirmDialog;
 import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebResourcesInfoLoader;
-import com.xbyg_plus.silicon.task.DownloadTask;
+import com.xbyg_plus.silicon.utils.DownloadManager;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 
 import java.util.ArrayList;
@@ -76,10 +74,9 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
         downloadConfirmDialog.confirmObservable()
                 .subscribe(confirm -> {
                     if (confirm) {
-                        String savePath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath", "/sdcard") + "/";
                         List<Info> resInfoList = new ArrayList(selector.getSelectedItems());
                         for (Info resInfo : resInfoList) {
-                            new DownloadTask<Info>(activity, savePath).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, resInfo);
+                            DownloadManager.download(resInfo);
                         }
                         selector.getSelectedItems().clear();
                         Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.download_task_is_executing), Snackbar.LENGTH_LONG)

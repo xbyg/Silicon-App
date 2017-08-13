@@ -12,7 +12,6 @@ import java.util.List;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 public class ConfirmDialog extends MyDialog {
     private TextView titleView;
@@ -31,12 +30,9 @@ public class ConfirmDialog extends MyDialog {
     }
 
     public Single<Boolean> confirmObservable() {
-        return Single.create(new SingleOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(SingleEmitter<Boolean> e) throws Exception {
-                okBtn.setOnClickListener(v -> e.onSuccess(true));
-                cancelBtn.setOnClickListener(v -> e.onSuccess(false));
-            }
+        return Single.create((SingleEmitter<Boolean> e) -> {
+            okBtn.setOnClickListener(v -> e.onSuccess(true));
+            cancelBtn.setOnClickListener(v -> e.onSuccess(false));
         }).doOnSuccess(b -> this.dismiss());
     }
 

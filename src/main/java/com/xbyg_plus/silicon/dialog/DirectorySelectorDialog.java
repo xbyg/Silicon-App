@@ -14,7 +14,6 @@ import java.io.File;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 public class DirectorySelectorDialog extends MyDialog {
     private TextView selectBtn;
@@ -45,16 +44,13 @@ public class DirectorySelectorDialog extends MyDialog {
     }
 
     public Single<File> selectDirectoryObservable() {
-        return Single.create(new SingleOnSubscribe<File>() {
-            @Override
-            public void subscribe(SingleEmitter<File> e) throws Exception {
-                selectBtn.setOnClickListener(v -> {
-                    if (adapter.getSelectedDir() != null) {
-                        e.onSuccess(adapter.getSelectedDir());
-                        dismiss();
-                    }
-                });
-            }
+        return Single.create((SingleEmitter<File> e) -> {
+            selectBtn.setOnClickListener(v -> {
+                if (adapter.getSelectedDir() != null) {
+                    e.onSuccess(adapter.getSelectedDir());
+                    dismiss();
+                }
+            });
         });
     }
 

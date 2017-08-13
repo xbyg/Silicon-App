@@ -17,17 +17,12 @@ import android.widget.TextView;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
 import com.xbyg_plus.silicon.dialog.DialogManager;
-import com.xbyg_plus.silicon.event.DownloadCompleteEvent;
-import com.xbyg_plus.silicon.event.DownloadStartEvent;
 import com.xbyg_plus.silicon.task.DownloadTask;
 import com.xbyg_plus.silicon.database.DownloadsDatabase;
+import com.xbyg_plus.silicon.utils.DownloadManager;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.DownloadedItemView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.List;
@@ -35,8 +30,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DownloadsFragment extends Fragment implements DialogManager.DialogHolder {
-    @BindView(R.id.downloadingPackageLayout) LinearLayout downloadingPackageLayout;
+public class DownloadsFragment extends Fragment implements DialogManager.DialogHolder, DownloadManager.DownloadTaskListener {
+    @BindView(R.id.downloadingLayout) LinearLayout downloadingLayout;
     @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
     private ConfirmDialog deleteFilesConfirmDialog;
@@ -92,17 +87,15 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, null);
         ButterKnife.bind(this, view);
-        EventBus.getDefault().register(this);
         DialogManager.registerDialogHolder(this);
+        DownloadManager.setDownloadTaskListener(this);
 
-        List<DownloadTask> downloadTasks = DownloadTask.pool;
-        if (downloadTasks.size() == 0) {
-            addEmptyItem(downloadingPackageLayout);
+        List<DownloadTask> startedTasks = DownloadManager.getStartedTasks();
+        if (startedTasks.size() == 0) {
+            addEmptyItem(downloadingLayout);
         } else {
-            for (DownloadTask downloadTask : downloadTasks) {
-                if (downloadTask.getAttachedView().getParent() == null) {
-                    this.downloadingPackageLayout.addView(downloadTask.getAttachedView(), 1);
-                }
+            for (DownloadTask task : startedTasks) {
+                this.downloadingLayout.addView(task.getAttachedView(), 1);
             }
         }
 
@@ -114,6 +107,28 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
                 addDownloadedItem(file);
             }
         }
+    }
+
+    @Override
+    public void onDownloadStart(DownloadTask task) {
+        this.removeEmptyItem(downloadingLayout);
+        this.downloadingLayout.addView(task.getAttachedView(), 1);
+    }
+
+    @Override
+    public void onDownloadFinish(DownloadTask task, File file) {
+        this.removeEmptyItem(downloadsLayout);
+        this.addDownloadedItem(file);
+
+        this.downloadingLayout.removeView(task.getAttachedView());
+        if (this.downloadingLayout.getChildCount() == 1) { //the first child is the title view
+            addEmptyItem(downloadingLayout);
+        }
+    }
+
+    @Override
+    public void onDownloadError(Throwable throwable) {
+
     }
 
     private void addDownloadedItem(File file) {
@@ -131,12 +146,9 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
                 selector.remove(root);
             }
         });
-        root.setOnClickListener(v -> {
-            Uri uri = Uri.fromFile(file);
-            ViewIntent.view(getActivity(), uri);
-        });
+        root.setOnClickListener(v -> ViewIntent.view(getActivity(), Uri.fromFile(file)));
 
-        getActivity().runOnUiThread(() -> this.downloadsLayout.addView(root, 1));
+        this.downloadsLayout.addView(root, 1);
     }
 
     private void addEmptyItem(LinearLayout root) {
@@ -158,35 +170,15 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
         root.addView(container);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDownloadStart(DownloadStartEvent event) {
-        if (event.getDownloadTask().getAttachedView().getParent() == null) {
-            this.downloadingPackageLayout.addView(event.getDownloadTask().getAttachedView(), 1);
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDownloadComplete(DownloadCompleteEvent event) {
-        View emptyItem = this.downloadsLayout.findViewWithTag("empty_item");
+    private void removeEmptyItem(LinearLayout root) {
+        View emptyItem = root.findViewWithTag("empty_item");
         if (emptyItem != null) {
-            this.downloadsLayout.removeView(emptyItem);
-        }
-        this.addDownloadedItem(event.getFile());
-
-        this.downloadingPackageLayout.removeView(event.getDownloadTask().getAttachedView());
-        if (this.downloadingPackageLayout.getChildCount() == 1) { //the first child is the title view
-            addEmptyItem(downloadingPackageLayout);
+            root.removeView(emptyItem);
         }
     }
 
     @Override
     public void onDialogsCreated(DialogManager dialogManager) {
         this.deleteFilesConfirmDialog = dialogManager.obtain(ConfirmDialog.class);
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
     }
 }

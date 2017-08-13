@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 import io.reactivex.schedulers.Schedulers;
 
 public final class SchoolAccountHelper implements DialogManager.DialogHolder {
@@ -85,25 +84,22 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
     }
 
     private Single<String> encryptPwd(String pwd) {
-        return Single.create(new SingleOnSubscribe<String>() {
-            @Override
-            public void subscribe(SingleEmitter<String> e) throws Exception {
-                loadingDialog.setTitleAndMessage("", context.getString(R.string.encrypting_pwd));
+        return Single.create((SingleEmitter<String> e) -> {
+            loadingDialog.setTitleAndMessage("", context.getString(R.string.encrypting_pwd));
 
-                byte[] encryptedPwdBytes = MessageDigest.getInstance("MD5").digest(pwd.getBytes("UTF-8"));
+            byte[] encryptedPwdBytes = MessageDigest.getInstance("MD5").digest(pwd.getBytes("UTF-8"));
 
-                // convert encrypted password's byte array to hex string
-                // https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
-                char[] hexArray = "0123456789ABCDEF".toCharArray();
-                char[] hexChars = new char[encryptedPwdBytes.length * 2];
-                for (int j = 0; j < encryptedPwdBytes.length; j++) {
-                    int v = encryptedPwdBytes[j] & 0xFF;
-                    hexChars[j * 2] = hexArray[v >>> 4];
-                    hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-                }
-                String encryptedPwd = new String(hexChars).toLowerCase();
-                e.onSuccess(encryptedPwd);
+            // convert encrypted password's byte array to hex string
+            // https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
+            char[] hexArray = "0123456789ABCDEF".toCharArray();
+            char[] hexChars = new char[encryptedPwdBytes.length * 2];
+            for (int j = 0; j < encryptedPwdBytes.length; j++) {
+                int v = encryptedPwdBytes[j] & 0xFF;
+                hexChars[j * 2] = hexArray[v >>> 4];
+                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
             }
+            String encryptedPwd = new String(hexChars).toLowerCase();
+            e.onSuccess(encryptedPwd);
         }).subscribeOn(Schedulers.computation());
     }
 
