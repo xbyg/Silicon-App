@@ -62,25 +62,30 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
         if (isAutoLogin) {
             return login(preferences.getString("id", ""), preferences.getString("pwd", ""));
         }
-        return Completable.error(new Exception("Logged in already"));
+        return Completable.error(new RuntimeException("Auto login failed"));
     }
 
     public Completable login(String id, String pwd) {
-        return isLoggedIn ? Completable.complete() :
-                encryptPwd(pwd)
-                        .doOnSubscribe(disposable -> loadingDialog.show())
-                        .observeOn(Schedulers.io())
-                        .flatMap(encryptedPwd -> {
-                            loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.171/it-school/php/login_do.php3"));
+        return encryptPwd(pwd)
+                .doOnSubscribe(disposable -> loadingDialog.show())
+                .observeOn(Schedulers.io())
+                .flatMap(encryptedPwd -> {
+                    loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.171/it-school/php/login_do.php3"));
 
-                            Map<String, String> postData = new HashMap<>();
-                            postData.put("userloginid", id);
-                            postData.put("password", encryptedPwd);
-                            return OKHTTPClient.post("http://58.177.253.171/it-school/php/login_do.php3", postData);
-                        })
-                        .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
-                        .flatMapCompletable(htmlString -> htmlString.contains("main.php3") ? initSchoolAccount(id, pwd) : Completable.error(new Exception("Login data wrong")))
-                        .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.login_data_wrong)));
+                    OKHTTPClient.getCookieStore().clear();
+                    //first time login: we save "PHPSESSID" and "sessionid" cookies from the response
+                    //second time login (without restarting the app): we send the old "PHPSESSID" and "sessionid" for request and then server responses a new "sessionid" but does not contain a "PHPSESSID"
+                    //thus, for further request, server responses a html that only contains error message (http://58.177.253.171/it-school//php/errormessage.php3?error=1)
+                    //to solve this problem, we clear the cookies before request for login
+
+                    Map<String, String> postData = new HashMap<>();
+                    postData.put("userloginid", id);
+                    postData.put("password", encryptedPwd);
+                    return OKHTTPClient.post("http://58.177.253.171/it-school/php/login_do.php3", postData);
+                })
+                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
+                .flatMapCompletable(htmlString -> htmlString.contains("main.php3") ? initSchoolAccount(id, pwd) : Completable.error(new Exception("Login data wrong")))
+                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.login_data_wrong)));
     }
 
     private Single<String> encryptPwd(String pwd) {

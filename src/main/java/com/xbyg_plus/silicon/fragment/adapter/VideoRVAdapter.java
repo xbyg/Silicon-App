@@ -85,7 +85,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
                     .subscribe(parsedList -> {
                         resourcesList.addAll(parsedList);
                         updateView();
-                    });
+                    }, throwable -> {/* IO Exception*/});
         } else {
             Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.no_more_context), Snackbar.LENGTH_LONG).show();
         }

@@ -88,7 +88,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
                     .subscribe(parsedList -> {
                         contentsIndex.put(folder.getAbsolutePath(), parsedList);
                         applyFolderContents(folder, parsedList);
-                    });
+                    }, throwable -> {/* IO Exception*/});
         }
     }
 

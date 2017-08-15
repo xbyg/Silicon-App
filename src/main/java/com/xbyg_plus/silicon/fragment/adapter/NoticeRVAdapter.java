@@ -95,7 +95,7 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
                 .subscribe(parsedList -> {
                     resourcesList.addAll(parsedList);
                     updateView();
-                });
+                }, throwable -> {/* IO Exception*/});
     }
 
     @Override

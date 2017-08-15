@@ -82,4 +82,8 @@ public final class OKHTTPClient {
             }
         }).subscribeOn(Schedulers.io());
     }
+
+    public static HashMap<String, List<Cookie>> getCookieStore() {
+        return cookieStore;
+    }
 }
