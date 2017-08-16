@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class FilterDialog extends Dialog {
     private RequestFilter requestFilter;
-    private FilterOptionsSelectedListener listener;
+    private Runnable optionsSelectedAction;
 
     private ArrayList<String> categoryPostValueList;
     private ArrayList<String> categoryNameList;
@@ -44,14 +44,8 @@ public class FilterDialog extends Dialog {
         return this;
     }
 
-    public interface FilterOptionsSelectedListener {
-        void onFilterOptionsSelected();
-    }
-
-    public FilterDialog setFilterOptionsSelectedListener(FilterOptionsSelectedListener listener) {
-        if (listener != null) {
-            this.listener = listener;
-        }
+    public FilterDialog setOptionsSelectedAction(Runnable action) {
+        this.optionsSelectedAction = action;
         return this;
     }
 
@@ -81,8 +75,8 @@ public class FilterDialog extends Dialog {
             requestFilter.sort = sortPostValueList.get(sortSpinner.getSelectedItemPosition());
             requestFilter.time = timePostValueList.get(timeSpinner.getSelectedItemPosition());
             dismiss();
-            if (listener != null) {
-                listener.onFilterOptionsSelected();
+            if (optionsSelectedAction != null) {
+                optionsSelectedAction.run();
             }
         });
     }

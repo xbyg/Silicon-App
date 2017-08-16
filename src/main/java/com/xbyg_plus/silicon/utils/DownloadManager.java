@@ -21,6 +21,13 @@ public final class DownloadManager {
         DownloadTask task = new DownloadTask(savePath);
         
         task.execute(resInfo)
+                .doOnSubscribe(disposable -> {
+                    startedTasks.add(task);
+                    if (listener != null) {
+                        listener.onDownloadStart(task);
+                    }
+                })
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(file -> {
                     startedTasks.remove(task);
@@ -33,11 +40,6 @@ public final class DownloadManager {
                         listener.onDownloadError(throwable);
                     }
                 });
-
-        startedTasks.add(task);
-        if (listener != null) {
-            listener.onDownloadStart(task);
-        }
     }
 
     public static LinkedList<DownloadTask> getStartedTasks() {

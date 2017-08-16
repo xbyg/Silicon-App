@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
 import com.xbyg_plus.silicon.dialog.DialogManager;
@@ -44,8 +45,13 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
         this.selector = new ItemSelector<>(getActivity(), R.menu.file_delete);
         this.selector.setActionItemClickListener(itemID -> {
             if (itemID == R.id.action_delete) {
-                deleteFilesConfirmDialog.confirmObservable()
-                        .subscribe(confirm -> {
+                String nameList = "";
+                for (File file : selector.getSelectedItems().values()) {
+                    nameList += file.getName() + "\n";
+                }
+
+                deleteFilesConfirmDialog.setContent(getString(R.string.delete_files_confirm), nameList)
+                        .setOnConfirmConsumer(confirm -> {
                             if (confirm) {
                                 for (Map.Entry<DownloadedItemView, File> entry : selector.getSelectedItems().entrySet()) {
                                     File file = entry.getValue();
@@ -57,15 +63,7 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
                                 new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
                             }
                             selector.finish();
-                        });
-
-                String nameList = "";
-                for (File file : selector.getSelectedItems().values()) {
-                    nameList += file.getName() + "\n";
-                }
-                deleteFilesConfirmDialog
-                        .setContent(getString(R.string.delete_files_confirm), nameList)
-                        .show();
+                        }).show();
             }
         });
     }
@@ -120,7 +118,7 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
 
     @Override
     public void onDownloadError(Throwable throwable) {
-
+        Logger.d(throwable.getMessage());
     }
 
     private void addDownloadedItem(File file) {

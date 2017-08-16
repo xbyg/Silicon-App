@@ -80,7 +80,6 @@ public class VideoFragment extends Fragment implements DialogManager.DialogHolde
 
     @Override
     public void onDialogsCreated(DialogManager dialogManager) {
-        this.filterDialog = dialogManager.obtain(FilterDialog.class)
-                .setFilterOptionsSelectedListener(() -> ptrFrame.autoRefresh(true));
+        this.filterDialog = dialogManager.obtain(FilterDialog.class).setOptionsSelectedAction(() -> ptrFrame.autoRefresh(true));
     }
 }

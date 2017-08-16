@@ -20,6 +20,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
+        DialogManager.registerDialogHolder(this);
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         Preference savingPath = findPreference("savingPath");
@@ -29,7 +31,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
         caches.setSummary(CachesDatabase.getCachesSize() + " kb");
 
         savingPath.setOnPreferenceClickListener((Preference preference) -> {
-            directorySelectorDialog.show(new File("/sdcard/"));
+            directorySelectorDialog.setOnDirectorySelectedConsumer(dir -> {
+                savingPath.setSummary(dir.getAbsolutePath());
+                preferences.edit().putString("savingPath", dir.getAbsolutePath()).apply();
+                DownloadManager.setSavePath(dir.getAbsolutePath() + "/");
+            }).show(new File("/sdcard/"));
             return true;
         });
         caches.setOnPreferenceClickListener((Preference preference) -> {
@@ -37,14 +43,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
             caches.setSummary("0 kb");
             return true;
         });
-
-        DialogManager.registerDialogHolder(this);
-        directorySelectorDialog.selectDirectoryObservable()
-                .subscribe(dir -> {
-                    savingPath.setSummary(dir.getAbsolutePath());
-                    preferences.edit().putString("savingPath", dir.getAbsolutePath()).apply();
-                    DownloadManager.setSavePath(dir.getAbsolutePath() + "/");
-                });
     }
 
     @Override

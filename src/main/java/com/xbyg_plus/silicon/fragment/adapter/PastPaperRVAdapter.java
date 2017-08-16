@@ -48,6 +48,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         PastPaperItemView item = (PastPaperItemView) holder.itemView;
 
         item.getTitle().setText(resInfo.getName());
+        item.getCheckBox().setChecked(selector.containsValue(resInfo));
         if (resInfo instanceof WebPastPaperFolderInfo) {
             item.getIcon().setImageResource(R.drawable.folder);
             item.getCheckBox().setEnabled(false);

@@ -56,8 +56,12 @@ public final class ItemSelector<Item extends ItemSelector.SelectableItem, Attach
         }
     }
 
-    public boolean contains(SelectableItem item) {
+    public boolean containsKey(Item item) {
         return this.selectedItems.containsKey(item);
+    }
+
+    public boolean containsValue(AttachedData data) {
+        return this.selectedItems.containsValue(data);
     }
 
     public void finish() {

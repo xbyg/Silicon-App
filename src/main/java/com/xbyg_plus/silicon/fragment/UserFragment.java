@@ -91,10 +91,7 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
 
             login.setOnClickListener(v -> loginDialog.show());
 
-            loginDialog.loginCompletable().subscribe(() -> {
-                loginDialog.dismiss();
-                restartActivity();
-            });
+            loginDialog.setLoginAction(this::restartActivity);
         }
 
         downloads.setOnClickListener(v -> {

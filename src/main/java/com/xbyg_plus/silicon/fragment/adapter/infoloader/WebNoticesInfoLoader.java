@@ -94,9 +94,12 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
     }
 
     public Completable resolveDownloadAddress(WebNoticeInfo noticeInfo) {
+        if (noticeInfo.getDownloadAddress() != null) {
+            return Completable.complete();
+        }
+
         loadingDialog.setTitleAndMessage("Network", "resolving download address of '" + noticeInfo.getName() + "'");
         loadingDialog.show();
-        noticeInfo.setDownloadAddress("resolving..."); //Prevent multi request.
 
         return OKHTTPClient.get("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId())
                 .observeOn(Schedulers.computation())

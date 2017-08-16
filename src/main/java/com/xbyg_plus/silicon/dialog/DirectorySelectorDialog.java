@@ -9,11 +9,9 @@ import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.adapter.DirectoryRVAdapter;
+import com.xbyg_plus.silicon.utils.functions.Consumer;
 
 import java.io.File;
-
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
 
 public class DirectorySelectorDialog extends MyDialog {
     private TextView selectBtn;
@@ -43,15 +41,14 @@ public class DirectorySelectorDialog extends MyDialog {
         });
     }
 
-    public Single<File> selectDirectoryObservable() {
-        return Single.create((SingleEmitter<File> e) -> {
-            selectBtn.setOnClickListener(v -> {
-                if (adapter.getSelectedDir() != null) {
-                    e.onSuccess(adapter.getSelectedDir());
-                    dismiss();
-                }
-            });
+    public DirectorySelectorDialog setOnDirectorySelectedConsumer(Consumer<File> consumer) {
+        selectBtn.setOnClickListener(v -> {
+            if (adapter.getSelectedDir() != null) {
+                consumer.accept(adapter.getSelectedDir());
+                dismiss();
+            }
         });
+        return this;
     }
 
     public void show(File initDir) {

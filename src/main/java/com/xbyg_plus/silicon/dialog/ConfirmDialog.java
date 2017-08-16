@@ -6,9 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
+import com.xbyg_plus.silicon.utils.functions.Consumer;
 
 public class ConfirmDialog extends MyDialog {
     private TextView titleView;
@@ -26,11 +24,16 @@ public class ConfirmDialog extends MyDialog {
         cancelBtn = (Button) container.findViewById(R.id.cancel);
     }
 
-    public Single<Boolean> confirmObservable() {
-        return Single.create((SingleEmitter<Boolean> e) -> {
-            okBtn.setOnClickListener(v -> e.onSuccess(true));
-            cancelBtn.setOnClickListener(v -> e.onSuccess(false));
-        }).doOnSuccess(b -> this.dismiss());
+    public ConfirmDialog setOnConfirmConsumer(Consumer<Boolean> consumer) {
+        okBtn.setOnClickListener(btn -> {
+            consumer.accept(true);
+            this.dismiss();
+        });
+        cancelBtn.setOnClickListener(btn -> {
+            consumer.accept(false);
+            this.dismiss();
+        });
+        return this;
     }
 
     public ConfirmDialog setContent(String text, String message) {

@@ -16,6 +16,7 @@ import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.NoticeItemView;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoticesInfoLoader> {
@@ -54,6 +55,7 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         NoticeItemView item = (NoticeItemView) holder.itemView;
         item.getTitle().setText(noticeInfo.getName());
 
+        item.getCheckBox().setChecked(selector.containsValue(noticeInfo));
         item.getCheckBox().setOnClickListener(v -> {
             if (item.getCheckBox().isChecked()) {
                 selector.select(item, noticeInfo);
@@ -105,25 +107,10 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
     }
 
     @Override
-    protected void showDownloadConfirm() {
-        for (WebNoticeInfo noticeInfo : selector.getSelectedItems().values()) {
-            if (noticeInfo.getDownloadAddress() == null) {
-                noticeAddressCount++;
-                infoLoader.resolveDownloadAddress(noticeInfo)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() -> {
-                            if (noticeAddressCount == selector.getSelectedItems().size()) {
-                                noticeAddressCount = 0;
-                                NoticeRVAdapter.super.showDownloadConfirm();
-                            }
-                        });
-            }
-        }
-
-        //if no notice is required to resolve its address then show the download confirm directly
-        if (noticeAddressCount == 0) {
-            super.showDownloadConfirm();
-        }
+    protected Observable<WebNoticeInfo> startDownload() {
+        return Observable.fromIterable(selector.getSelectedItems().values())
+                .flatMapCompletable(infoLoader::resolveDownloadAddress)
+                .andThen(super.startDownload());
     }
 
     @Override
