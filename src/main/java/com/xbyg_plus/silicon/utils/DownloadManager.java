@@ -1,5 +1,6 @@
 package com.xbyg_plus.silicon.utils;
 
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.xbyg_plus.silicon.MyApplication;
@@ -15,7 +16,7 @@ public final class DownloadManager {
     private static DownloadTaskListener listener;
 
     private static LinkedList<DownloadTask> startedTasks = new LinkedList<>();
-    private static String savePath = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).getString("savingPath", "/sdcard") + "/";
+    private static String savePath = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()).getString("savingPath", Environment.getExternalStorageDirectory().getAbsolutePath()) + "/";
 
     public static void download(WebResourceInfo resInfo) {
         DownloadTask task = new DownloadTask(savePath);

@@ -73,9 +73,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         if (currentFolder.getName().equals("root")) {
             return true;
         }
-        this.currentFolder = folderIndex.get(currentFolder.getParentAbsolutePath());
-        this.resourcesList = contentsIndex.get(currentFolder.getAbsolutePath());
-        updateView();
+        loadFolder(folderIndex.get(currentFolder.getParentAbsolutePath()));
         return false;
     }
 

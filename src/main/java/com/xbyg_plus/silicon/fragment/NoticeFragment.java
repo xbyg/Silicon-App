@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.fragment.adapter.NoticeRVAdapter;
-import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 import butterknife.BindView;
@@ -77,11 +76,5 @@ public class NoticeFragment extends Fragment {
             guestText.setGravity(Gravity.CENTER);
             ((ViewGroup) ptrFrame.getContentView()).addView(guestText, params);
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        CachesDatabase.save();
     }
 }

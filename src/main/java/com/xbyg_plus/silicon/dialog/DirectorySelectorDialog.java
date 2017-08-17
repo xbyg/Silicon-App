@@ -1,6 +1,7 @@
 package com.xbyg_plus.silicon.dialog;
 
 import android.content.Context;
+import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -51,8 +52,8 @@ public class DirectorySelectorDialog extends MyDialog {
         return this;
     }
 
-    public void show(File initDir) {
+    public void show() {
         super.show();
-        adapter.loadDir(initDir);
+        adapter.loadDir(Environment.getExternalStorageDirectory());
     }
 }
