@@ -21,7 +21,7 @@ public class DirectorySelectorDialog extends MyDialog {
     private RecyclerView recyclerView;
     private DirectoryRVAdapter adapter = new DirectoryRVAdapter();
 
-    protected DirectorySelectorDialog(Context context) {
+    public DirectorySelectorDialog(Context context) {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_dir_selector, null, false));
 

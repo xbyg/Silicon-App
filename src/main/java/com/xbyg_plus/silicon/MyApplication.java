@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
@@ -20,7 +19,6 @@ public class MyApplication extends Application {
 
         Logger.addLogAdapter(new AndroidLogAdapter());
         //initialize components with application context
-        DialogManager.init();
         CachesDatabase.init(this);
         DownloadsDatabase.init(this);
         OKHTTPClient.init();

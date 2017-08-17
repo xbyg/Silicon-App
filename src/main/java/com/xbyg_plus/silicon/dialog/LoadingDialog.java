@@ -2,37 +2,48 @@ package com.xbyg_plus.silicon.dialog;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+
 public class LoadingDialog extends ProgressDialog {
-    private View container;
+    private View activityRootViewGroup;
 
-    protected LoadingDialog(Activity activity) {
-        super(activity);
-        this.setCancelable(true);
+    public LoadingDialog(Context context) {
+        super(context);
+        this.setCancelable(false);
         this.setIndeterminate(true);
-        this.setDismissMessageContainer(activity.findViewById(android.R.id.content));
+        this.activityRootViewGroup = (((Activity) context).findViewById(android.R.id.content));
     }
 
-    public void setTitleAndMessage(String title, String msg) {
-        //this dialog is usually used in OkHttp thread,we need to set the title and message in ui thread
-        new Handler(Looper.getMainLooper()).post(() -> {
-            setTitle(title);
-            setMessage(msg);
-        });
+    public LoadingDialog setMessage(int stringId) {
+        return this.setMessage(getContext().getString(stringId));
     }
 
-    public void setDismissMessageContainer(View container) {
-        if (container != null) {
-            this.container = container;
-        }
+    public LoadingDialog setMessage(String msg) {
+        //this dialog is usually used in non main thread, we need to set the message in ui thread
+        Observable.just(msg).observeOn(AndroidSchedulers.mainThread()).subscribe(super::setMessage);
+        return this;
+    }
+
+    public void dismiss(int dismissMessageId) {
+        this.dismiss(getContext().getString(dismissMessageId));
     }
 
     public void dismiss(String dismissMessage) {
         this.dismiss();
-        Snackbar.make(container, dismissMessage, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(activityRootViewGroup, dismissMessage, Snackbar.LENGTH_LONG).show();
+    }
+
+    public void dismiss(int dismissMessageId, View v) {
+        this.dismiss(getContext().getString(dismissMessageId), v);
+    }
+
+    public void dismiss(String dismissMessage, View v) {
+        this.dismiss();
+        Snackbar.make(v, dismissMessage, Snackbar.LENGTH_LONG).show();
     }
 }

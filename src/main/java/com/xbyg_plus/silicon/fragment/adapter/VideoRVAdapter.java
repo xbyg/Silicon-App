@@ -31,7 +31,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
     public VideoRVAdapter(Activity activity, MTVFragment mtvFragment) {
         super(activity);
         this.mtvFragment = mtvFragment;
-        this.infoLoader = new WebVideoInfoLoader();
+        this.infoLoader = new WebVideoInfoLoader(activity);
         this.resourcesList = new ArrayList();
         this.requestFilter = new RequestFilter(activity.getResources());
         loadMoreVideos();

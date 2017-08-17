@@ -12,6 +12,8 @@ import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 import io.reactivex.Completable;
 
 public class LoginDialog extends MyDialog {
+    private LoadingDialog loadingDialog;
+
     private EditText stdID;
     private EditText pwd;
     private TextView loginBtn;
@@ -23,6 +25,8 @@ public class LoginDialog extends MyDialog {
         stdID = (EditText) findViewById(R.id.stdID);
         pwd = (EditText) findViewById(R.id.pwd);
         loginBtn = (TextView) findViewById(R.id.loginBtn);
+
+        loadingDialog = new LoadingDialog(context);
     }
 
     public LoginDialog setLoginAction(Runnable action) {
@@ -30,11 +34,17 @@ public class LoginDialog extends MyDialog {
                 .doOnNext(btn -> {
                     InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+                    loadingDialog.setMessage(R.string.signing_in).show();
                 })
                 .subscribe(btn -> {
                     Completable loginResult = SchoolAccountHelper.getInstance().login(stdID.getText().toString(), pwd.getText().toString());
-                    loginResult.doOnComplete(this::dismiss)
-                            .subscribe(action::run, throwable -> showSnackBar(R.string.io_exception));
+
+                    loginResult.subscribe(() -> {
+                        loadingDialog.dismiss();
+                        this.dismiss();
+                        action.run();
+                    }, throwable -> loadingDialog.dismiss(throwable.getMessage(), container));
                 });
         return this;
     }

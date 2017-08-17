@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.fragment.adapter.VideoRVAdapter;
 import com.xbyg_plus.silicon.dialog.FilterDialog;
 
@@ -22,7 +21,7 @@ import in.srain.cube.views.ptr.PtrClassicFrameLayout;
 import in.srain.cube.views.ptr.PtrDefaultHandler;
 import in.srain.cube.views.ptr.PtrFrameLayout;
 
-public class VideoFragment extends Fragment implements DialogManager.DialogHolder {
+public class VideoFragment extends Fragment {
     @BindView(R.id.store_house_ptr_frame) PtrClassicFrameLayout ptrFrame;
     @BindView(R.id.videos_recycler_view) RecyclerView recyclerView;
     @BindView(R.id.filter_btn) FloatingActionButton filterBtn;
@@ -42,7 +41,7 @@ public class VideoFragment extends Fragment implements DialogManager.DialogHolde
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        DialogManager.registerDialogHolder(this);
+        this.filterDialog = new FilterDialog(getContext());
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -76,10 +75,5 @@ public class VideoFragment extends Fragment implements DialogManager.DialogHolde
                 return layoutManager.findFirstCompletelyVisibleItemPosition() == 0;
             }
         });
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.filterDialog = dialogManager.obtain(FilterDialog.class).setOptionsSelectedAction(() -> ptrFrame.autoRefresh(true));
     }
 }

@@ -14,7 +14,7 @@ public class ConfirmDialog extends MyDialog {
     private Button okBtn;
     private Button cancelBtn;
 
-    protected ConfirmDialog(Context context) {
+    public ConfirmDialog(Context context) {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_confirm, null, false));
 

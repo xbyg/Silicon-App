@@ -17,7 +17,7 @@ public class ChangePasswordDialog extends MyDialog {
     private EditText newPwdConfirmView;
     private Button submit;
 
-    protected ChangePasswordDialog(Context context) {
+    public ChangePasswordDialog(Context context) {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_change_pwd, null, false));
 

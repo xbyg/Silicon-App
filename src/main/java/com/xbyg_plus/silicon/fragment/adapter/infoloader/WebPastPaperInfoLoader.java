@@ -1,5 +1,7 @@
 package com.xbyg_plus.silicon.fragment.adapter.infoloader;
 
+import android.content.Context;
+
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
 import com.xbyg_plus.silicon.model.WebPastPaperInfo;
@@ -21,14 +23,18 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
 public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceInfo> {
+
+    public WebPastPaperInfoLoader(Context context) {
+        super(context);
+    }
+
     public static class RequestParams extends RequestParameters {
         public WebPastPaperFolderInfo folderInfo;
     }
 
     @Override
     public Single<List<WebResourceInfo>> request(RequestParameters parameters) {
-        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php"));
-        loadingDialog.show();
+        loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php")).show();
 
         WebPastPaperFolderInfo folderInfo = ((RequestParams) parameters).folderInfo;
 
@@ -42,7 +48,7 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
                         }
 
                         return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(request(parameters));
-                    }).doOnError(throwable -> loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception)));
+                    }).doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
         }
         return OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap())
                 .observeOn(Schedulers.computation())
@@ -53,14 +59,14 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
                     }
 
                     return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(request(parameters));
-                }).doOnError(throwable -> loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception)));
+                }).doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
     }
 
     @Override
     protected List<WebResourceInfo> parseResponse(RequestParameters params, String htmlString) {
-        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
-
         if (!htmlString.contains("errormessage.php3")) {
+            loadingDialog.setMessage(R.string.parsing_info);
+
             List<WebResourceInfo> webFilesInfo = new ArrayList<>();
             Element tbody = Jsoup.parse(htmlString).select("form#form1 table tbody").first();
 

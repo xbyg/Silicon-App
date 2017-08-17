@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="login">登入</string>
-    <string name="auto_login">自動登入</string>
     <string name="select">選擇</string>
     <string name="res_details_properties">屬性</string>
     <string name="res_details_name">名稱: %1$s</string>
@@ -19,12 +18,6 @@
     <string name="storage">存取</string>
     <string name="saving_path">文檔保存路徑</string>
     <string name="clear_caches">清除緩存</string>
-    <string name="encryption">加密</string>
-    <string name="loading_md5.js">正在加載md5.js</string>
-    <string name="encrypting_pwd">正在加密密碼...</string>
-    <string name="cannot_load_encryption_js">無法加載md5.js,請重試.</string>
-    <string name="cannot_encrypt_pwd">無法加密密碼,請重試.</string>
-    <string name="network">網絡</string>
     <string name="requesting">正在請求 %1$s</string>
     <string name="login_data_wrong">登入失敗,可能是密碼錯誤.</string>
     <string name="login_io_exception">登入失敗,無法連接服務器.</string>
@@ -80,4 +73,6 @@
     <string name="video_views">%1$d次觀看</string>
     <string name="guest">訪客</string>
     <string name="login_mtv_data_wrong">身份證號碼錯誤</string>
+    <string name="signing_in">登入中...</string>
+    <string name="sign_in">登入</string>
 </resources>

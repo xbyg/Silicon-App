@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
 import com.xbyg_plus.silicon.model.WebPastPaperInfo;
@@ -31,7 +30,8 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
 
     public PastPaperRVAdapter(Activity activity) {
         super(activity);
-        this.infoLoader = new WebPastPaperInfoLoader();
+        this.resDetailsDialog = new ResDetailsDialog(activity);
+        this.infoLoader = new WebPastPaperInfoLoader(activity);
         this.contentsIndex = CachesDatabase.getContentsIndex();
         loadFolder(WebPastPaperFolderInfo.rootFolder);
     }
@@ -106,11 +106,5 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
         this.contentsIndex.clear();
         this.resourcesList.clear();
         this.loadFolder(WebPastPaperFolderInfo.rootFolder);
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        super.onDialogsCreated(dialogManager);
-        this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
     }
 }

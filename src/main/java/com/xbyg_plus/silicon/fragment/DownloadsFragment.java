@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.task.DownloadTask;
 import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.utils.DownloadManager;
@@ -32,7 +31,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class DownloadsFragment extends Fragment implements DialogManager.DialogHolder, DownloadManager.DownloadTaskListener {
+public class DownloadsFragment extends Fragment implements DownloadManager.DownloadTaskListener {
     @BindView(R.id.downloadingLayout) LinearLayout downloadingLayout;
     @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
@@ -42,6 +41,8 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        this.deleteFilesConfirmDialog = new ConfirmDialog(getActivity());
+
         this.selector = new ItemSelector<>(getActivity(), R.menu.file_delete);
         this.selector.setActionItemClickListener(itemID -> {
             if (itemID == R.id.action_delete) {
@@ -77,7 +78,6 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, null);
         ButterKnife.bind(this, view);
-        DialogManager.registerDialogHolder(this);
         DownloadManager.setDownloadTaskListener(this);
 
         List<DownloadTask> startedTasks = DownloadManager.getStartedTasks();
@@ -165,10 +165,5 @@ public class DownloadsFragment extends Fragment implements DialogManager.DialogH
         if (emptyItem != null) {
             root.removeView(emptyItem);
         }
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.deleteFilesConfirmDialog = dialogManager.obtain(ConfirmDialog.class);
     }
 }

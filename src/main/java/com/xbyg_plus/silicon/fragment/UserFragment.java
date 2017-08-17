@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ChangePasswordDialog;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.LoginDialog;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
@@ -26,15 +25,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-public class UserFragment extends Fragment implements DialogManager.DialogHolder {
+public class UserFragment extends Fragment {
     private DownloadsFragment downloadsFragment = new DownloadsFragment();
     private SettingsFragment settingsFragment = new SettingsFragment();
     private AboutFragment aboutFragment = new AboutFragment();
 
     private SchoolAccountHelper accountHelper;
-    private LoginDialog loginDialog;
-    private ChangePasswordDialog changePasswordDialog;
-
     private Unbinder unbinder;
 
     @BindView(R.id.name) TextView name;
@@ -53,11 +49,12 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        DialogManager.registerDialogHolder(this);
         accountHelper = SchoolAccountHelper.getInstance();
         unbinder = ButterKnife.bind(this, view);
 
         if (!accountHelper.isGuestMode()) {
+            ChangePasswordDialog changePasswordDialog = new ChangePasswordDialog(getContext());
+
             SchoolAccount schoolAccount = accountHelper.getSchoolAccount();
             name.setText(getString(R.string.student_info, schoolAccount.getName(), schoolAccount.getClassRoom(), schoolAccount.getClassNo()));
 
@@ -85,6 +82,8 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
                 restartActivity();
             });
         } else {
+            LoginDialog loginDialog = new LoginDialog(getContext());
+
             name.setText(R.string.guest);
             edit.setVisibility(View.GONE);
             logout.setVisibility(View.GONE);
@@ -94,17 +93,11 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
             loginDialog.setLoginAction(this::restartActivity);
         }
 
-        downloads.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).showFragment(downloadsFragment);
-        });
+        downloads.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(downloadsFragment));
 
-        settings.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).showFragment(settingsFragment);
-        });
+        settings.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(settingsFragment));
 
-        about.setOnClickListener(v -> {
-            ((MainActivity) getActivity()).showFragment(aboutFragment);
-        });
+        about.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(aboutFragment));
     }
 
     private void restartActivity() {
@@ -118,12 +111,6 @@ public class UserFragment extends Fragment implements DialogManager.DialogHolder
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.loginDialog = dialogManager.obtain(LoginDialog.class);
-        this.changePasswordDialog = dialogManager.obtain(ChangePasswordDialog.class);
     }
 
     public DownloadsFragment getDownloadsFragment() {

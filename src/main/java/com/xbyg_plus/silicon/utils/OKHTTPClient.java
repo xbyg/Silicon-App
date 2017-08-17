@@ -1,5 +1,8 @@
 package com.xbyg_plus.silicon.utils;
 
+import com.xbyg_plus.silicon.MyApplication;
+import com.xbyg_plus.silicon.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -44,7 +47,7 @@ public final class OKHTTPClient {
             if (res.isSuccessful()) {
                 e.onSuccess(res.body().string());
             } else {
-                e.onError(new IOException("Code status:" + res.code()));
+                e.onError(new IOException(MyApplication.getContext().getString(R.string.io_exception)));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -67,7 +70,7 @@ public final class OKHTTPClient {
             if (res.isSuccessful()) {
                 e.onSuccess(res.body().string());
             } else {
-                e.onError(new IOException("Code status:" + res.code()));
+                e.onError(new IOException(MyApplication.getContext().getString(R.string.io_exception)));
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -78,7 +81,7 @@ public final class OKHTTPClient {
             if (res.isSuccessful()) {
                 e.onSuccess(res.body().byteStream());
             } else {
-                e.onError(new IOException("Code status:" + res.code()));
+                e.onError(new IOException(MyApplication.getContext().getString(R.string.io_exception)));
             }
         }).subscribeOn(Schedulers.io());
     }

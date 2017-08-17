@@ -1,17 +1,16 @@
 package com.xbyg_plus.silicon.utils;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.xbyg_plus.silicon.MyApplication;
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
-import com.xbyg_plus.silicon.dialog.LoadingDialog;
 import com.xbyg_plus.silicon.model.SchoolAccount;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,27 +22,24 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import io.reactivex.schedulers.Schedulers;
 
-public final class SchoolAccountHelper implements DialogManager.DialogHolder {
+public final class SchoolAccountHelper {
     private static SchoolAccountHelper instance;
 
-    private Context context;
+    private MyApplication context;
     private SharedPreferences preferences;
-
-    private LoadingDialog loadingDialog;
 
     private SchoolAccount schoolAccount;
     private boolean isGuestMode = true;
     private boolean isAutoLogin = false;
     private boolean isLoggedIn = false;
 
-    private SchoolAccountHelper(Context context) {
+    private SchoolAccountHelper(MyApplication context) {
         this.context = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.isAutoLogin = preferences.contains("id");
-        DialogManager.registerDialogHolder(this);
     }
 
-    public static void init(Context context) {
+    public static void init(MyApplication context) {
         if (instance == null) {
             instance = new SchoolAccountHelper(context);
         }
@@ -51,11 +47,6 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
 
     public static SchoolAccountHelper getInstance() {
         return instance;
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.loadingDialog = dialogManager.obtain(LoadingDialog.class);
     }
 
     public Completable tryAutoLogin() {
@@ -67,11 +58,8 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
 
     public Completable login(String id, String pwd) {
         return encryptPwd(pwd)
-                .doOnSubscribe(disposable -> loadingDialog.show())
                 .observeOn(Schedulers.io())
                 .flatMap(encryptedPwd -> {
-                    loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.171/it-school/php/login_do.php3"));
-
                     OKHTTPClient.getCookieStore().clear();
                     //first time login: we save "PHPSESSID" and "sessionid" cookies from the response
                     //second time login (without restarting the app): we send the old "PHPSESSID" and "sessionid" for request and then server responses a new "sessionid" but does not contain a "PHPSESSID"
@@ -83,15 +71,11 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
                     postData.put("password", encryptedPwd);
                     return OKHTTPClient.post("http://58.177.253.171/it-school/php/login_do.php3", postData);
                 })
-                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
-                .flatMapCompletable(htmlString -> htmlString.contains("main.php3") ? initSchoolAccount(id, pwd) : Completable.error(new Exception("Login data wrong")))
-                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.login_data_wrong)));
+                .flatMapCompletable(htmlString -> htmlString.contains("main.php3") ? initSchoolAccount(id, pwd) : Completable.error(new RuntimeException(context.getString(R.string.login_data_wrong))));
     }
 
     private Single<String> encryptPwd(String pwd) {
         return Single.create((SingleEmitter<String> e) -> {
-            loadingDialog.setTitleAndMessage("", context.getString(R.string.encrypting_pwd));
-
             byte[] encryptedPwdBytes = MessageDigest.getInstance("MD5").digest(pwd.getBytes("UTF-8"));
 
             // convert encrypted password's byte array to hex string
@@ -125,12 +109,8 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
                             isAutoLogin = true;
                             preferences.edit().putString("id", id).putString("pwd", pwd).apply();
 
-                            loadingDialog.dismiss();
                             e.onComplete();
-                        }, throwable -> {
-                            loadingDialog.dismiss(context.getString(R.string.login_io_exception));
-                            e.onError(new Exception("IO exception"));
-                        })
+                        }, throwable -> e.onError(new IOException(context.getString(R.string.login_io_exception))))
         );
     }
 
@@ -178,23 +158,23 @@ public final class SchoolAccountHelper implements DialogManager.DialogHolder {
      * 2. Server side requests us to enable javascript which we can't do it easily....
      * */
     public Completable loginMTV(String HKid) {
-        loadingDialog.setTitleAndMessage("", context.getString(R.string.requesting, "http://58.177.253.163/mtv/signup.php"));
-        loadingDialog.show();
+        //loadingDialog.setMessage("", context.getString(R.string.requesting, "http://58.177.253.163/mtv/signup.php"));
+        //loadingDialog.show();
 
         HashMap<String, String> postData = new HashMap<>();
         postData.put("username", schoolAccount.getId());
         postData.put("password", HKid);
         postData.put("login", "Login");
         return OKHTTPClient.post("http://58.177.253.163/mtv/signup.php", postData)
-                .doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
+                //.doOnError(throwable -> loadingDialog.dismiss(context.getString(R.string.io_exception)))
                 .flatMapCompletable(htmlString -> {
                     //<script type="text/javascript">window.location = "http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1"</script>Javascript is turned off, <a href='http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1'>click here to go to requested page</a>
                     if (htmlString.contains("window.location = \"http://58.177.253.163/mtv/videos.php\"")) {
                         schoolAccount.setHKid(HKid);
-                        loadingDialog.dismiss();
+                       // loadingDialog.dismiss();
                         return Completable.complete();
                     } else {
-                        loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));
+                        //loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));
                         return Completable.error(new Exception("user data wrong"));
                     }
                 });

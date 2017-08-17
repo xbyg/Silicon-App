@@ -7,20 +7,19 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.DirectorySelectorDialog;
 import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.utils.DownloadManager;
 
 import java.io.File;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements DialogManager.DialogHolder {
+public class SettingsFragment extends PreferenceFragmentCompat {
     private DirectorySelectorDialog directorySelectorDialog;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
-        DialogManager.registerDialogHolder(this);
+        this.directorySelectorDialog = new DirectorySelectorDialog(getContext());
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
@@ -43,10 +42,5 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Dialog
             caches.setSummary("0 kb");
             return true;
         });
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.directorySelectorDialog = dialogManager.obtain(DirectorySelectorDialog.class);
     }
 }

@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Silicon</string>
     <string name="login">Login</string>
-    <string name="auto_login">Auto login</string>
     <string name="select">Select</string>
     <string name="res_details_properties">Properties</string>
     <string name="res_details_name">Name: %1$s</string>
@@ -19,12 +18,6 @@
     <string name="storage">Storage</string>
     <string name="saving_path">Files saving path</string>
     <string name="clear_caches">Clear caches</string>
-    <string name="encryption">Encryption</string>
-    <string name="loading_md5.js">Loading md5.js</string>
-    <string name="encrypting_pwd">encrypting password...</string>
-    <string name="cannot_load_encryption_js">Cannot load md5.js,please try again.</string>
-    <string name="cannot_encrypt_pwd">Cannot encrypt password,please try again.</string>
-    <string name="network">Network</string>
     <string name="requesting">Requesting %1$s</string>
     <string name="login_data_wrong">Login failed,perhaps password is wrong.</string>
     <string name="login_io_exception">Login failed,cannot access the server.</string>
@@ -81,4 +74,6 @@
     <string name="guest">Guest</string>
     <string name="student_info" translatable="false">%1$s(%2$s%3$d)</string>
     <string name="login_mtv_data_wrong">HKID card number is wrong</string>
+    <string name="signing_in">Signing in...</string>
+    <string name="sign_in">Sign in</string>
 </resources>

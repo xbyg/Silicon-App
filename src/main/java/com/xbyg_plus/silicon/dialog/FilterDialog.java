@@ -28,7 +28,7 @@ public class FilterDialog extends Dialog {
     private Spinner sortSpinner;
     private Spinner timeSpinner;
 
-    protected FilterDialog(Context context) {
+    public FilterDialog(Context context) {
         super(context);
     }
 

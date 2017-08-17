@@ -14,7 +14,7 @@ public class ResDetailsDialog extends Dialog {
     private LinearLayout layoutForNoticeDetails;
     private LinearLayout layoutForPastPaperDetails;
 
-    protected ResDetailsDialog(Context context) {
+    public ResDetailsDialog(Context context) {
         super(context);
         this.setCanceledOnTouchOutside(true);
         layoutForNoticeDetails = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_notice_details, null);

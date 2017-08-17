@@ -9,7 +9,7 @@ import android.view.View;
 public abstract class MyDialog extends Dialog {
     protected View container;
 
-    public MyDialog(Context context) {
+    protected MyDialog(Context context) {
         super(context);
     }
 

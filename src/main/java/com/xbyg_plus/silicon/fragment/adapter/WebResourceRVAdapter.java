@@ -8,7 +8,6 @@ import android.support.v7.widget.RecyclerView;
 import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.fragment.adapter.item.SelectableItemView;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebResourcesInfoLoader;
@@ -20,7 +19,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 
-public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements DialogManager.DialogHolder {
+public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     protected Activity activity;
 
     protected ItemSelector<SelectableItemView, Info> selector;
@@ -30,8 +29,10 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
     protected ConfirmDialog downloadConfirmDialog;
 
     protected WebResourceRVAdapter(Activity activity) {
-        DialogManager.registerDialogHolder(this);
         this.activity = activity;
+
+        this.downloadConfirmDialog = new ConfirmDialog(activity);
+
         this.selector = new ItemSelector<>(activity, R.menu.web_res_operation);
         this.selector.setActionItemClickListener(itemID -> {
             if (itemID == R.id.action_download) {
@@ -77,11 +78,6 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
                                 .setAction("SEE", v -> ((MainActivity) activity).showDownloadsFragment())
                             .show()
                 );
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        this.downloadConfirmDialog = dialogManager.obtain(ConfirmDialog.class);
     }
 
     @Override

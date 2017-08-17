@@ -1,5 +1,7 @@
 package com.xbyg_plus.silicon.fragment.adapter.infoloader;
 
+import android.content.Context;
+
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.fragment.adapter.NoticeRVAdapter;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
@@ -29,8 +31,12 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
      * So that for reducing the use of bandwidth,
      * we resolve the address of notice when the user click the notice item or the notice is being downloaded.
      *
-     * @see NoticeRVAdapter#showDownloadConfirm()
+     * @see NoticeRVAdapter#startDownload()
      */
+    public WebNoticesInfoLoader(Context context) {
+        super(context);
+    }
+
     public static class RequestParams extends RequestParameters {
         public int page, effective;
     }
@@ -39,8 +45,7 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
     public Single<List<WebNoticeInfo>> request(RequestParameters parameters) {
         RequestParams params = (RequestParams) parameters;
 
-        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php"));
-        loadingDialog.show();
+        loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php")).show();
 
         HashMap<String, String> postData = new HashMap<>();
         postData.put("page_action", "load_index_notice");
@@ -56,14 +61,14 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
                     }
 
                     return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(request(parameters));
-                }).doOnError(throwable -> loadingDialog.dismiss(loadingDialog.getContext().getString(R.string.io_exception)));
+                }).doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
     }
 
     @Override
     protected List<WebNoticeInfo> parseResponse(RequestParameters params, String htmlString) {
-        loadingDialog.setTitleAndMessage("", loadingDialog.getContext().getString(R.string.parsing_info));
-
         if (!htmlString.contains("errormessage.php3")) {
+            loadingDialog.setMessage(R.string.parsing_info);
+
             List<WebNoticeInfo> webNoticesInfo = new ArrayList<>();
 
             Document doc = Jsoup.parse("<table><tbody>" + htmlString + "</tbody></table>"); //the HTML responded only include <tr> and <td>......
@@ -98,8 +103,7 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
             return Completable.complete();
         }
 
-        loadingDialog.setTitleAndMessage("Network", "resolving download address of '" + noticeInfo.getName() + "'");
-        loadingDialog.show();
+        loadingDialog.setMessage("resolving download address of '" + noticeInfo.getName() + "'").show();
 
         return OKHTTPClient.get("http://58.177.253.171/it-school//php/m_parent_notice/view_notice.php?pnid=" + noticeInfo.getId())
                 .observeOn(Schedulers.computation())
@@ -111,6 +115,7 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
                     }
 
                     return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(resolveDownloadAddress(noticeInfo));
-                });
+                })
+                .doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
     }
 }

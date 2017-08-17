@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
 import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebNoticesInfoLoader;
@@ -27,15 +26,14 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
      * This field is used to count the address being resolved.
      * For more details {@see WebNoticesInfoLoader}
      *
-     * @see #showDownloadConfirm()
+     * @see #startDownload()
      */
-    private int noticeAddressCount = 0;
-
     private ResDetailsDialog resDetailsDialog;
 
     public NoticeRVAdapter(final Activity activity) {
         super(activity);
-        this.infoLoader = new WebNoticesInfoLoader();
+        this.resDetailsDialog = new ResDetailsDialog(activity);
+        this.infoLoader = new WebNoticesInfoLoader(activity);
         this.resourcesList = CachesDatabase.getNoticeList();
         if (this.resourcesList.size() == 0) {
             loadMoreNotices();
@@ -111,11 +109,5 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
         return Observable.fromIterable(selector.getSelectedItems().values())
                 .flatMapCompletable(infoLoader::resolveDownloadAddress)
                 .andThen(super.startDownload());
-    }
-
-    @Override
-    public void onDialogsCreated(DialogManager dialogManager) {
-        super.onDialogsCreated(dialogManager);
-        this.resDetailsDialog = dialogManager.obtain(ResDetailsDialog.class);
     }
 }

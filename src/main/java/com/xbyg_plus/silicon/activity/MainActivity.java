@@ -16,7 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.DialogManager;
+import com.xbyg_plus.silicon.dialog.LoadingDialog;
 import com.xbyg_plus.silicon.fragment.adapter.WebResourceRVAdapter;
 import com.xbyg_plus.silicon.fragment.MTVFragment;
 import com.xbyg_plus.silicon.fragment.NoticeFragment;
@@ -75,12 +75,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        DialogManager.provideContext(this);
 
         SchoolAccountHelper accountHelper = SchoolAccountHelper.getInstance();
-        if (accountHelper.isGuestMode()) {
+        if (accountHelper.isGuestMode() && accountHelper.isAutoLogin()) {
+            LoadingDialog loadingDialog = new LoadingDialog(this);
+            loadingDialog.setMessage(R.string.signing_in).show();
+
             accountHelper.tryAutoLogin()
-                    .subscribe(() -> {}, throwable -> {});
+                    .subscribe(loadingDialog::dismiss, throwable -> loadingDialog.dismiss(throwable.getMessage()));
         } else {
             this.verifyPermission();
         }
