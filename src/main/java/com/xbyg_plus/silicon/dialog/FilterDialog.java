@@ -2,7 +2,6 @@ package com.xbyg_plus.silicon.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -13,7 +12,6 @@ import com.xbyg_plus.silicon.fragment.adapter.VideoRVAdapter.RequestFilter;
 import java.util.ArrayList;
 
 public class FilterDialog extends Dialog {
-    private RequestFilter requestFilter;
     private Runnable optionsSelectedAction;
 
     private ArrayList<String> categoryPostValueList;
@@ -28,45 +26,29 @@ public class FilterDialog extends Dialog {
     private Spinner sortSpinner;
     private Spinner timeSpinner;
 
-    public FilterDialog(Context context) {
+    public FilterDialog(Context context, RequestFilter requestFilter) {
         super(context);
-    }
-
-    public FilterDialog setRequestFilter(RequestFilter requestFilter) {
-        this.requestFilter = requestFilter;
+        setContentView(R.layout.dialog_filter);
 
         this.categoryPostValueList = requestFilter.categoryMap.getKeyList();
         this.categoryNameList = requestFilter.categoryMap.getValueList();
+
         this.sortPostValueList = requestFilter.sortMap.getKeyList();
         this.sortNameList = requestFilter.sortMap.getValueList();
+
         this.timePostValueList = requestFilter.timeMap.getKeyList();
         this.timeNameList = requestFilter.timeMap.getValueList();
-        return this;
-    }
-
-    public FilterDialog setOptionsSelectedAction(Runnable action) {
-        this.optionsSelectedAction = action;
-        return this;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_filter);
 
         categorySpinner = (Spinner) findViewById(R.id.category_spinner);
-        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, categoryNameList);
-        categorySpinner.setAdapter(categoryAdapter);
+        categorySpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, categoryNameList));
         categorySpinner.setSelection(categoryPostValueList.indexOf(requestFilter.category));
 
         sortSpinner = (Spinner) findViewById(R.id.sort_spinner);
-        ArrayAdapter<String> sortAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, sortNameList);
-        sortSpinner.setAdapter(sortAdapter);
+        sortSpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, sortNameList));
         sortSpinner.setSelection(sortPostValueList.indexOf(requestFilter.sort));
 
         timeSpinner = (Spinner) findViewById(R.id.time_spinner);
-        ArrayAdapter<String> timeAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timeNameList);
-        timeSpinner.setAdapter(timeAdapter);
+        timeSpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timeNameList));
         timeSpinner.setSelection(timePostValueList.indexOf(requestFilter.time));
 
         doneBtn = (Button) findViewById(R.id.done);
@@ -79,5 +61,10 @@ public class FilterDialog extends Dialog {
                 optionsSelectedAction.run();
             }
         });
+    }
+
+    public FilterDialog setOptionsSelectedAction(Runnable action) {
+        this.optionsSelectedAction = action;
+        return this;
     }
 }

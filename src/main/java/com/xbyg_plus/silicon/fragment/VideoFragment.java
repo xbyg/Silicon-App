@@ -41,15 +41,11 @@ public class VideoFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        this.filterDialog = new FilterDialog(getContext());
 
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         adapter = new VideoRVAdapter(getActivity(), (MTVFragment) getParentFragment());
         recyclerView.setAdapter(adapter);
-
-        filterBtn.setOnClickListener(v -> filterDialog.setRequestFilter(adapter.getRequestFilter()).show());
-
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -59,8 +55,12 @@ public class VideoFragment extends Fragment {
                 }
             }
         });
+
         DividerItemDecoration itemDecoration = new DividerItemDecoration(recyclerView.getContext(), layoutManager.getOrientation());
         recyclerView.addItemDecoration(itemDecoration);
+
+        filterDialog = new FilterDialog(getContext(), adapter.getRequestFilter()).setOptionsSelectedAction(() -> ptrFrame.autoRefresh(true));
+        filterBtn.setOnClickListener(v -> filterDialog.show());
 
         ptrFrame.setPtrHandler(new PtrDefaultHandler() {
             @Override
