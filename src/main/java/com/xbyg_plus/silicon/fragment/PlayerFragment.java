@@ -7,9 +7,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.widget.VideoPlayer;
@@ -35,6 +37,24 @@ public class PlayerFragment extends Fragment{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+
+        videoPlayer.setVideoPlayerListener(new VideoPlayer.VideoPlayerListener() {
+            @Override
+            public void onEnterFullscreenMode() {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                activity.getSupportActionBar().hide();
+                activity.getNavigation().setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onExitFullscreenMode() {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                activity.getSupportActionBar().show();
+                activity.getNavigation().setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     public void prepare(WebVideoInfo videoInfo) {

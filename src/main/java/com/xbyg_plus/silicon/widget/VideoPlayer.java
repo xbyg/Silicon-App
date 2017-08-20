@@ -1,17 +1,18 @@
 package com.xbyg_plus.silicon.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -19,12 +20,10 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,8 +39,6 @@ public class VideoPlayer extends RelativeLayout{
 
     private static final int UPDATE_PROGRESS = 1;
 
-    private MainActivity activity = (MainActivity) getContext();
-
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private WebVideoInfo videoInfo;
 
@@ -49,31 +46,23 @@ public class VideoPlayer extends RelativeLayout{
     //always check whether has started updating the progress before sending UPDATE_PROGRESS, it avoids updating the progress with multiple times in one period
     private boolean isUpdatingProgress = false;
 
-    private ProgressHandler progressHandler;
-    private static class ProgressHandler extends Handler{
-        private WeakReference<VideoPlayer> videoPlayerWeakReference;
-
-        public ProgressHandler(VideoPlayer videoPlayer) {
-            videoPlayerWeakReference = new WeakReference<>(videoPlayer);
-        }
-
+    private Handler progressHandler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            VideoPlayer videoPlayer = videoPlayerWeakReference.get();
-            if (videoPlayer != null) {
-                switch (msg.what) {
-                    case UPDATE_PROGRESS:
-                        int ms = videoPlayer.getMediaPlayer().getCurrentPosition();
-                        videoPlayer.getProgressBar().setProgress(ms);
-                        int second = ms/1000, hh = second/3600, mm = second%3600/60, ss = second%60;
-                        videoPlayer.getProgressText().setText(hh == 0 ? String.format("%02d:%02d", mm, ss) : String.format("%02d:%02d:%02d", hh, mm, ss));
-                        this.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
-                        break;
-                }
+            switch (msg.what) {
+                case UPDATE_PROGRESS:
+                    int ms = mediaPlayer.getCurrentPosition();
+                    progressBar.setProgress(ms);
+                    int second = ms/1000, hh = second/3600, mm = second%3600/60, ss = second%60;
+                    progressText.setText(hh == 0 ? String.format("%02d:%02d", mm, ss) : String.format("%02d:%02d:%02d", hh, mm, ss));
+                    this.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
+                    break;
             }
         }
     };
+
+    private VideoPlayerListener listener;
 
     public VideoPlayer(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -86,7 +75,6 @@ public class VideoPlayer extends RelativeLayout{
 
         inflate(getContext(), R.layout.widget_video_player, this);
         ButterKnife.bind(this);
-        progressHandler =  new ProgressHandler(this);
 
         playBtn.setOnClickListener(v -> {
             if (!mediaPlayer.isPlaying()) {
@@ -122,9 +110,7 @@ public class VideoPlayer extends RelativeLayout{
             }
         });
 
-        fullscreenView.setOnClickListener(v -> {
-            setFullscreenMode(!isFullscreenMode);
-        });
+        fullscreenView.setOnClickListener(v -> setFullscreenMode(!isFullscreenMode));
     }
 
     @Override
@@ -160,14 +146,21 @@ public class VideoPlayer extends RelativeLayout{
         return true;
     }
 
+    public interface VideoPlayerListener {
+        void onEnterFullscreenMode();
+        void onExitFullscreenMode();
+    }
+
+    public void setVideoPlayerListener(VideoPlayerListener listener) {
+        this.listener = listener;
+    }
+
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             isFullscreenMode = true;
-            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            activity.getSupportActionBar().hide();
-            activity.getNavigation().setVisibility(View.GONE);
+            listener.onEnterFullscreenMode();
             ViewGroup.LayoutParams lp = this.getLayoutParams();
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
             lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -175,9 +168,7 @@ public class VideoPlayer extends RelativeLayout{
             resizeSurfaceSize();
         } else {
             isFullscreenMode = false;
-            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            activity.getSupportActionBar().show();
-            activity.getNavigation().setVisibility(View.VISIBLE);
+            listener.onExitFullscreenMode();
             ViewGroup.LayoutParams lp = this.getLayoutParams();
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -253,43 +244,11 @@ public class VideoPlayer extends RelativeLayout{
 
     public void setFullscreenMode(boolean enable) {
         if (enable) {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             fullscreenView.setImageResource(R.drawable.full_screen_off);
         } else {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             fullscreenView.setImageResource(R.drawable.full_screen_on);
         }
-    }
-
-    public MediaPlayer getMediaPlayer() {
-        return mediaPlayer;
-    }
-
-    public SurfaceView getVideoSurface() {
-        return videoSurface;
-    }
-
-    public RelativeLayout getControllerLayout() {
-        return controllerLayout;
-    }
-
-    public ImageView getPlayBtn() {
-        return playBtn;
-    }
-
-    public TextView getProgressText() {
-        return progressText;
-    }
-
-    public SeekBar getProgressBar() {
-        return progressBar;
-    }
-
-    public TextView getDurationView() {
-        return durationView;
-    }
-
-    public ImageView getFullscreenView() {
-        return fullscreenView;
     }
 }

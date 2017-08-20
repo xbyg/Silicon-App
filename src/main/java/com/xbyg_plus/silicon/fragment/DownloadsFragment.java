@@ -41,7 +41,19 @@ public class DownloadsFragment extends Fragment implements DownloadManager.Downl
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        this.deleteFilesConfirmDialog = new ConfirmDialog(getActivity());
+        this.deleteFilesConfirmDialog = new ConfirmDialog(getActivity()).setOnConfirmConsumer(confirm -> {
+            if (confirm) {
+                for (Map.Entry<DownloadedItemView, File> entry : selector.getSelectedItems().entrySet()) {
+                    File file = entry.getValue();
+                    DownloadsDatabase.removeDownloadPath(file.getName());
+                    file.delete();
+                    downloadsLayout.removeView(entry.getKey());
+                }
+                DownloadsDatabase.save();
+                new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
+            }
+            selector.finish();
+        });
 
         this.selector = new ItemSelector<>(getActivity(), R.menu.file_delete);
         this.selector.setActionItemClickListener(itemID -> {
@@ -51,20 +63,7 @@ public class DownloadsFragment extends Fragment implements DownloadManager.Downl
                     nameList += file.getName() + "\n";
                 }
 
-                deleteFilesConfirmDialog.setContent(getString(R.string.delete_files_confirm), nameList)
-                        .setOnConfirmConsumer(confirm -> {
-                            if (confirm) {
-                                for (Map.Entry<DownloadedItemView, File> entry : selector.getSelectedItems().entrySet()) {
-                                    File file = entry.getValue();
-                                    DownloadsDatabase.removeDownloadPath(file.getName());
-                                    file.delete();
-                                    downloadsLayout.removeView(entry.getKey());
-                                }
-                                DownloadsDatabase.save();
-                                new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
-                            }
-                            selector.finish();
-                        }).show();
+                deleteFilesConfirmDialog.setContent(getString(R.string.delete_files_confirm), nameList).show();
             }
         });
     }
