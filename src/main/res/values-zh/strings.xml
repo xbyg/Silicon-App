@@ -64,7 +64,7 @@
     <string name="filter_category_gospel_week">福音周</string>
     <string name="filter_category_book_sharing">圖書分享</string>
     <string name="filter_category_sport_day">陸運會</string>
-    <string name="no_more_context">沒有更多內容了!</string>
+    <string name="no_more_contents">沒有更多內容了!</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
     <string name="filter_category">類別:</string>
@@ -75,4 +75,6 @@
     <string name="login_mtv_data_wrong">身份證號碼錯誤</string>
     <string name="signing_in">登入中...</string>
     <string name="sign_in">登入</string>
+    <string name="preparing_video">加載影片中...</string>
+    <string name="no_video_is_playing">還沒有播放任何視頻!</string>
 </resources>

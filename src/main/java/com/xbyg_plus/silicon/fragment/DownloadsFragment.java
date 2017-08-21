@@ -50,6 +50,9 @@ public class DownloadsFragment extends Fragment implements DownloadManager.Downl
                     downloadsLayout.removeView(entry.getKey());
                 }
                 DownloadsDatabase.save();
+                if (downloadsLayout.getChildCount() == 1) {
+                    addEmptyItem(downloadsLayout);
+                }
                 new AlertDialog.Builder(getContext()).setTitle(getString(R.string.done)).setMessage(getString(R.string.file_deleted)).create().show();
             }
             selector.finish();

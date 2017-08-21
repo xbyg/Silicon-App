@@ -6,7 +6,8 @@ public class WebVideoInfo extends WebResourceInfo {
     public String videoAddress;
     public int likes;
     public String imgAddress;
-    public String duration;
+    public String formattedDuration;
+    public int duration;
     public int views;
     public String time;
     public String description;

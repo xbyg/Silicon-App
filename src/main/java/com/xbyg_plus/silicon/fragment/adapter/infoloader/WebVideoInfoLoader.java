@@ -59,7 +59,21 @@ public class WebVideoInfoLoader extends WebResourcesInfoLoader<WebVideoInfo> {
                 videoInfo.title = a.attr("title");
                 videoInfo.detailsAddress = a.attr("href");
 
-                videoInfo.duration = a.getElementsByClass("duration").first().text();
+                String formattedDuration = a.getElementsByClass("duration").first().text();
+                videoInfo.formattedDuration = formattedDuration;
+
+                String[] tokens = formattedDuration.split(":");
+                int hours = 0, min, sec;
+                if (tokens.length == 2) {
+                    min = Integer.parseInt(tokens[0]);
+                    sec = Integer.parseInt(tokens[1]);
+                } else {
+                    hours = Integer.parseInt(tokens[0]);
+                    min = Integer.parseInt(tokens[1]);
+                    sec = Integer.parseInt(tokens[2]);
+                }
+                videoInfo.duration = (3600 * hours + 60 * min + sec) * 1000;
+
                 videoInfo.imgAddress = a.getElementsByClass("img").first().attr("src");
 
                 videoInfo.views = Integer.parseInt(div.getElementsByClass("font1").first().text().replaceAll("\\D+", ""));

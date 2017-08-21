@@ -20,6 +20,7 @@ import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Completable;
 
 public class PlayerFragment extends Fragment{
     @BindView(R.id.video_player) VideoPlayer videoPlayer;
@@ -57,11 +58,11 @@ public class PlayerFragment extends Fragment{
         });
     }
 
-    public void prepare(WebVideoInfo videoInfo) {
+    public Completable prepare(WebVideoInfo videoInfo) {
         titleView.setText(videoInfo.title);
         viewsView.setText(getString(R.string.video_views, videoInfo.views));
         descriptionView.setText(videoInfo.description);
-        videoPlayer.prepare(videoInfo);
+        return videoPlayer.prepare(videoInfo);
     }
 
 

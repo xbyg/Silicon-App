@@ -13,13 +13,13 @@
         android:layout_alignBottom="@+id/video_surface"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/_8sdp">
+        android:padding="@dimen/_10sdp">
 
         <ImageView
             android:id="@+id/play_btn"
             android:src="@drawable/pause"
-            android:layout_width="@dimen/_15sdp"
-            android:layout_height="@dimen/_15sdp" />
+            android:layout_width="@dimen/_16sdp"
+            android:layout_height="@dimen/_16sdp" />
 
         <TextView
             android:id="@+id/progress_text"
@@ -60,8 +60,8 @@
                 android:layout_marginLeft="@dimen/_5sdp"
                 android:layout_toRightOf="@id/duration"
                 android:src="@drawable/full_screen_on"
-                android:layout_width="@dimen/_15sdp"
-                android:layout_height="@dimen/_15sdp" />
+                android:layout_width="@dimen/_16sdp"
+                android:layout_height="@dimen/_16sdp" />
         </RelativeLayout>
     </RelativeLayout>
 </merge>

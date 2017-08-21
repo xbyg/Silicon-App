@@ -23,10 +23,12 @@ import android.widget.TextView;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class VideoPlayer extends RelativeLayout{
     @BindView(R.id.video_surface) SurfaceView videoSurface;
@@ -40,7 +42,6 @@ public class VideoPlayer extends RelativeLayout{
     private static final int UPDATE_PROGRESS = 1;
 
     private MediaPlayer mediaPlayer = new MediaPlayer();
-    private WebVideoInfo videoInfo;
 
     private boolean isFullscreenMode = false;
     //always check whether has started updating the progress before sending UPDATE_PROGRESS, it avoids updating the progress with multiple times in one period
@@ -127,7 +128,9 @@ public class VideoPlayer extends RelativeLayout{
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                getParent().requestDisallowInterceptTouchEvent(true);
+                if (mediaPlayer.isPlaying()) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 getParent().requestDisallowInterceptTouchEvent(false);
@@ -177,30 +180,36 @@ public class VideoPlayer extends RelativeLayout{
         }
     }
 
-    public void prepare(WebVideoInfo videoInfo) {
-        this.setVisibility(INVISIBLE);
-        this.videoInfo = videoInfo;
+    public Completable prepare(WebVideoInfo videoInfo) {
+        //this.setVisibility(VISIBLE);
+        return Completable.mergeArray(prepareMediaPlayer(videoInfo), prepareViews(videoInfo))
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> {
+                    this.resizeSurfaceSize();
 
-        try {
+                    mediaPlayer.start();
+                });
+    }
+
+    public Completable prepareMediaPlayer(WebVideoInfo videoInfo) {
+        return Completable.create((CompletableEmitter e) -> {
             mediaPlayer.reset();
-
             mediaPlayer.setDataSource(videoInfo.videoAddress);
             mediaPlayer.setDisplay(videoSurface.getHolder());
             mediaPlayer.prepare();
             mediaPlayer.setWakeMode(getContext(), PowerManager.PARTIAL_WAKE_LOCK);
+            e.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
 
-            this.resizeSurfaceSize();
-
-            durationView.setText(videoInfo.duration);
+    public Completable prepareViews(WebVideoInfo videoInfo) {
+        return Completable.create((CompletableEmitter e) -> {
+            durationView.setText(videoInfo.formattedDuration);
             playBtn.setImageResource(R.drawable.pause);
-            progressBar.setMax(mediaPlayer.getDuration());
+            progressBar.setMax(videoInfo.duration);
             progressBar.setProgress(0);
-            this.setVisibility(VISIBLE);
-
-            mediaPlayer.start();
-        } catch (IOException e) {
-
-        }
+            e.onComplete();
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     private void resizeSurfaceSize() {

@@ -50,7 +50,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
         VideoItemView root = (VideoItemView) holder.itemView;
         root.getTitle().setText(videoInfo.title);
         root.getViews().setText(activity.getString(R.string.video_views, videoInfo.views));
-        root.getDuration().setText(videoInfo.duration);
+        root.getDuration().setText(videoInfo.formattedDuration);
         Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(root.getImage());
 
         root.setOnClickListener(v -> {
@@ -87,7 +87,7 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
                         updateView();
                     }, throwable -> {/* IO Exception*/});
         } else {
-            Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.no_more_context), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.no_more_contents), Snackbar.LENGTH_LONG).show();
         }
     }
 

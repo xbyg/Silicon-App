@@ -64,7 +64,7 @@
     <string name="filter_category_gospel_week">Gospel week</string>
     <string name="filter_category_book_sharing">Book sharing</string>
     <string name="filter_category_sport_day">Sport day</string>
-    <string name="no_more_context">No more context!</string>
+    <string name="no_more_contents">No more contents!</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="filter_category">Category:</string>
@@ -76,4 +76,6 @@
     <string name="login_mtv_data_wrong">HKID card number is wrong</string>
     <string name="signing_in">Signing in...</string>
     <string name="sign_in">Sign in</string>
+    <string name="preparing_video">Preaparing video...</string>
+    <string name="no_video_is_playing">No video is playing!</string>
 </resources>

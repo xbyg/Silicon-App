@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.dialog.LoadingDialog;
 import com.xbyg_plus.silicon.fragment.adapter.MTVPagerAdapter;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 
@@ -20,7 +21,7 @@ public class MTVFragment extends Fragment{
     private VideoFragment videoFragment = new VideoFragment();
     private PlayerFragment playerFragment = new PlayerFragment();
 
-    private MTVPagerAdapter pagerAdapter;
+    private LoadingDialog loadingDialog;
 
     @Nullable
     @Override
@@ -32,13 +33,9 @@ public class MTVFragment extends Fragment{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        loadingDialog = new LoadingDialog(getContext());
 
-        pagerAdapter = new MTVPagerAdapter(getChildFragmentManager(), this);
-        viewPager.setAdapter(pagerAdapter);
-    }
-
-    public ViewPager getViewPager() {
-        return viewPager;
+        viewPager.setAdapter(new MTVPagerAdapter(getChildFragmentManager(), this));
     }
 
     public VideoFragment getVideoFragment() {
@@ -50,7 +47,11 @@ public class MTVFragment extends Fragment{
     }
 
     public void playVideo(WebVideoInfo videoInfo) {
-        viewPager.setCurrentItem(1, true);
-        playerFragment.prepare(videoInfo);
+        loadingDialog.setMessage(R.string.preparing_video).show();
+
+        playerFragment.prepare(videoInfo).subscribe(() -> {
+            viewPager.setCurrentItem(1, true);
+            loadingDialog.dismiss();
+        });
     }
 }
