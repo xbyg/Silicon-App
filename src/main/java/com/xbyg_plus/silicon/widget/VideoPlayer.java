@@ -212,9 +212,9 @@ public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callbac
         return Completable.create((CompletableEmitter e) -> {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(videoInfo.videoAddress);
-            mediaPlayer.prepare();
             mediaPlayer.setWakeMode(getContext(), PowerManager.PARTIAL_WAKE_LOCK);
-            e.onComplete();
+            mediaPlayer.prepareAsync(); //some devices have to prepare asynchronously?
+            mediaPlayer.setOnPreparedListener(mp -> e.onComplete());
         }).subscribeOn(Schedulers.io());
     }
 
