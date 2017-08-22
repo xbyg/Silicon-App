@@ -12,6 +12,7 @@ import android.os.PowerManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -30,7 +31,7 @@ import io.reactivex.CompletableEmitter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class VideoPlayer extends RelativeLayout{
+public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callback{
     @BindView(R.id.video_surface) SurfaceView videoSurface;
     @BindView(R.id.controller_layout) RelativeLayout controllerLayout;
     @BindView(R.id.play_btn) ImageView playBtn;
@@ -76,6 +77,8 @@ public class VideoPlayer extends RelativeLayout{
 
         inflate(getContext(), R.layout.widget_video_player, this);
         ButterKnife.bind(this);
+        this.setVisibility(GONE);
+        videoSurface.getHolder().addCallback(this);
 
         playBtn.setOnClickListener(v -> {
             if (!mediaPlayer.isPlaying()) {
@@ -115,6 +118,23 @@ public class VideoPlayer extends RelativeLayout{
     }
 
     @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        this.play();
+        mediaPlayer.setDisplay(holder);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        this.pause();
+        mediaPlayer.setDisplay(null);
+    }
+
+    @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && isFullscreenMode) {
             //consume this event and exit full screen mode
@@ -128,9 +148,7 @@ public class VideoPlayer extends RelativeLayout{
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (mediaPlayer.isPlaying()) {
-                    getParent().requestDisallowInterceptTouchEvent(true);
-                }
+                getParent().requestDisallowInterceptTouchEvent(true);
                 break;
             case MotionEvent.ACTION_UP:
                 getParent().requestDisallowInterceptTouchEvent(false);
@@ -181,28 +199,26 @@ public class VideoPlayer extends RelativeLayout{
     }
 
     public Completable prepare(WebVideoInfo videoInfo) {
-        //this.setVisibility(VISIBLE);
+        this.setVisibility(VISIBLE);
         return Completable.mergeArray(prepareMediaPlayer(videoInfo), prepareViews(videoInfo))
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                     this.resizeSurfaceSize();
-
                     mediaPlayer.start();
                 });
     }
 
-    public Completable prepareMediaPlayer(WebVideoInfo videoInfo) {
+    private Completable prepareMediaPlayer(WebVideoInfo videoInfo) {
         return Completable.create((CompletableEmitter e) -> {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(videoInfo.videoAddress);
-            mediaPlayer.setDisplay(videoSurface.getHolder());
             mediaPlayer.prepare();
             mediaPlayer.setWakeMode(getContext(), PowerManager.PARTIAL_WAKE_LOCK);
             e.onComplete();
         }).subscribeOn(Schedulers.io());
     }
 
-    public Completable prepareViews(WebVideoInfo videoInfo) {
+    private Completable prepareViews(WebVideoInfo videoInfo) {
         return Completable.create((CompletableEmitter e) -> {
             durationView.setText(videoInfo.formattedDuration);
             playBtn.setImageResource(R.drawable.pause);
@@ -242,11 +258,13 @@ public class VideoPlayer extends RelativeLayout{
             mediaPlayer.pause();
             playBtn.setImageResource(R.drawable.play);
             progressHandler.removeMessages(UPDATE_PROGRESS);
+            isUpdatingProgress = false;
         }
     }
 
     public void release() {
         progressHandler.removeMessages(UPDATE_PROGRESS);
+        isUpdatingProgress = false;
         mediaPlayer.stop();
         mediaPlayer.release();
     }
