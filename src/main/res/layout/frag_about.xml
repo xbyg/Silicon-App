@@ -24,7 +24,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.6.6"
+                android:text="App: Silicon\nAuthor: xbyg\nVersion: 0.6.7"
                 android:textSize="20sp" />
         </LinearLayout>
 

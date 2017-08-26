@@ -34,10 +34,8 @@ public final class ViewIntent {
             ContentResolver cr = context.getContentResolver();
             mimeType = cr.getType(uri);
         } else {
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-                    .toString());
-            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                    fileExtension.toLowerCase());
+            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
         }
         return mimeType;
     }

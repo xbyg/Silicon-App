@@ -6,9 +6,7 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebNoticeInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebNoticesInfoLoader;
 import com.xbyg_plus.silicon.database.CachesDatabase;
@@ -16,7 +14,6 @@ import com.xbyg_plus.silicon.utils.ViewIntent;
 import com.xbyg_plus.silicon.fragment.adapter.item.NoticeItemView;
 
 import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoticesInfoLoader> {
     private int effective = 0; //0: show all,1: show effective
@@ -28,11 +25,8 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
      *
      * @see #startDownload()
      */
-    private ResDetailsDialog resDetailsDialog;
-
     public NoticeRVAdapter(final Activity activity) {
         super(activity);
-        this.resDetailsDialog = new ResDetailsDialog(activity);
         this.infoLoader = new WebNoticesInfoLoader(activity);
         this.resourcesList = CachesDatabase.getNoticeList();
         if (this.resourcesList.size() == 0) {
@@ -62,25 +56,9 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
             }
         });
 
-        item.getAction().setOnClickListener(v -> {
-            if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo)
-                        .subscribe(() -> ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf"),
-                                throwable -> Logger.d("1"));
-            } else {
-                ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf");
-            }
-        });
+        item.getAction().setOnClickListener(v -> infoLoader.resolveDownloadAddress(noticeInfo).subscribe(() -> ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf")));
 
-        item.setOnClickListener(v -> {
-            if (noticeInfo.getDownloadAddress() == null) {
-                infoLoader.resolveDownloadAddress(noticeInfo)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(() -> resDetailsDialog.setContent(noticeInfo).show());
-            } else {
-                resDetailsDialog.setContent(noticeInfo).show();
-            }
-        });
+        item.setOnClickListener(v -> infoLoader.resolveDownloadAddress(noticeInfo).subscribe(() -> ViewIntent.view(activity, Uri.parse(noticeInfo.getDownloadAddress()), "application/pdf")));
     }
 
     public int getPagesLoaded() {
@@ -95,7 +73,7 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<WebNoticeInfo, WebNoti
                 .subscribe(parsedList -> {
                     resourcesList.addAll(parsedList);
                     updateView();
-                }, throwable -> {/* IO Exception*/});
+                });
     }
 
     @Override

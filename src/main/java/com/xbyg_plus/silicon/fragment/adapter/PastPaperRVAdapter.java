@@ -1,23 +1,32 @@
 package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.dialog.ResDetailsDialog;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
-import com.xbyg_plus.silicon.model.WebPastPaperInfo;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebPastPaperInfoLoader;
 import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
+import com.xbyg_plus.silicon.utils.OKHTTPClient;
+import com.xbyg_plus.silicon.utils.ViewIntent;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.reactivex.schedulers.Schedulers;
 
 public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, WebPastPaperInfoLoader> {
     //key: absolute path of folder   value: corresponding folder
@@ -26,11 +35,8 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
     private Map<String, List<WebResourceInfo>> contentsIndex = new HashMap<>();
     private WebPastPaperFolderInfo currentFolder;
 
-    private ResDetailsDialog resDetailsDialog;
-
     public PastPaperRVAdapter(Activity activity) {
         super(activity);
-        this.resDetailsDialog = new ResDetailsDialog(activity);
         this.infoLoader = new WebPastPaperInfoLoader(activity);
         this.contentsIndex = CachesDatabase.getContentsIndex();
         loadFolder(WebPastPaperFolderInfo.rootFolder);
@@ -65,7 +71,17 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
                 }
             });
             item.getDescription().setText(resInfo.getSize() + "kb," + resInfo.getDate());
-            item.setOnClickListener(v -> resDetailsDialog.setContent((WebPastPaperInfo) resInfo).show());
+
+            item.setOnClickListener(v -> {
+                OKHTTPClient.stream(resInfo.getDownloadAddress())
+                        .observeOn(Schedulers.io())
+                        .subscribe(inStream -> {
+                            File tempFile = File.createTempFile("temp", "."+FilenameUtils.getExtension(resInfo.getName()), Environment.getExternalStorageDirectory());
+                            tempFile.deleteOnExit();
+                            IOUtils.copy(inStream, new FileOutputStream(tempFile));
+                            ViewIntent.view(activity, Uri.fromFile(tempFile));
+                        });
+            });
         }
     }
 
@@ -87,7 +103,7 @@ public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, We
                     .subscribe(parsedList -> {
                         contentsIndex.put(folder.getAbsolutePath(), parsedList);
                         applyFolderContents(folder, parsedList);
-                    }, throwable -> {/* IO Exception*/});
+                    });
         }
     }
 
