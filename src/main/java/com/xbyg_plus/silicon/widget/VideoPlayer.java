@@ -124,7 +124,6 @@ public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        this.play();
         mediaPlayer.setDisplay(holder);
     }
 

@@ -54,4 +54,12 @@ public class MTVFragment extends Fragment{
             loadingDialog.dismiss();
         });
     }
+
+    public boolean onBackPressed() {
+        if (viewPager.getCurrentItem() == 1) {
+            viewPager.setCurrentItem(0, true);
+            return false;
+        }
+        return true;
+    }
 }

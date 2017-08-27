@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         manager = getSupportFragmentManager();
 
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setItemIconTintList(null);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_videos);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mtvFragment.isVisible() || noticeFragment.isVisible() || userFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
+        if ((mtvFragment.isVisible() && mtvFragment.onBackPressed()) || noticeFragment.isVisible() || userFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
             moveTaskToBack(true);
         } else if (userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
             showFragment(userFragment);
