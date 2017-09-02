@@ -99,7 +99,7 @@ public final class SchoolAccountHelper {
                         .subscribe(htmlString -> {
                             Document doc = Jsoup.parse(htmlString);
                             String welcome_msg = doc.select("div.right_content h1").first().text();
-                            String name = getMatch(welcome_msg, "(?<=\\)\\ ).*(?=\\　)");
+                            String name = getMatch(welcome_msg, "(?<=\\) ).*(?=!)");
                             String classRoom = getMatch(welcome_msg, "(?<=\\()[1-6][A-F]");
                             int classNo = Integer.parseInt(getMatch(welcome_msg, "[0-9]{1,2}(?=\\))"));
 
