@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.xbyg_plus.silicon.fragment.MTVFragment;
 
-public class MTVPagerAdapter extends FragmentPagerAdapter{
+public class MTVPagerAdapter extends FragmentPagerAdapter {
     private MTVFragment mtvFragment;
 
     public MTVPagerAdapter(FragmentManager fragmentManager, MTVFragment mtvFragment) {

@@ -36,6 +36,7 @@
             android:hint="@string/new_pwd_confirm"
             android:textSize="20sp" />
     </RelativeLayout>
+
     <Button
         android:id="@+id/submit"
         android:layout_below="@+id/form"

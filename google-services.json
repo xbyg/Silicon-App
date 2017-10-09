@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "763478312093",
+    "firebase_url": "https://silicon-boardcast.firebaseio.com",
+    "project_id": "silicon-boardcast",
+    "storage_bucket": "silicon-boardcast.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763478312093:android:b6879379d4250407",
+        "android_client_info": {
+          "package_name": "com.xbyg_plus.silicon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763478312093-nv61m8dp9cq16subo0q9roeif8klv5vs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGXllk_Ii3ND41qyUSXETyGoEv7_LxBys"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

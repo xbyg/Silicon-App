@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.data.repository.PastPaperRepository;
 import com.xbyg_plus.silicon.fragment.adapter.PastPaperRVAdapter;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -41,7 +42,7 @@ public class PastPaperFragment extends Fragment {
         if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            adapter = new PastPaperRVAdapter(getActivity());
+            adapter = new PastPaperRVAdapter(getActivity(), PastPaperRepository.instance.get(true));
             recyclerView.setAdapter(adapter);
 
             ptrFrame.setPtrHandler(new PtrHandler() {
@@ -68,6 +69,12 @@ public class PastPaperFragment extends Fragment {
             guestText.setGravity(Gravity.CENTER);
             ((ViewGroup) ptrFrame.getContentView()).addView(guestText, params);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        PastPaperRepository.instance.save();
     }
 
     public boolean onBackPressed() {

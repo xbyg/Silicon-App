@@ -1,5 +1,6 @@
 package com.xbyg_plus.silicon.utils;
 
+import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
@@ -25,7 +26,7 @@ import io.reactivex.schedulers.Schedulers;
 public final class SchoolAccountHelper {
     private static SchoolAccountHelper instance;
 
-    private MyApplication context;
+    private Application context;
     private SharedPreferences preferences;
 
     private SchoolAccount schoolAccount;
@@ -33,19 +34,16 @@ public final class SchoolAccountHelper {
     private boolean isAutoLogin = false;
     private boolean isLoggedIn = false;
 
-    private SchoolAccountHelper(MyApplication context) {
+    private SchoolAccountHelper(Application context) {
         this.context = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.isAutoLogin = preferences.contains("id");
     }
 
-    public static void init(MyApplication context) {
-        if (instance == null) {
-            instance = new SchoolAccountHelper(context);
-        }
-    }
-
     public static SchoolAccountHelper getInstance() {
+        if (instance == null) {
+            instance = new SchoolAccountHelper(MyApplication.getContext());
+        }
         return instance;
     }
 
@@ -146,7 +144,7 @@ public final class SchoolAccountHelper {
         postData.put("confirmnewpassword", newPwd);
         return OKHTTPClient.post("http://58.177.253.171/it-school/php/chpwd/index.php3", postData)
                 .toCompletable()
-                .doOnComplete(() -> schoolAccount.setNewPassword(newPwd));
+                .doOnComplete(() -> schoolAccount.setPassword(newPwd));
     }
 
     /**
@@ -154,9 +152,9 @@ public final class SchoolAccountHelper {
      * 1. The login password for MTV is student's HKID card number which is not the same as the password for school internet,
      * it causes a lot of anonymous classes and callbacks (sign in button's click listener -> LoginCallback -> MTVLoginCallback......),
      * so we should make a clearer way to overcome this problem.
-     *
+     * <p>
      * 2. Server side requests us to enable javascript which we can't do it easily....
-     * */
+     */
     public Completable loginMTV(String HKid) {
         //loadingDialog.setMessage("", context.getString(R.string.requesting, "http://58.177.253.163/mtv/signup.php"));
         //loadingDialog.show();
@@ -171,7 +169,7 @@ public final class SchoolAccountHelper {
                     //<script type="text/javascript">window.location = "http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1"</script>Javascript is turned off, <a href='http://58.177.253.163/mtv/videos.php?cat=all&sort=view_all&time=all_time&page=1'>click here to go to requested page</a>
                     if (htmlString.contains("window.location = \"http://58.177.253.163/mtv/videos.php\"")) {
                         schoolAccount.setHKid(HKid);
-                       // loadingDialog.dismiss();
+                        // loadingDialog.dismiss();
                         return Completable.complete();
                     } else {
                         //loadingDialog.dismiss(context.getString(R.string.login_mtv_data_wrong));

@@ -78,4 +78,7 @@
     <string name="sign_in">Sign in</string>
     <string name="preparing_video">Preaparing video...</string>
     <string name="no_video_is_playing">No video is playing!</string>
+    <string name="download">Download</string>
+    <string name="delete">Delete</string>
+    <string name="notifications">Notifications</string>
 </resources>

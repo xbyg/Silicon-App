@@ -36,7 +36,7 @@ public class SchoolAccount {
         return this.password;
     }
 
-    public void setNewPassword(String newPassword) {
+    public void setPassword(String newPassword) {
         this.password = newPassword;
     }
 

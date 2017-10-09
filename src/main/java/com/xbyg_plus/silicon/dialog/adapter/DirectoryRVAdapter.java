@@ -1,13 +1,15 @@
 package com.xbyg_plus.silicon.dialog.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
+import com.xbyg_plus.silicon.utils.ItemSelector;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -16,7 +18,32 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class DirectoryRVAdapter extends RecyclerView.Adapter<ViewHolder> {
+public class DirectoryRVAdapter extends RecyclerView.Adapter<DirectoryRVAdapter.ViewHolder> {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements ItemSelector.SelectableItem {
+        public CheckBox checkBox;
+        public TextView title;
+        public TextView description;
+        public ImageView view;
+
+        public ViewHolder(View root) {
+            super(root);
+            checkBox = root.findViewById(R.id.checkbox);
+            title = root.findViewById(R.id.title);
+            description = root.findViewById(R.id.description);
+            view = root.findViewById(R.id.view);
+        }
+
+        @Override
+        public void onSelected() {
+            checkBox.setChecked(true);
+        }
+
+        @Override
+        public void onDeselected() {
+            checkBox.setChecked(false);
+        }
+    }
+
     private File currentDirectory;
 
     // All valid child directories under current directory
@@ -31,27 +58,24 @@ public class DirectoryRVAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        PastPaperItemView root = (PastPaperItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_past_paper, parent, false);
-        root.getIcon().setImageResource(R.drawable.folder);
-        return new RecyclerView.ViewHolder(root) {};
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         File dir = dirs.get(position);
-        PastPaperItemView itemView = (PastPaperItemView) holder.itemView;
 
-        itemView.setOnClickListener(v -> loadDir(dir));
+        holder.itemView.setOnClickListener(v -> loadDir(dir));
 
-        itemView.getCheckBox().setEnabled(selectedDir == null || selectedDir.equals(dir));
-        itemView.getCheckBox().setChecked(dir.equals(selectedDir)); //Without this,the checkbox disappears,bug?
-        itemView.getCheckBox().setOnClickListener(v -> {
+        holder.checkBox.setEnabled(selectedDir == null || selectedDir.equals(dir));
+        holder.checkBox.setChecked(dir.equals(selectedDir)); //Without this,the checkbox disappears,bug?
+        holder.checkBox.setOnClickListener(v -> {
             selectedDir = ((CheckBox) v).isChecked() ? dir : null;
             notifyDataSetChanged();//enable or disable other checkboxes
         });
 
-        itemView.getTitle().setText(dir.getName());
-        itemView.getDescription().setText(this.simpleDateFormat.format(new Date(dir.lastModified())));
+        holder.title.setText(dir.getName());
+        holder.description.setText(this.simpleDateFormat.format(new Date(dir.lastModified())));
     }
 
     public boolean loadDir(File directory) {

@@ -18,10 +18,10 @@ public class ConfirmDialog extends MyDialog {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_confirm, null, false));
 
-        titleView = (TextView) container.findViewById(R.id.title);
-        messageView = (TextView) container.findViewById(R.id.message);
-        okBtn = (Button) container.findViewById(R.id.ok);
-        cancelBtn = (Button) container.findViewById(R.id.cancel);
+        titleView = container.findViewById(R.id.title);
+        messageView = container.findViewById(R.id.message);
+        okBtn = container.findViewById(R.id.ok);
+        cancelBtn = container.findViewById(R.id.cancel);
     }
 
     public ConfirmDialog setOnConfirmConsumer(Consumer<Boolean> consumer) {

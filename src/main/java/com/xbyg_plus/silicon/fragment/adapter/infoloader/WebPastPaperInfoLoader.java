@@ -20,6 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.reactivex.Single;
+import io.reactivex.SingleTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceInfo> {
@@ -34,32 +36,28 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
 
     @Override
     public Single<List<WebResourceInfo>> request(RequestParameters parameters) {
-        loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php")).show();
-
         WebPastPaperFolderInfo folderInfo = ((RequestParams) parameters).folderInfo;
 
         if (folderInfo.getName().equals("root")) {
-            return OKHTTPClient.get("http://58.177.253.171/it-school//php/resdb/panel2content.php")
+            return OKHTTPClient.get("http://58.177.253.171/it-school//php/resdb/panel2content.php").compose(transformer(parameters));
+        }
+        return OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap()).compose(transformer(parameters));
+    }
+
+    private SingleTransformer<String, List<WebResourceInfo>> transformer(RequestParameters parameters) {
+        return upstream -> {
+            return upstream
+                    .doOnSubscribe(disposable -> loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/resdb/panel2content.php")).show())
+                    .subscribeOn(AndroidSchedulers.mainThread())
                     .observeOn(Schedulers.computation())
                     .flatMap(htmlString -> {
                         List<WebResourceInfo> parsedList = parseResponse(parameters, htmlString);
                         if (parsedList != null) {
                             return Single.just(parsedList);
                         }
-
                         return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(request(parameters));
                     }).doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
-        }
-        return OKHTTPClient.post("http://58.177.253.171/it-school//php/resdb/panel2content.php", folderInfo.getRequestDataMap())
-                .observeOn(Schedulers.computation())
-                .flatMap(htmlString -> {
-                    List<WebResourceInfo> parsedList = parseResponse(parameters, htmlString);
-                    if (parsedList != null) {
-                        return Single.just(parsedList);
-                    }
-
-                    return SchoolAccountHelper.getInstance().tryAutoLogin().andThen(request(parameters));
-                }).doOnError(throwable -> loadingDialog.dismiss(R.string.io_exception));
+        };
     }
 
     @Override
@@ -77,14 +75,14 @@ public class WebPastPaperInfoLoader extends WebResourcesInfoLoader<WebResourceIn
                     boolean isDir = a.attr("href").contains("openfolder");
 
                     if (!isDir) {
-                        Matcher downloadAddressMatcher = Pattern.compile("fileid=(.*?)\"").matcher(tr.select("span a").first().attr("href"));
+                        Matcher downloadAddressMatcher = Pattern.compile("fileid=(.*?)\"").matcher(tr.select("span a").first().attr("href")); // Some item's href attribute refers to a website link but not contain a "fileid"
                         if (downloadAddressMatcher.find()) {
-                            // Some item's href attribute refers to a website link but not contain a "fileid"
                             String downloadID = downloadAddressMatcher.group(1);
                             String downloadAddress = "http://58.177.253.171/it-school//php/resdb/download.php?fileid=" + downloadID;
 
                             String[] s = tr.select("td").get(3).select("font").text().split(" ");
                             float size = s[1].equals("MB") ? Float.parseFloat(s[0]) * 1000 : Float.parseFloat(s[0]);
+
                             webFilesInfo.add(new WebPastPaperInfo(name, size, date, downloadAddress));
                         }
                     } else {

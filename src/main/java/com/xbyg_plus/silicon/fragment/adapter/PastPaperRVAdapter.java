@@ -3,17 +3,19 @@ package com.xbyg_plus.silicon.fragment.adapter;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.WebPastPaperFolderInfo;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
-import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebPastPaperInfoLoader;
-import com.xbyg_plus.silicon.fragment.adapter.item.PastPaperItemView;
+import com.xbyg_plus.silicon.utils.ItemSelector;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.utils.ViewIntent;
 
@@ -26,57 +28,85 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
-public class PastPaperRVAdapter extends WebResourceRVAdapter<WebResourceInfo, WebPastPaperInfoLoader> {
+public class PastPaperRVAdapter extends WebResourceRVAdapter<PastPaperRVAdapter.ViewHolder, WebResourceInfo, WebPastPaperInfoLoader> {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements ItemSelector.SelectableItem {
+        CheckBox checkBox;
+        ImageView icon;
+        TextView title;
+        TextView description;
+        ImageView view;
+
+        ViewHolder(View root) {
+            super(root);
+            checkBox = root.findViewById(R.id.checkbox);
+            icon = root.findViewById(R.id.icon);
+            title = root.findViewById(R.id.title);
+            description = root.findViewById(R.id.description);
+            view = root.findViewById(R.id.view);
+        }
+
+        @Override
+        public void onSelected() {
+            checkBox.setChecked(true);
+        }
+
+        @Override
+        public void onDeselected() {
+            checkBox.setChecked(false);
+        }
+    }
+
     //key: absolute path of folder   value: corresponding folder
     private Map<String, WebPastPaperFolderInfo> folderIndex = new HashMap<>();
     //key: absolute path of folder   value: corresponding contents(child folder and files)
     private Map<String, List<WebResourceInfo>> contentsIndex = new HashMap<>();
     private WebPastPaperFolderInfo currentFolder;
 
-    public PastPaperRVAdapter(Activity activity) {
+    public PastPaperRVAdapter(Activity activity, Single<Map<String, List<WebResourceInfo>>> dataSource) {
         super(activity);
         this.infoLoader = new WebPastPaperInfoLoader(activity);
-        this.contentsIndex = CachesDatabase.getContentsIndex();
-        loadFolder(WebPastPaperFolderInfo.rootFolder);
+        dataSource.subscribe(contentsIndex -> {
+            this.contentsIndex = contentsIndex;
+            loadFolder(WebPastPaperFolderInfo.rootFolder);
+        });
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        PastPaperItemView v = (PastPaperItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_past_paper, parent, false);
-        return new ViewHolder(v) {};
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         WebResourceInfo resInfo = resourcesList.get(position);
-        PastPaperItemView item = (PastPaperItemView) holder.itemView;
 
-        item.getTitle().setText(resInfo.getName());
-        item.getCheckBox().setChecked(selector.containsValue(resInfo));
+        holder.title.setText(resInfo.getName());
+        holder.checkBox.setChecked(selector.containsValue(resInfo));
         if (resInfo instanceof WebPastPaperFolderInfo) {
-            item.getIcon().setImageResource(R.drawable.folder);
-            item.getCheckBox().setEnabled(false);
-            item.getDescription().setText(resInfo.getDate());
-            item.setOnClickListener(v -> loadFolder((WebPastPaperFolderInfo) resInfo));
+            holder.icon.setImageResource(R.drawable.folder);
+            holder.checkBox.setEnabled(false);
+            holder.description.setText(resInfo.getDate());
+            holder.itemView.setOnClickListener(v -> loadFolder((WebPastPaperFolderInfo) resInfo));
         } else {
-            item.getIcon().setImageResource(R.drawable.file);
-            item.getCheckBox().setEnabled(true);
-            item.getCheckBox().setOnClickListener(v -> {
+            holder.icon.setImageResource(R.drawable.file);
+            holder.checkBox.setEnabled(true);
+            holder.checkBox.setOnClickListener(v -> {
                 if (((CheckBox) v).isChecked()) {
-                    selector.select(item, resInfo);
+                    selector.select(holder, resInfo);
                 } else {
-                    selector.deselect(item);
+                    selector.deselect(holder);
                 }
             });
-            item.getDescription().setText(resInfo.getSize() + "kb," + resInfo.getDate());
+            holder.description.setText(resInfo.getSize() + "kb," + resInfo.getDate());
 
-            item.setOnClickListener(v -> {
+            holder.itemView.setOnClickListener(v -> {
                 OKHTTPClient.stream(resInfo.getDownloadAddress())
                         .observeOn(Schedulers.io())
                         .subscribe(inStream -> {
-                            File tempFile = File.createTempFile("temp", "."+FilenameUtils.getExtension(resInfo.getName()), Environment.getExternalStorageDirectory());
+                            File tempFile = File.createTempFile("temp", "." + FilenameUtils.getExtension(resInfo.getName()), Environment.getExternalStorageDirectory());
                             tempFile.deleteOnExit();
                             IOUtils.copy(inStream, new FileOutputStream(tempFile));
                             ViewIntent.view(activity, Uri.fromFile(tempFile));

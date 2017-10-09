@@ -14,24 +14,23 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.orhanobut.logger.Logger;
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.data.repository.DownloadRepository;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
+import com.xbyg_plus.silicon.fragment.view.DownloadedItemView;
+import com.xbyg_plus.silicon.fragment.view.DownloadingItemView;
 import com.xbyg_plus.silicon.task.DownloadTask;
-import com.xbyg_plus.silicon.database.DownloadsDatabase;
-import com.xbyg_plus.silicon.utils.DownloadManager;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 import com.xbyg_plus.silicon.utils.ViewIntent;
-import com.xbyg_plus.silicon.fragment.adapter.item.DownloadedItemView;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class DownloadsFragment extends Fragment implements DownloadManager.DownloadTaskListener {
+public class DownloadsFragment extends Fragment {
     @BindView(R.id.downloadingLayout) LinearLayout downloadingLayout;
     @BindView(R.id.downloadsLayout) LinearLayout downloadsLayout;
 
@@ -45,11 +44,10 @@ public class DownloadsFragment extends Fragment implements DownloadManager.Downl
             if (confirm) {
                 for (Map.Entry<DownloadedItemView, File> entry : selector.getSelectedItems().entrySet()) {
                     File file = entry.getValue();
-                    DownloadsDatabase.removeDownloadPath(file.getName());
                     file.delete();
+                    DownloadRepository.instance.deleteSingle(file).subscribe();
                     downloadsLayout.removeView(entry.getKey());
                 }
-                DownloadsDatabase.save();
                 if (downloadsLayout.getChildCount() == 1) {
                     addEmptyItem(downloadsLayout);
                 }
@@ -80,67 +78,78 @@ public class DownloadsFragment extends Fragment implements DownloadManager.Downl
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, null);
         ButterKnife.bind(this, view);
-        DownloadManager.setDownloadTaskListener(this);
 
-        List<DownloadTask> startedTasks = DownloadManager.getStartedTasks();
-        if (startedTasks.size() == 0) {
-            addEmptyItem(downloadingLayout);
-        } else {
-            for (DownloadTask task : startedTasks) {
-                this.downloadingLayout.addView(task.getAttachedView(), 1);
-            }
-        }
+        addEmptyItem(downloadsLayout);
+        addEmptyItem(downloadingLayout);
 
-        List<File> files = DownloadsDatabase.getDownloads();
-        if (files.size() == 0) {
-            addEmptyItem(downloadsLayout);
-        } else {
-            for (File file : files) {
-                addDownloadedItem(file);
-            }
-        }
+        DownloadRepository.instance.get(true)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(files -> {
+                    for (File file : files) {
+                        addDownloadedItem(file);
+                    }
+                });
+
+        this.observeDownloadTask();
     }
 
-    @Override
-    public void onDownloadStart(DownloadTask task) {
-        this.removeEmptyItem(downloadingLayout);
-        this.downloadingLayout.addView(task.getAttachedView(), 1);
-    }
+    private void observeDownloadTask() {
+        DownloadTask.pool.subscribe(task -> {
+            DownloadingItemView view = (DownloadingItemView) LayoutInflater.from(getContext()).inflate(R.layout.item_downloading, null, false);
 
-    @Override
-    public void onDownloadFinish(DownloadTask task, File file) {
-        this.removeEmptyItem(downloadsLayout);
-        this.addDownloadedItem(file);
+            task.getProgressObservable()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(progress -> view.progressText.setText(progress + "%"));
 
-        this.downloadingLayout.removeView(task.getAttachedView());
-        if (this.downloadingLayout.getChildCount() == 1) { //the first child is the title view
-            addEmptyItem(downloadingLayout);
-        }
-    }
+            task.getResultObservable()
+                    .doOnSubscribe(disposable -> {
+                        this.removeEmptyItem(downloadingLayout);
 
-    @Override
-    public void onDownloadError(Throwable throwable) {
-        Logger.d(throwable.getMessage());
+                        view.title.setText(task.getResInfo().getName());
+                        view.cancel.setOnClickListener(v -> {
+                            disposable.dispose();
+
+                            downloadingLayout.removeView(view);
+                            if (this.downloadingLayout.getChildCount() == 1) { //the first child is the title view
+                                addEmptyItem(downloadingLayout);
+                            }
+                        });
+                        this.downloadingLayout.addView(view, 1);
+                    })
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(file -> {
+                        this.addDownloadedItem(file);
+
+                        this.downloadingLayout.removeView(view);
+                        if (this.downloadingLayout.getChildCount() == 1) { //the first child is the title view
+                            addEmptyItem(downloadingLayout);
+                        }
+                    });
+        });
     }
 
     private void addDownloadedItem(File file) {
-        DownloadedItemView root = (DownloadedItemView) LayoutInflater.from(getContext()).inflate(R.layout.item_downloaded_file, null, false);
-        root.setTag(file);
+        this.removeEmptyItem(downloadsLayout);
+
+        DownloadedItemView view = new DownloadedItemView(getContext());
 
         //TODO: different icon for different file type
-        root.getTitle().setText(file.getName());
-        root.getDescription().setText(file.getParent());
-        root.getCheckBox().setOnClickListener(v -> {
+        view.icon.setImageResource(R.drawable.file);
+        view.title.setText(file.getName());
+        view.description.setText(file.getParent());
+        view.checkBox.setOnClickListener(v -> {
             //OnCheckedChangedListener conflicts with setChecked() function in onDestroyActionMode() function,since they operate the HashMap(selectedItems) at the same time
-            if (root.getCheckBox().isChecked()) {
-                selector.select(root, file);
+            if (view.checkBox.isChecked()) {
+                selector.select(view, file);
             } else {
-                selector.deselect(root);
+                selector.deselect(view);
             }
         });
-        root.setOnClickListener(v -> ViewIntent.view(getActivity(), Uri.fromFile(file)));
 
-        this.downloadsLayout.addView(root, 1);
+        view.setOnClickListener(v -> ViewIntent.view(getActivity(), Uri.fromFile(file)));
+
+        this.downloadsLayout.addView(view, 1);
     }
 
     private void addEmptyItem(LinearLayout root) {

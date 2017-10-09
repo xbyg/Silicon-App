@@ -21,10 +21,10 @@ public class ChangePasswordDialog extends MyDialog {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_change_pwd, null, false));
 
-        oldPwdView = (TextView) container.findViewById(R.id.old_pwd);
-        newPwdView = (EditText) container.findViewById(R.id.new_pwd);
-        newPwdConfirmView = (EditText) container.findViewById(R.id.new_pwd_confirm);
-        submit = (Button) container.findViewById(R.id.submit);
+        oldPwdView = container.findViewById(R.id.old_pwd);
+        newPwdView = container.findViewById(R.id.new_pwd);
+        newPwdConfirmView = container.findViewById(R.id.new_pwd_confirm);
+        submit = container.findViewById(R.id.submit);
     }
 
     public ChangePasswordDialog setContent() {

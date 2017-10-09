@@ -16,7 +16,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.database.CachesDatabase;
 import com.xbyg_plus.silicon.dialog.LoadingDialog;
 import com.xbyg_plus.silicon.fragment.adapter.WebResourceRVAdapter;
 import com.xbyg_plus.silicon.fragment.MTVFragment;
@@ -120,15 +119,9 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if ((mtvFragment.isVisible() && mtvFragment.onBackPressed()) || noticeFragment.isVisible() || userFragment.isVisible() || (pastPaperFragment.isVisible() && pastPaperFragment.onBackPressed())) {
             moveTaskToBack(true);
-        } else if (userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
+        } else if (userFragment.getNotificationFragment().isVisible() || userFragment.getDownloadsFragment().isVisible() || userFragment.getSettingsFragment().isVisible() || userFragment.getAboutFragment().isVisible()) {
             showFragment(userFragment);
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        CachesDatabase.save();
     }
 
     /**

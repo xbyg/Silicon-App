@@ -11,13 +11,13 @@ import java.util.HashMap;
  * This class is used to show an action mode when the user is selecting items and store the selected items
  */
 public final class ItemSelector<Item extends ItemSelector.SelectableItem, AttachedData> {
-    protected ActionMode mActionMode;
+    private ActionMode mActionMode;
     //Each item has an attached data object such as File, WebNoticeInfo, WebPastPaperInfo
-    protected HashMap<Item, AttachedData> selectedItems = new HashMap<>();
+    private HashMap<Item, AttachedData> selectedItems = new HashMap<>();
 
-    protected Activity activity;
-    protected int menuID;
-    protected ActionItemClickListener listener;
+    private Activity activity;
+    private int menuID;
+    private ActionItemClickListener listener;
 
     public interface SelectableItem {
         // give a signal to the view when it is being select or deselect

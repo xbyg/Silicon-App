@@ -1,54 +1,42 @@
 package com.xbyg_plus.silicon.task;
 
-import android.view.LayoutInflater;
-
-import com.xbyg_plus.silicon.MyApplication;
-import com.xbyg_plus.silicon.R;
-import com.xbyg_plus.silicon.database.DownloadsDatabase;
-import com.xbyg_plus.silicon.fragment.adapter.item.DownloadingItemView;
+import com.xbyg_plus.silicon.data.repository.DownloadRepository;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.ReplaySubject;
 
 public class DownloadTask extends ObservableTask<WebResourceInfo, File> {
-    private DownloadingItemView attachedView;
+    public static final ReplaySubject<DownloadTask> pool = ReplaySubject.create();
 
     private WebResourceInfo resInfo;
     private String savePath;
 
     public DownloadTask(String savePath) {
         this.savePath = savePath;
-        this.progressPublisher.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(currentProgress -> attachedView.getProgress().setText(currentProgress + "%"));
     }
 
     @Override
-    public Single<File> execute(WebResourceInfo resInfo) {
+    public void execute(WebResourceInfo resInfo) {
         this.resInfo = resInfo;
 
-        this.attachedView = (DownloadingItemView) LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.item_downloading_file, null, false);
-        this.attachedView.getTitle().setText(resInfo.getName());
-
-        return OKHTTPClient.stream(resInfo.getDownloadAddress())
+        OKHTTPClient.stream(resInfo.getDownloadAddress())
                 .observeOn(Schedulers.io())
                 .flatMap(this::convertToFile)
-                .doOnSuccess(file -> {
-                    DownloadsDatabase.addDownloadPath(resInfo.getName(), savePath);
-                    DownloadsDatabase.save();
-                });
+                .doOnSuccess(file -> DownloadRepository.instance.insertSingle(file).subscribe())
+                .subscribe(file -> this.resultObservable.onNext(file));
+        pool.onNext(this);
     }
 
-    private Single<File> convertToFile(InputStream inStream) throws IOException{
+    private Single<File> convertToFile(InputStream inStream) {
         return Single.create((SingleEmitter<File> e) -> {
             OutputStream out = new FileOutputStream(savePath + resInfo.getName());
 
@@ -60,7 +48,6 @@ public class DownloadTask extends ObservableTask<WebResourceInfo, File> {
             while ((count = inStream.read(data)) != -1) {
                 if (e.isDisposed()) {
                     inStream.close();
-                    e.onError(new RuntimeException("Stopped"));
                     return;
                 }
                 total += count;
@@ -75,7 +62,7 @@ public class DownloadTask extends ObservableTask<WebResourceInfo, File> {
         });
     }
 
-    public DownloadingItemView getAttachedView() {
-        return attachedView;
+    public WebResourceInfo getResInfo() {
+        return resInfo;
     }
 }

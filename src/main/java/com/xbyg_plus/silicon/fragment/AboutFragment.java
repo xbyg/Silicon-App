@@ -20,10 +20,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class AboutFragment extends Fragment {
-    private final static LinkedHashMap<Integer, String> iconMap = new LinkedHashMap<>();
-    private final static LinkedHashMap<String, String> libraryMap = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, String> iconMap = new LinkedHashMap<>();
+    private final LinkedHashMap<String, String> libraryMap = new LinkedHashMap<>();
 
-    static {
+    {
         iconMap.put(R.drawable.icon, "Freepik");
         iconMap.put(R.drawable.videos, "Vectors Market");
         iconMap.put(R.drawable.notice, "Vectors Market");
@@ -34,7 +34,6 @@ public class AboutFragment extends Fragment {
         iconMap.put(R.drawable.pause2, "Google");
         iconMap.put(R.drawable.full_screen_on2, "Google");
         iconMap.put(R.drawable.full_screen_off2, "Google");
-        iconMap.put(R.drawable.like, "Gregor Cresnar");
         iconMap.put(R.drawable.mail, "Madebyoliver");
         iconMap.put(R.drawable.view, "Cole Bemis");
         iconMap.put(R.drawable.folder, "Madebyoliver");
@@ -45,21 +44,27 @@ public class AboutFragment extends Fragment {
         iconMap.put(R.drawable.download2, "Madebyoliver");
         iconMap.put(R.drawable.delete2, "Freepik");
         iconMap.put(R.drawable.cancel, "Madebyoliver");
+        iconMap.put(R.drawable.cancel2, "Hadrien");
         iconMap.put(R.drawable.crying, "Freepik");
         iconMap.put(R.drawable.arrow, "Gregor Cresnar");
         iconMap.put(R.drawable.back, "Gregor Cresnar");
 
         libraryMap.put("okhttp(v3.8.0)", "square");
         libraryMap.put("picasso(v2.5.2)", "square");
+        libraryMap.put("firebase-messaging(v11.4.0)", "google");
+        libraryMap.put("crashlytics(v2.6.8)", "Fabric");
         libraryMap.put("jsoup(v1.10.2)", "jhy");
         libraryMap.put("sdp(v1.0.4)", "intuit");
         libraryMap.put("logger(v2.1.1)", "orhanobut");
-        libraryMap.put("gson(v2.8.1)", "google");
         libraryMap.put("android-Ultra-Pull-To-Refresh(v1.0.11)", "liaohuqiu");
         libraryMap.put("butterknife(v8.6.0)", "JakeWharton");
         libraryMap.put("RxJava(v2.1.2)", "ReactiveX");
         libraryMap.put("RxAndroid(v2.0.1)", "ReactiveX");
         libraryMap.put("RxBinding(v2.0.0)", "JakeWharton");
+        libraryMap.put("jackson-core(v2.9.1)", "FasterXML");
+        libraryMap.put("jackson-databind(v2.9.1)", "FasterXML");
+        libraryMap.put("jackson-annotations(v2.9.1)", "FasterXML");
+        libraryMap.put("eventbus(v3.0.0)", "greenrobot");
     }
 
     @BindView(R.id.iconList) LinearLayout iconsList;

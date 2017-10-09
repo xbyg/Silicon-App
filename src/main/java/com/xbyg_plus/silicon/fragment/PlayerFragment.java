@@ -22,7 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Completable;
 
-public class PlayerFragment extends Fragment{
+public class PlayerFragment extends Fragment {
     @BindView(R.id.video_player) VideoPlayer videoPlayer;
     @BindView(R.id.title) TextView titleView;
     @BindView(R.id.views) TextView viewsView;

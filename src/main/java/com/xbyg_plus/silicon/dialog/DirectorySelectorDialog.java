@@ -26,12 +26,12 @@ public class DirectorySelectorDialog extends MyDialog {
         super(context);
         setContentView(LayoutInflater.from(context).inflate(R.layout.dialog_dir_selector, null, false));
 
-        recyclerView = (RecyclerView) container.findViewById(R.id.dir_recycler_view);
+        recyclerView = container.findViewById(R.id.dir_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
 
-        selectBtn = (TextView) container.findViewById(R.id.select);
-        parentFileName = (TextView) container.findViewById(R.id.parentDirName);
+        selectBtn = container.findViewById(R.id.select);
+        parentFileName = container.findViewById(R.id.parentDirName);
 
         backActionView = container.findViewById(R.id.back);
         backActionView.setOnClickListener(v -> {

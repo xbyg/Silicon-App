@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:layout_height="wrap_content"
@@ -7,13 +7,13 @@
     android:padding="10dp">
 
     <ImageView
-        android:id="@+id/img"
+        android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true" />
 
     <RelativeLayout
-        android:layout_below="@+id/img"
+        android:layout_below="@+id/image"
         android:layout_marginTop="@dimen/_5sdp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             android:text="Title"
             android:textSize="18sp" />
+
         <TextView
             android:id="@+id/views"
             android:layout_below="@+id/title"
@@ -39,4 +40,4 @@
             android:layout_height="wrap_content"
             android:text="Duration" />
     </RelativeLayout>
-</com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView>
+</RelativeLayout>

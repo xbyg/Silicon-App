@@ -11,7 +11,6 @@ import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +20,7 @@ import java.util.regex.Pattern;
 
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> {
@@ -45,14 +45,14 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
     public Single<List<WebNoticeInfo>> request(RequestParameters parameters) {
         RequestParams params = (RequestParams) parameters;
 
-        loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php")).show();
-
         HashMap<String, String> postData = new HashMap<>();
         postData.put("page_action", "load_index_notice");
         postData.put("effective", String.valueOf(params.effective));
         postData.put("page", String.valueOf(params.page));
 
         return OKHTTPClient.post("http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php", postData)
+                .doOnSubscribe(disposable -> loadingDialog.setMessage(loadingDialog.getContext().getString(R.string.requesting, " http://58.177.253.171/it-school//php/m_parent_notice/notice_handler.php")).show())
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(Schedulers.computation())
                 .flatMap(htmlString -> {
                     List<WebNoticeInfo> parsedList = parseResponse(parameters, htmlString);
@@ -77,19 +77,14 @@ public class WebNoticesInfoLoader extends WebResourcesInfoLoader<WebNoticeInfo> 
             Pattern pattern = Pattern.compile("[0-9]+(?=\\))");
 
             for (Element tr : tbody.children()) {
-                Elements tds = tr.select("td");
-                Element a = tds.select("a").first();
-
-                String startDate = tds.get(3).text();
-                String effectiveDate = tds.get(4).text();
-                String uploader = tds.get(5).text();
+                Element a = tr.select("td").select("a").first();
 
                 Matcher matcher = pattern.matcher(a.attr("onclick"));
                 matcher.find();
                 String id = matcher.group(0);
 
                 String name = a.text().replaceAll("\\d+\\-\\-", "");
-                webNoticesInfo.add(new WebNoticeInfo(name, id, startDate, effectiveDate, uploader));
+                webNoticesInfo.add(new WebNoticeInfo(name, id, null));
             }
 
             loadingDialog.dismiss();

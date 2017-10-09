@@ -5,9 +5,12 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.xbyg_plus.silicon.R;
@@ -15,13 +18,25 @@ import com.xbyg_plus.silicon.fragment.MTVFragment;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebVideoInfoLoader;
 import com.xbyg_plus.silicon.model.WebVideoInfo;
 import com.xbyg_plus.silicon.utils.TwoWayMap;
-import com.xbyg_plus.silicon.fragment.adapter.item.VideoItemView;
-
-import java.util.ArrayList;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoInfoLoader> {
+public class VideoRVAdapter extends WebResourceRVAdapter<VideoRVAdapter.ViewHolder, WebVideoInfo, WebVideoInfoLoader> {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView image;
+        TextView title;
+        TextView views;
+        TextView duration;
+
+        ViewHolder(View root) {
+            super(root);
+            image = root.findViewById(R.id.image);
+            title = root.findViewById(R.id.title);
+            views = root.findViewById(R.id.views);
+            duration = root.findViewById(R.id.duration);
+        }
+    }
+
     private MTVFragment mtvFragment;
     private RequestFilter requestFilter;
 
@@ -32,28 +47,25 @@ public class VideoRVAdapter extends WebResourceRVAdapter<WebVideoInfo, WebVideoI
         super(activity);
         this.mtvFragment = mtvFragment;
         this.infoLoader = new WebVideoInfoLoader(activity);
-        this.resourcesList = new ArrayList();
         this.requestFilter = new RequestFilter(activity.getResources());
         loadMoreVideos();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        VideoItemView v = (VideoItemView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false);
-        return new ViewHolder(v) {};
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_video, parent, false));
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         WebVideoInfo videoInfo = this.resourcesList.get(position);
 
-        VideoItemView root = (VideoItemView) holder.itemView;
-        root.getTitle().setText(videoInfo.title);
-        root.getViews().setText(activity.getString(R.string.video_views, videoInfo.views));
-        root.getDuration().setText(videoInfo.formattedDuration);
-        Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(root.getImage());
+        holder.title.setText(videoInfo.title);
+        holder.views.setText(activity.getString(R.string.video_views, videoInfo.views));
+        holder.duration.setText(videoInfo.formattedDuration);
+        Picasso.with(activity).load(videoInfo.imgAddress).placeholder(imgPlaceHolder).into(holder.image);
 
-        root.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             infoLoader.resolveVideoDetails(videoInfo)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(() -> mtvFragment.playVideo(videoInfo));

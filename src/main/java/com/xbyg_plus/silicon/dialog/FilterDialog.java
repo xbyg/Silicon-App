@@ -39,19 +39,19 @@ public class FilterDialog extends Dialog {
         this.timePostValueList = requestFilter.timeMap.getKeyList();
         this.timeNameList = requestFilter.timeMap.getValueList();
 
-        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+        categorySpinner = findViewById(R.id.category_spinner);
         categorySpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, categoryNameList));
         categorySpinner.setSelection(categoryPostValueList.indexOf(requestFilter.category));
 
-        sortSpinner = (Spinner) findViewById(R.id.sort_spinner);
+        sortSpinner = findViewById(R.id.sort_spinner);
         sortSpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, sortNameList));
         sortSpinner.setSelection(sortPostValueList.indexOf(requestFilter.sort));
 
-        timeSpinner = (Spinner) findViewById(R.id.time_spinner);
+        timeSpinner = findViewById(R.id.time_spinner);
         timeSpinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, timeNameList));
         timeSpinner.setSelection(timePostValueList.indexOf(requestFilter.time));
 
-        doneBtn = (Button) findViewById(R.id.done);
+        doneBtn = findViewById(R.id.done);
         doneBtn.setOnClickListener(v -> {
             requestFilter.category = categoryPostValueList.get(categorySpinner.getSelectedItemPosition());
             requestFilter.sort = sortPostValueList.get(sortSpinner.getSelectedItemPosition());

@@ -2,16 +2,17 @@ package com.xbyg_plus.silicon.fragment.adapter;
 
 import android.app.Activity;
 
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 
 import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.dialog.ConfirmDialog;
-import com.xbyg_plus.silicon.fragment.adapter.item.SelectableItemView;
 import com.xbyg_plus.silicon.model.WebResourceInfo;
 import com.xbyg_plus.silicon.fragment.adapter.infoloader.WebResourcesInfoLoader;
-import com.xbyg_plus.silicon.utils.DownloadManager;
+import com.xbyg_plus.silicon.task.DownloadTask;
 import com.xbyg_plus.silicon.utils.ItemSelector;
 
 import java.util.ArrayList;
@@ -19,10 +20,10 @@ import java.util.List;
 
 import io.reactivex.Observable;
 
-public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public abstract class WebResourceRVAdapter<ViewHolder extends RecyclerView.ViewHolder, Info extends WebResourceInfo, InfoLoader extends WebResourcesInfoLoader<Info>> extends RecyclerView.Adapter<ViewHolder> {
     protected Activity activity;
 
-    protected ItemSelector<SelectableItemView, Info> selector;
+    protected ItemSelector<ItemSelector.SelectableItem, Info> selector;
     protected List<Info> resourcesList = new ArrayList<>();
     protected InfoLoader infoLoader;
 
@@ -71,12 +72,14 @@ public abstract class WebResourceRVAdapter<Info extends WebResourceInfo, InfoLoa
     }
 
     protected Observable<Info> startDownload() {
+        String savingPath = PreferenceManager.getDefaultSharedPreferences(activity).getString("savingPath", Environment.getExternalStorageDirectory().getAbsolutePath()) + "/";
+
         return Observable.fromIterable(new ArrayList<>(selector.getSelectedItems().values()))
-                .doOnNext(DownloadManager::download)
+                .doOnNext(info -> new DownloadTask(savingPath).execute(info)) // If using method reference here (new DownloadTask(savingPath)::execute) , the DownloadTask objects in DownloadTask.pool will be duplicated
                 .doOnComplete(() ->
                         Snackbar.make(activity.findViewById(android.R.id.content), activity.getString(R.string.download_task_is_executing), Snackbar.LENGTH_LONG)
                                 .setAction("SEE", v -> ((MainActivity) activity).showDownloadsFragment())
-                            .show()
+                                .show()
                 );
     }
 

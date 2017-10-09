@@ -2,12 +2,13 @@ package com.xbyg_plus.silicon;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
-import com.xbyg_plus.silicon.database.CachesDatabase;
-import com.xbyg_plus.silicon.database.DownloadsDatabase;
 import com.xbyg_plus.silicon.utils.OKHTTPClient;
-import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
+
+import io.fabric.sdk.android.Fabric;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
@@ -18,11 +19,9 @@ public class MyApplication extends Application {
         instance = this;
 
         Logger.addLogAdapter(new AndroidLogAdapter());
-        //initialize components with application context
-        CachesDatabase.init(this);
-        DownloadsDatabase.init(this);
         OKHTTPClient.init();
-        SchoolAccountHelper.init(this);
+        Fabric.with(this, new Crashlytics());
+        FirebaseMessaging.getInstance().subscribeToTopic("notification");
     }
 
     public static Application getContext() {

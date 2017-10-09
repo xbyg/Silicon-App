@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xbyg_plus.silicon.R;
+import com.xbyg_plus.silicon.data.repository.NoticeRepository;
 import com.xbyg_plus.silicon.fragment.adapter.NoticeRVAdapter;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
@@ -41,7 +42,7 @@ public class NoticeFragment extends Fragment {
         if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            adapter = new NoticeRVAdapter(getActivity());
+            adapter = new NoticeRVAdapter(getActivity(), NoticeRepository.instance.get(true));
             recyclerView.setAdapter(adapter);
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -76,5 +77,11 @@ public class NoticeFragment extends Fragment {
             guestText.setGravity(Gravity.CENTER);
             ((ViewGroup) ptrFrame.getContentView()).addView(guestText, params);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        NoticeRepository.instance.save();
     }
 }

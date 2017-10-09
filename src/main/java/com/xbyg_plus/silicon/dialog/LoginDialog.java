@@ -22,9 +22,9 @@ public class LoginDialog extends MyDialog {
         super(context);
         setContentView(R.layout.dialog_login);
 
-        stdID = (EditText) findViewById(R.id.stdID);
-        pwd = (EditText) findViewById(R.id.pwd);
-        loginBtn = (TextView) findViewById(R.id.loginBtn);
+        stdID = findViewById(R.id.stdID);
+        pwd = findViewById(R.id.pwd);
+        loginBtn = findViewById(R.id.loginBtn);
 
         loadingDialog = new LoadingDialog(context);
     }

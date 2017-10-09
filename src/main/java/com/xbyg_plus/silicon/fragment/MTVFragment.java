@@ -16,7 +16,7 @@ import com.xbyg_plus.silicon.model.WebVideoInfo;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MTVFragment extends Fragment{
+public class MTVFragment extends Fragment {
     @BindView(R.id.view_pager) ViewPager viewPager;
     private VideoFragment videoFragment = new VideoFragment();
     private PlayerFragment playerFragment = new PlayerFragment();

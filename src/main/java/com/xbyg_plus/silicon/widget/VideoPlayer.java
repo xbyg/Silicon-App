@@ -31,7 +31,7 @@ import io.reactivex.CompletableEmitter;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callback{
+public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callback {
     @BindView(R.id.video_surface) SurfaceView videoSurface;
     @BindView(R.id.controller_layout) RelativeLayout controllerLayout;
     @BindView(R.id.play_btn) ImageView playBtn;
@@ -56,7 +56,7 @@ public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callbac
                 case UPDATE_PROGRESS:
                     int ms = mediaPlayer.getCurrentPosition();
                     progressBar.setProgress(ms);
-                    int second = ms/1000, hh = second/3600, mm = second%3600/60, ss = second%60;
+                    int second = ms / 1000, hh = second / 3600, mm = second % 3600 / 60, ss = second % 60;
                     progressText.setText(hh == 0 ? String.format("%02d:%02d", mm, ss) : String.format("%02d:%02d:%02d", hh, mm, ss));
                     this.sendEmptyMessageDelayed(UPDATE_PROGRESS, 500);
                     break;
@@ -91,7 +91,7 @@ public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callbac
         progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int second = progress/1000, hh = second/3600, mm = second%3600/60, ss = second%60;
+                int second = progress / 1000, hh = second / 3600, mm = second % 3600 / 60, ss = second % 60;
                 progressText.setText(hh == 0 ? String.format("%02d:%02d", mm, ss) : String.format("%02d:%02d:%02d", hh, mm, ss));
             }
 
@@ -168,6 +168,7 @@ public class VideoPlayer extends RelativeLayout implements SurfaceHolder.Callbac
 
     public interface VideoPlayerListener {
         void onEnterFullscreenMode();
+
         void onExitFullscreenMode();
     }
 

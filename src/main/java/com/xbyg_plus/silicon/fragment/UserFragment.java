@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 public class UserFragment extends Fragment {
+    private NotificationFragment notificationFragment = new NotificationFragment();
     private DownloadsFragment downloadsFragment = new DownloadsFragment();
     private SettingsFragment settingsFragment = new SettingsFragment();
     private AboutFragment aboutFragment = new AboutFragment();
@@ -34,12 +35,14 @@ public class UserFragment extends Fragment {
     private Unbinder unbinder;
 
     @BindView(R.id.name) TextView name;
-    @BindView(R.id.download_cardview) CardView downloads;
-    @BindView(R.id.settings_cardview) CardView settings;
-    @BindView(R.id.about_cardview) CardView about;
     @BindView(R.id.edit) ImageView edit;
     @BindView(R.id.logout) ImageView logout;
     @BindView(R.id.login) TextView login;
+
+    @BindView(R.id.notification_cardview) CardView notifications;
+    @BindView(R.id.download_cardview) CardView downloads;
+    @BindView(R.id.settings_cardview) CardView settings;
+    @BindView(R.id.about_cardview) CardView about;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -93,6 +96,8 @@ public class UserFragment extends Fragment {
             loginDialog.setLoginAction(this::restartActivity);
         }
 
+        notifications.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(notificationFragment));
+
         downloads.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(downloadsFragment));
 
         settings.setOnClickListener(v -> ((MainActivity) getActivity()).showFragment(settingsFragment));
@@ -111,6 +116,10 @@ public class UserFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    public NotificationFragment getNotificationFragment() {
+        return notificationFragment;
     }
 
     public DownloadsFragment getDownloadsFragment() {
