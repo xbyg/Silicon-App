@@ -29,7 +29,7 @@ public class NoticeRepository extends ORMRepository<List<WebNoticeInfo>, WebNoti
     @Override
     protected void writeAll(List<WebNoticeInfo> noticeInfoList) throws IOException {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        for (WebNoticeInfo noticeInfo : caches) {
+        for (WebNoticeInfo noticeInfo : noticeInfoList) {
             editor.putString(noticeInfo.getName(), entryFactory.serialize(noticeInfo, mapper));
         }
         editor.apply();

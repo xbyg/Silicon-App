@@ -76,8 +76,10 @@ public abstract class BaseDataRepository<EntrySet, Entry> implements DataReposit
     @Override
     public final void save() {
         Completable.create(e -> {
-            sharedPreferences.edit().clear().apply();
-            writeAll(this.caches);
+            if (this.caches != null) {
+                sharedPreferences.edit().clear().apply();
+                writeAll(this.caches);
+            }
             e.onComplete();
         }).subscribeOn(Schedulers.io()).subscribe();
     }
