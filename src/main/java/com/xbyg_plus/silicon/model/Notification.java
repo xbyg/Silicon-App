@@ -5,7 +5,7 @@ public class Notification {
 
     private String message;
 
-    private long date;
+    private Long date;
 
     public Notification(String title, String message, long date) {
         this.title = title;
@@ -21,7 +21,7 @@ public class Notification {
         return message;
     }
 
-    public long getDate() {
+    public Long getDate() {
         return date;
     }
 }

@@ -37,7 +37,7 @@ public class NotificationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        adapter = new NotificationRVAdapter(NotificationRepository.instance.get(false));
+        adapter = new NotificationRVAdapter(NotificationRepository.instance.getData(false));
         layoutManager = new LinearLayoutManager(getContext());
 
         recyclerView.setLayoutManager(layoutManager);

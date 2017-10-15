@@ -42,7 +42,7 @@ public class PastPaperFragment extends Fragment {
         if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            adapter = new PastPaperRVAdapter(getActivity(), PastPaperRepository.instance.get(true));
+            adapter = new PastPaperRVAdapter(getActivity(), PastPaperRepository.instance.getData(true));
             recyclerView.setAdapter(adapter);
 
             ptrFrame.setPtrHandler(new PtrHandler() {
@@ -74,7 +74,7 @@ public class PastPaperFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        PastPaperRepository.instance.save();
+        PastPaperRepository.instance.applyData().subscribe();
     }
 
     public boolean onBackPressed() {

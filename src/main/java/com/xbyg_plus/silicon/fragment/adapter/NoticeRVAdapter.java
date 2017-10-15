@@ -58,8 +58,9 @@ public class NoticeRVAdapter extends WebResourceRVAdapter<NoticeRVAdapter.ViewHo
         this.infoLoader = new WebNoticesInfoLoader(activity);
         dataSource.subscribe(notices -> {
             this.resourcesList = notices;
-            updateView();
-            if (this.resourcesList.size() == 0) {
+            if (this.resourcesList.size() != 0) {
+                updateView();
+            } else {
                 loadMoreNotices();
             }
         });

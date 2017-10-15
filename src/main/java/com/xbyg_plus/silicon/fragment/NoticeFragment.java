@@ -42,7 +42,7 @@ public class NoticeFragment extends Fragment {
         if (!SchoolAccountHelper.getInstance().isGuestMode()) {
             layoutManager = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(layoutManager);
-            adapter = new NoticeRVAdapter(getActivity(), NoticeRepository.instance.get(true));
+            adapter = new NoticeRVAdapter(getActivity(), NoticeRepository.instance.getData(true));
             recyclerView.setAdapter(adapter);
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
@@ -82,6 +82,6 @@ public class NoticeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        NoticeRepository.instance.save();
+        NoticeRepository.instance.applyData().subscribe();
     }
 }

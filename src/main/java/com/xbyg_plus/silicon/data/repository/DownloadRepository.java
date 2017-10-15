@@ -2,13 +2,18 @@ package com.xbyg_plus.silicon.data.repository;
 
 import android.content.SharedPreferences;
 
+import com.xbyg_plus.silicon.data.DataModifier;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DownloadRepository extends BaseDataRepository<List<File>, File> {
+import io.reactivex.Completable;
+import io.reactivex.schedulers.Schedulers;
+
+public class DownloadRepository extends BaseDataRepository<List<File>> implements DataModifier<List<File>, File> {
     public static final String STORE_NAME = "downloads";
     public static final DownloadRepository instance = new DownloadRepository();
 
@@ -29,29 +34,47 @@ public class DownloadRepository extends BaseDataRepository<List<File>, File> {
     }
 
     @Override
-    protected void writeAll(List<File> files) throws IOException {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        for (File file : files) {
-            editor.putString(file.getName(), file.getPath());
-        }
-        editor.apply();
+    public Completable applyData() {
+        return Completable.create(e -> {
+            sharedPreferences.edit().clear().apply();
+            e.onComplete();
+        }).andThen(insertAll(caches));
     }
 
     @Override
-    protected void writeSingle(File file) throws IOException {
-        get(false).subscribe(files -> { //caches maybe null if DownloadFragment is not initialized
+    public Completable insertAll(List<File> files) {
+        return Completable.create(e -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            for (File file : files) {
+                editor.putString(file.getName(), file.getPath());
+            }
+            editor.apply();
+            e.onComplete();
+        }).subscribeOn(Schedulers.io());
+    }
+
+    @Override
+    public Completable insertSingle(File file) {
+        return getData(false).flatMapCompletable(files -> { //caches maybe null if DownloadFragment is not initialized
             caches = files;
             caches.add(file);
             sharedPreferences.edit().putString(file.getName(), file.getPath()).apply();
+            return Completable.complete();
         });
     }
 
     @Override
-    protected void wipeSingle(File file) throws IOException {
-        get(false).subscribe(files -> { //caches maybe null if DownloadFragment is not initialized
+    public Completable deleteSingle(File file) {
+        return getData(false).flatMapCompletable(files -> { //caches maybe null if DownloadFragment is not initialized
             caches = files;
             caches.remove(file);
             sharedPreferences.edit().remove(file.getName()).apply();
+            return Completable.complete();
         });
+    }
+
+    @Override
+    public void deleteAll() {
+        sharedPreferences.edit().clear().apply();
     }
 }

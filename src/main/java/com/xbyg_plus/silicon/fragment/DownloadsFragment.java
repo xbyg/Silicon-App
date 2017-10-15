@@ -82,7 +82,7 @@ public class DownloadsFragment extends Fragment {
         addEmptyItem(downloadsLayout);
         addEmptyItem(downloadingLayout);
 
-        DownloadRepository.instance.get(true)
+        DownloadRepository.instance.getData(true)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(files -> {
                     for (File file : files) {

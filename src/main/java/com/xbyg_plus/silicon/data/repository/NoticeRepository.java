@@ -7,7 +7,11 @@ import com.xbyg_plus.silicon.model.WebNoticeInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import io.reactivex.Completable;
 
 public class NoticeRepository extends ORMRepository<List<WebNoticeInfo>, WebNoticeInfo, NoticeInfoFactory> {
     public static final String STORE_NAME = "notice";
@@ -19,37 +23,27 @@ public class NoticeRepository extends ORMRepository<List<WebNoticeInfo>, WebNoti
 
     @Override
     protected List<WebNoticeInfo> fetchData() throws IOException {
-        List<WebNoticeInfo> list = new ArrayList<>();
-        for (Object o : sharedPreferences.getAll().values()) {
-            list.add(entryFactory.deserialize(o.toString(), mapper));
+        Map<String, ?> map = sharedPreferences.getAll();
+        int size = map.size();
+
+        WebNoticeInfo[] noticesInfo = new WebNoticeInfo[size];
+        for (Integer i = 0; i < size; i++) {
+            noticesInfo[i] = entryFactory.deserialize(map.get(i.toString()).toString(), mapper);
         }
-        return list;
+        return new ArrayList<>(Arrays.asList(noticesInfo));
     }
 
     @Override
-    protected void writeAll(List<WebNoticeInfo> noticeInfoList) throws IOException {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        for (WebNoticeInfo noticeInfo : noticeInfoList) {
-            editor.putString(noticeInfo.getName(), entryFactory.serialize(noticeInfo, mapper));
-        }
-        editor.apply();
-    }
+    public Completable applyData() {
+        return Completable.create(e -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
 
-    @Override
-    protected void writeSingle(WebNoticeInfo noticeInfo) throws IOException {
-        get(false).subscribe(noticeInfoList -> {
-            caches = noticeInfoList;
-            caches.add(noticeInfo);
-            sharedPreferences.edit().putString(noticeInfo.getName(), entryFactory.serialize(noticeInfo, mapper)).apply();
-        });
-    }
-
-    @Override
-    protected void wipeSingle(WebNoticeInfo noticeInfo) throws IOException {
-        get(false).subscribe(noticeInfoList -> {
-            caches = noticeInfoList;
-            caches.add(noticeInfo);
-            sharedPreferences.edit().remove(noticeInfo.getName()).apply();
+            for (Integer i = 0; i < caches.size(); i++) {
+                editor.putString(i.toString(), entryFactory.serialize(caches.get(i), mapper));
+            }
+            editor.apply();
+            e.onComplete();
         });
     }
 }
