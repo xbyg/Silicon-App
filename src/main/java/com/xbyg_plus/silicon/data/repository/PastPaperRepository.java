@@ -33,13 +33,15 @@ public class PastPaperRepository extends ORMRepository<Map<String, List<WebResou
     @Override
     public Completable applyData() {
         return Completable.create(e -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.clear();
+            if (caches != null) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
 
-            for (Map.Entry<String, List<WebResourceInfo>> entry : caches.entrySet()) {
-                editor.putString(entry.getKey(), entryFactory.serialize(entry, mapper));
+                for (Map.Entry<String, List<WebResourceInfo>> entry : caches.entrySet()) {
+                    editor.putString(entry.getKey(), entryFactory.serialize(entry, mapper));
+                }
+                editor.apply();
             }
-            editor.apply();
             e.onComplete();
         });
     }

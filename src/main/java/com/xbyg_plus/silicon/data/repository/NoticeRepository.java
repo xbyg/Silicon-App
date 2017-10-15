@@ -36,13 +36,15 @@ public class NoticeRepository extends ORMRepository<List<WebNoticeInfo>, WebNoti
     @Override
     public Completable applyData() {
         return Completable.create(e -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.clear();
+            if (caches != null) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
 
-            for (Integer i = 0; i < caches.size(); i++) {
-                editor.putString(i.toString(), entryFactory.serialize(caches.get(i), mapper));
+                for (Integer i = 0; i < caches.size(); i++) {
+                    editor.putString(i.toString(), entryFactory.serialize(caches.get(i), mapper));
+                }
+                editor.apply();
             }
-            editor.apply();
             e.onComplete();
         });
     }
