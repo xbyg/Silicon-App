@@ -1,6 +1,7 @@
 package com.xbyg_plus.silicon.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.xbyg_plus.silicon.fragment.NoticeFragment;
 import com.xbyg_plus.silicon.fragment.PastPaperFragment;
 
 import com.xbyg_plus.silicon.fragment.UserFragment;
+import com.xbyg_plus.silicon.service.NotificationService;
 import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -93,6 +95,17 @@ public class MainActivity extends AppCompatActivity {
         navigation.setItemIconTintList(null);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigation.setSelectedItemId(R.id.navigation_videos);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent i = getIntent();
+        if (i != null && NotificationService.ACTION_VIEW_NOTIFICATION.equals(i.getAction())) {
+            navigation.getMenu().getItem(3).setChecked(true);
+            showFragment(userFragment.getNotificationFragment());
+        }
     }
 
     public BottomNavigationView getNavigation() {

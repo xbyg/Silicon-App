@@ -34,7 +34,7 @@ public class NotificationRVAdapter extends RecyclerView.Adapter<NotificationRVAd
     }
 
     private List<Notification> notificationList;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm MM/dd/yyyy");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy");
 
     public NotificationRVAdapter(Single<List<Notification>> dataSource) {
         dataSource.observeOn(AndroidSchedulers.mainThread())
