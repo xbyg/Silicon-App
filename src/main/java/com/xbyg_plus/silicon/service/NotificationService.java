@@ -14,6 +14,8 @@ import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.activity.MainActivity;
 import com.xbyg_plus.silicon.data.repository.NotificationRepository;
 import com.xbyg_plus.silicon.model.Notification;
+import com.xbyg_plus.silicon.model.SchoolAccount;
+import com.xbyg_plus.silicon.utils.SchoolAccountHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -24,13 +26,21 @@ public class NotificationService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Map<String, String> data = remoteMessage.getData();
-
-        Notification notification = new Notification(data.get("title"), data.get("msg"), Long.parseLong(data.get("date")));
+        Notification notification = handleMessage(remoteMessage);
         NotificationRepository.instance.insertSingle(notification)
                 .subscribe(() -> EventBus.getDefault().post(new NotificationReceivedEvent(notification)));
 
         notifyStatusBar(notification);
+    }
+
+    private Notification handleMessage(RemoteMessage remoteMessage) {
+        Map<String, String> data = remoteMessage.getData();
+
+        SchoolAccount account = SchoolAccountHelper.getInstance().getSchoolAccount();
+        String title = data.get("title").replace("[name]", account.getName()).replace("[class]", account.getClassRoom()).replace("[no]", String.valueOf(account.getClassNo())).replace("[sid]", account.getId());
+        String msg = data.get("msg").replace("[name]", account.getName()).replace("[class]", account.getClassRoom()).replace("[no]", String.valueOf(account.getClassNo())).replace("[sid]", account.getId());
+
+        return new Notification(title, msg, Long.parseLong(data.get("date")));
     }
 
     private void notifyStatusBar(Notification notification) {

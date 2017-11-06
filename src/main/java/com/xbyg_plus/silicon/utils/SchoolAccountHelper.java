@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.xbyg_plus.silicon.MyApplication;
 import com.xbyg_plus.silicon.R;
 import com.xbyg_plus.silicon.model.SchoolAccount;
@@ -107,6 +108,7 @@ public final class SchoolAccountHelper {
                             isAutoLogin = true;
                             preferences.edit().putString("id", id).putString("pwd", pwd).apply();
 
+                            FirebaseMessaging.getInstance().subscribeToTopic("notification");
                             e.onComplete();
                         }, throwable -> e.onError(new IOException(context.getString(R.string.login_io_exception))))
         );
@@ -125,6 +127,7 @@ public final class SchoolAccountHelper {
             isLoggedIn = false;
             isAutoLogin = false;
             preferences.edit().remove("id").remove("pwd").apply();
+            FirebaseMessaging.getInstance().unsubscribeFromTopic("notification");
             OKHTTPClient.get("http://58.177.253.171/it-school/php/buttons/itschool.php3")
                     .subscribe(htmlString -> {}, throwable -> {});
         }
